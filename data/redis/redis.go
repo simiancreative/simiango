@@ -9,11 +9,16 @@ import (
 	r "github.com/go-redis/redis/v8"
 )
 
+type RedisClient interface {
+	Get(context.Context, string) *r.StringCmd
+	Set(context.Context, string, interface{}, time.Duration) *r.StatusCmd
+}
+
 var Client client
 
 type client struct {
 	ctx context.Context
-	c   *r.Client
+	c   RedisClient
 }
 
 func (c *client) Set(key string, value interface{}, exp time.Duration) error {

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -36,14 +35,10 @@ func ToContentResponse(
 	}
 
 	pages := meta.Total / meta.Size
-	fmt.Println(pages)
 
-	var total_pages float64
+	total_pages := float64(pages)
 	if pages <= 0 {
 		total_pages = math.Ceil(total_pages)
-	}
-	if pages < meta.Total {
-		total_pages = 1
 	}
 
 	last := false

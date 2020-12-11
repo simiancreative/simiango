@@ -1,14 +1,15 @@
 package service
 
 type ResultError struct {
-	Status  int
-	Message string
-	Field   string
-	Reasons []map[string]interface{} `json:"details"`
+	Status     int
+	ErrMessage string
+	Message    string
+	Field      string
+	Reasons    []map[string]interface{} `json:"details"`
 }
 
 func (m *ResultError) Error() string {
-	return m.Message
+	return m.ErrMessage
 }
 func (m *ResultError) GetMessage() string {
 	return m.Message
@@ -30,8 +31,9 @@ func ToResultError(err error, message string, status int) *ResultError {
 	}
 
 	return &ResultError{
-		Status:  status,
-		Message: message,
-		Reasons: reasons,
+		ErrMessage: err.Error(),
+		Status:     status,
+		Message:    message,
+		Reasons:    reasons,
 	}
 }

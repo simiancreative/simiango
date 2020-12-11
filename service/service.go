@@ -33,6 +33,6 @@ func (ps RawParams) Get(name string) (interface{}, bool) {
 	return "", false
 }
 
-func Unmarshal(data []byte, destination interface{}) error {
+func ParseBody(data []byte, destination interface{}) error {
 	return json.Unmarshal(data, destination)
 }

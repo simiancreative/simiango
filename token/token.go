@@ -9,7 +9,7 @@ import (
 	"github.com/simiancreative/simiango/context"
 )
 
-func Test(token string) error {
+func Parse(token string) (*jwt.Token, error) {
 	t, err := jwt.Parse(
 		token,
 		func(token *jwt.Token) (interface{}, error) {
@@ -18,7 +18,17 @@ func Test(token string) error {
 	)
 
 	if err != nil {
-		return errors.New("token_invalid")
+		return nil, errors.New("parse_token_failed")
+	}
+
+	return t, nil
+}
+
+func Test(token string) error {
+	t, err := Parse(token)
+
+	if err != nil {
+		return err
 	}
 
 	if !t.Valid {

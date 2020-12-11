@@ -14,7 +14,7 @@ func Build(
 ) {
 	// setup body
 	resource := &SampleResource{}
-	service.Unmarshal(rawBody, resource)
+	service.ParseBody(rawBody, resource)
 
 	// setup context
 	decendants, _ := rawParams.Get("decendantsOf")
