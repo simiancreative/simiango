@@ -44,6 +44,12 @@ func InitService(config service.Config) {
 
 func handleService(config service.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		logger.Debug("Server: handling route", logger.Fields{
+			"method": config.Method,
+			"path":   config.Path,
+			"url":    c.Request.URL,
+		})
+
 		parsedBody := rawBody(c.Request.Body)
 		parsedParams := parseParams(c.Params, c.Request.URL)
 
@@ -63,6 +69,7 @@ func handleService(config service.Config) gin.HandlerFunc {
 
 		resultErr, ok := err.(*service.ResultError)
 		if !ok {
+			logger.Error("Service Failed", logger.Fields{"err": err})
 			resultErr = service.ToResultError(err, "service failed", 500)
 			c.JSON(resultErr.GetStatus(), resultErr.GetDetails())
 			return
