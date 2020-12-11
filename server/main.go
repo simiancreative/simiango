@@ -12,9 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mandrigin/gin-spa/spa"
 
-	"simian/context"
-	"simian/logger"
-	"simian/service"
+	"github.com/simiancreative/simiango/context"
+	"github.com/simiancreative/simiango/logger"
+	"github.com/simiancreative/simiango/service"
 )
 
 var router *gin.Engine

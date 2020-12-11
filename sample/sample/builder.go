@@ -1,8 +1,8 @@
 package sample
 
 import (
-	"simian/context"
-	"simian/service"
+	"github.com/simiancreative/simiango/context"
+	"github.com/simiancreative/simiango/service"
 )
 
 func Build(

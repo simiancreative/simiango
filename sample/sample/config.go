@@ -1,7 +1,7 @@
 package sample
 
 import (
-	"simian/service"
+	"github.com/simiancreative/simiango/service"
 )
 
 var Config = service.Config{

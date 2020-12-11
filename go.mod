@@ -1,4 +1,4 @@
-module simian
+module github.com/simiancreative/simiango
 
 go 1.14
 

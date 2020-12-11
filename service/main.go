@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 
-	"simian/context"
+	"github.com/simiancreative/simiango/context"
 )
 
 type TPL interface {

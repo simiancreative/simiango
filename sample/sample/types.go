@@ -1,7 +1,7 @@
 package sample
 
 import (
-	"simian/context"
+	"github.com/simiancreative/simiango/context"
 )
 
 type SampleResource struct {
