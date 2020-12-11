@@ -34,7 +34,7 @@ func AddServices(addedservices []service.Config) {
 }
 
 func InitService(config service.Config) {
-	logger.Debug("TrustHab Server: adding route", logger.Fields{
+	logger.Debug("Server: adding route", logger.Fields{
 		"method": config.Method,
 		"path":   config.Path,
 	})
@@ -105,7 +105,7 @@ func SetSPA(url string, dir string) {
 		panic(fmt.Sprintf("spa dir does not exist: %v", dir))
 	}
 
-	logger.Debug("TrustHab Server: adding spa route", logger.Fields{
+	logger.Debug("Server: adding spa route", logger.Fields{
 		"path": url,
 		"dir":  dir,
 	})
