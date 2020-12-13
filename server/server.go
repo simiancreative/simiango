@@ -12,8 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mandrigin/gin-spa/spa"
 
-	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/logger"
+	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/service"
 )
 
@@ -91,8 +91,8 @@ func parseParams(params gin.Params, url *url.URL) service.RawParams {
 
 	for k, v := range url.Query() {
 		parsedParams = append(parsedParams, service.RawParam{
-			Key:   k,
-			Value: v,
+			Key:    k,
+			Values: v,
 		})
 	}
 

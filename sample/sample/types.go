@@ -4,17 +4,17 @@ import (
 	"github.com/simiancreative/simiango/meta"
 )
 
-type SampleResource struct {
+type sampleResource struct {
 	Wibble string `json:"wibble"`
 }
 
-type SampleContext struct {
+type sampleContext struct {
 	ID         string `json:"id"`
 	Decendants string `json:"decendantsOf"`
 }
 
 type sampleService struct {
 	id     meta.RequestId
-	body   SampleResource
-	params SampleContext
+	body   sampleResource
+	params sampleContext
 }

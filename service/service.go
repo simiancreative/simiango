@@ -20,17 +20,18 @@ type Collection []Config
 type RawBody []byte
 type RawParams []RawParam
 type RawParam struct {
-	Key   string
-	Value interface{}
+	Key    string
+	Value  string
+	Values []string
 }
 
-func (ps RawParams) Get(name string) (interface{}, bool) {
+func (ps RawParams) Get(name string) (*RawParam, bool) {
 	for _, entry := range ps {
 		if entry.Key == name {
-			return entry.Value, true
+			return &entry, true
 		}
 	}
-	return "", false
+	return nil, false
 }
 
 func ParseBody(data []byte, destination interface{}) error {

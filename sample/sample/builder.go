@@ -1,6 +1,8 @@
 package sample
 
 import (
+	"errors"
+
 	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/service"
 )
@@ -13,15 +15,19 @@ func Build(
 	service.TPL, error,
 ) {
 	// setup body
-	resource := &SampleResource{}
+	resource := &sampleResource{}
 	service.ParseBody(rawBody, resource)
 
 	// setup context
-	decendants, _ := rawParams.Get("decendantsOf")
+	decendants, ok := rawParams.Get("decendantsOf")
+	if !ok {
+		return nil, errors.New("decendants_filter_required")
+	}
+
 	id, _ := rawParams.Get("id")
-	params := SampleContext{
-		ID:         id.(string),
-		Decendants: decendants.([]string)[0],
+	params := sampleContext{
+		ID:         id.Value,
+		Decendants: decendants.Values[0],
 	}
 
 	// create service instance
