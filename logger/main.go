@@ -8,8 +8,10 @@ import (
 type Fields map[string]interface{}
 
 func init() {
-	logType := os.Getenv("LOG_TYPE")
+	logType, _ := os.LookupEnv("LOG_TYPE")
 	logLevel, logLevelExists := os.LookupEnv("LOG_LEVEL")
+
+	log.Info(logType)
 
 	if logType != "line" {
 		log.SetFormatter(&log.JSONFormatter{})

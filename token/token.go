@@ -61,6 +61,10 @@ func Gen(params Claims, expMinutes time.Duration) string {
 }
 
 func getKey() []byte {
-	key := os.Getenv("TOKEN_SECRET")
+	key, ok := os.LookupEnv("TOKEN_SECRET")
+	if !ok {
+		panic(errors.New("token_signing_key_not_configured"))
+	}
+
 	return []byte(key)
 }
