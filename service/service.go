@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 
-	"github.com/simiancreative/simiango/context"
+	"github.com/simiancreative/simiango/meta"
 )
 
 type TPL interface {
@@ -13,7 +13,7 @@ type TPL interface {
 type Config struct {
 	Path   string
 	Method string
-	Build  func(context.RequestId, RawBody, RawParams) (TPL, error)
+	Build  func(meta.RequestId, RawBody, RawParams) (TPL, error)
 }
 type Collection []Config
 

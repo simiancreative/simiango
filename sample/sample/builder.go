@@ -1,12 +1,12 @@
 package sample
 
 import (
-	"github.com/simiancreative/simiango/context"
+	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/service"
 )
 
 func Build(
-	requestID context.RequestId,
+	requestID meta.RequestId,
 	rawBody service.RawBody,
 	rawParams service.RawParams,
 ) (

@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mandrigin/gin-spa/spa"
 
-	"github.com/simiancreative/simiango/context"
+	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/service"
 )
@@ -53,7 +53,7 @@ func handleService(config service.Config) gin.HandlerFunc {
 		parsedBody := rawBody(c.Request.Body)
 		parsedParams := parseParams(c.Params, c.Request.URL)
 
-		s, err := config.Build(context.Id(), parsedBody, parsedParams)
+		s, err := config.Build(meta.Id(), parsedBody, parsedParams)
 		if err != nil {
 			buildErr := service.ToResultError(err, "service failed to build", 500)
 			c.JSON(buildErr.GetStatus(), buildErr.GetDetails())

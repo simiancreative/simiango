@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/simiancreative/simiango/context"
+	"github.com/simiancreative/simiango/meta"
 )
 
 func Parse(token string) (*jwt.Token, error) {
@@ -47,7 +47,7 @@ func Gen(params Claims, expMinutes time.Duration) string {
 		claims["exp"] = time.Now().Add(time.Minute * expMinutes).Unix()
 	}
 
-	claims["jti"] = context.Id()
+	claims["jti"] = meta.Id()
 	claims["iat"] = time.Now().Unix()
 
 	for k, v := range params {

@@ -1,7 +1,7 @@
 package sample
 
 import (
-	"github.com/simiancreative/simiango/context"
+	"github.com/simiancreative/simiango/meta"
 )
 
 type SampleResource struct {
@@ -14,7 +14,7 @@ type SampleContext struct {
 }
 
 type sampleService struct {
-	id     context.RequestId
+	id     meta.RequestId
 	body   SampleResource
 	params SampleContext
 }
