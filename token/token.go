@@ -9,6 +9,10 @@ import (
 	"github.com/simiancreative/simiango/meta"
 )
 
+func init() {
+	getKey()
+}
+
 func Parse(token string) (*jwt.Token, error) {
 	t, err := jwt.Parse(
 		token,

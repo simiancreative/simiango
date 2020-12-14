@@ -39,7 +39,7 @@ func (c *client) Get(name string) (*string, error) {
 	return &val, nil
 }
 
-func Connect() {
+func init() {
 	addr, ok := os.LookupEnv("REDIS_ADDR")
 	if !ok {
 		addr = "localhost:6379"

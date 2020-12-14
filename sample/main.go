@@ -2,8 +2,8 @@ package main
 
 import (
 	_ "github.com/simiancreative/simiango/config"
+	_ "github.com/simiancreative/simiango/data/redis"
 
-	"github.com/simiancreative/simiango/data/redis"
 	"github.com/simiancreative/simiango/server"
 	"github.com/simiancreative/simiango/service"
 
@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	redis.Connect()
 	server.SetCORS()
 
 	server.AddServices(service.Collection{
