@@ -13,7 +13,9 @@ func init() {
 	getKey()
 }
 
-func Parse(token string) (*jwt.Token, error) {
+// ParseWithSecret attempts to parse a token string given a custom siginin key.
+// Then returns a Token if string/key is valid
+func ParseWithSecret(token string, secret []byte) (*jwt.Token, error) {
 	t, err := jwt.Parse(
 		token,
 		func(token *jwt.Token) (interface{}, error) {
@@ -28,7 +30,14 @@ func Parse(token string) (*jwt.Token, error) {
 	return t, nil
 }
 
-func Test(token string) error {
+// Parse does what ParseWithSecret does but gets the signing key from the env
+// var TOKEN_SECRET
+func Parse(token string) (*jwt.Token, error) {
+	return ParseWithSecret(token, getKey())
+}
+
+// TestWithSecret verifies a token and returns an error if the token is invalid
+func TestWithSecret(token string, secret []byte) error {
 	t, err := Parse(token)
 
 	if err != nil {
@@ -42,9 +51,18 @@ func Test(token string) error {
 	return nil
 }
 
+// Test does what TestWithSecret does but gets the signing key from the env
+// var TOKEN_SECRET
+func Test(token string) error {
+	return TestWithSecret(token, getKey())
+}
+
+// Claims defines the structure for a token payload
 type Claims map[string]interface{}
 
-func Gen(params Claims, expMinutes time.Duration) string {
+// GenWithSecret generates a jwt token string from a payload, secret and exp
+// duration
+func GenWithSecret(params Claims, secret []byte, expMinutes time.Duration) string {
 	claims := jwt.MapClaims{}
 
 	if expMinutes > 0 {
@@ -59,9 +77,15 @@ func Gen(params Claims, expMinutes time.Duration) string {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, _ := token.SignedString(getKey())
+	tokenString, _ := token.SignedString(secret)
 
 	return tokenString
+}
+
+// Gen does what GenWithSecret does but gets the signing key from the env
+// var TOKEN_SECRET
+func Gen(params Claims, expMinutes time.Duration) string {
+	return GenWithSecret(params, getKey(), expMinutes)
 }
 
 func getKey() []byte {
