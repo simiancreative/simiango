@@ -10,6 +10,7 @@ import (
 )
 
 type RedisClient interface {
+	Exists(context.Context, ...string) *r.IntCmd
 	Get(context.Context, string) *r.StringCmd
 	Set(context.Context, string, interface{}, time.Duration) *r.StatusCmd
 }
@@ -17,16 +18,32 @@ type RedisClient interface {
 var Client client
 
 type client struct {
-	ctx context.Context
-	c   RedisClient
+	Ctx context.Context
+	C   RedisClient
+}
+
+func (c *client) Exists(key string) (*bool, error) {
+	cmd := c.C.Exists(c.Ctx, key)
+	exists := false
+	result, err := cmd.Result()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if result == 1 {
+		exists = true
+	}
+
+	return &exists, cmd.Err()
 }
 
 func (c *client) Set(key string, value interface{}, exp time.Duration) error {
-	return c.c.Set(c.ctx, key, value, exp).Err()
+	return c.C.Set(c.Ctx, key, value, exp).Err()
 }
 
 func (c *client) Get(name string) (*string, error) {
-	val, err := c.c.Get(c.ctx, name).Result()
+	val, err := c.C.Get(c.Ctx, name).Result()
 
 	if err == r.Nil {
 		return nil, errors.New("does_not_exist")
@@ -57,7 +74,7 @@ func init() {
 	})
 
 	Client = client{
-		ctx: context.Background(),
-		c:   c,
+		Ctx: context.Background(),
+		C:   c,
 	}
 }
