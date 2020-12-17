@@ -1,10 +1,10 @@
 package redis
 
 import (
-	"context"
 	"testing"
-	"time"
 
+	"github.com/alicebob/miniredis"
+	"github.com/elliotchance/redismock/v8"
 	r "github.com/go-redis/redis/v8"
 
 	"github.com/stretchr/testify/assert"
@@ -14,51 +14,31 @@ var factories = map[string]interface{}{
 	"sss": 23,
 }
 
-type testclient struct{}
+func init() {
+	mr, err := miniredis.Run()
+	if err != nil {
+		panic(err)
+	}
 
-func (c *testclient) Exists(ctx context.Context, key ...string) *r.IntCmd {
-	cmd := &r.IntCmd{}
-	return cmd
-}
+	client := r.NewClient(&r.Options{
+		Addr: mr.Addr(),
+	})
 
-func (c *testclient) Set(ctx context.Context, key string, value interface{}, exp time.Duration) *r.StatusCmd {
-	cmd := &r.StatusCmd{}
-	return cmd
-}
-
-func (c *testclient) Get(ctx context.Context, name string) *r.StringCmd {
-	cmd := &r.StringCmd{}
-
-	return cmd
+	C = redismock.NewNiceMock(client)
 }
 
 func TestClientGet(t *testing.T) {
-	Ctx = context.Background()
-	C = &testclient{}
-	c := client{}
-
-	val, err := c.Get("42")
-
-	assert.Equal(t, "", *val)
-	assert.NoError(t, err)
+	_, err := Get("42")
+	assert.Equal(t, err.Error(), "does_not_exist")
 }
 
 func TestClientSet(t *testing.T) {
-	Ctx = context.Background()
-	C = &testclient{}
-	c := client{}
-
-	err := c.Set("42", "42", 0)
+	err := Set("42", "42", 0)
 
 	assert.NoError(t, err)
 }
 
 func TestClientExists(t *testing.T) {
-	Ctx = context.Background()
-	C = &testclient{}
-	c := client{}
-
-	_, err := c.Exists("42")
-
+	_, err := Exists("42")
 	assert.NoError(t, err)
 }

@@ -9,19 +9,10 @@ import (
 	r "github.com/go-redis/redis/v8"
 )
 
-type RedisClient interface {
-	Exists(context.Context, ...string) *r.IntCmd
-	Get(context.Context, string) *r.StringCmd
-	Set(context.Context, string, interface{}, time.Duration) *r.StatusCmd
-}
-
-var Client client
 var Ctx context.Context
-var C RedisClient
+var C r.Cmdable
 
-type client struct{}
-
-func (c *client) Exists(key string) (*bool, error) {
+func Exists(key string) (*bool, error) {
 	cmd := C.Exists(Ctx, key)
 	exists := false
 	result, err := cmd.Result()
@@ -37,11 +28,15 @@ func (c *client) Exists(key string) (*bool, error) {
 	return &exists, cmd.Err()
 }
 
-func (c *client) Set(key string, value interface{}, exp time.Duration) error {
+func SetNX(key string, value interface{}, exp time.Duration) error {
+	return C.SetNX(Ctx, key, value, exp).Err()
+}
+
+func Set(key string, value interface{}, exp time.Duration) error {
 	return C.Set(Ctx, key, value, exp).Err()
 }
 
-func (c *client) Get(name string) (*string, error) {
+func Get(name string) (*string, error) {
 	val, err := C.Get(Ctx, name).Result()
 
 	if err == r.Nil {

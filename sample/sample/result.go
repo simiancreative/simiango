@@ -19,22 +19,22 @@ func (s sampleService) Result() (interface{}, error) {
 		"tier":         2,
 	}
 
-	err := redis.Client.Set("token", token.Gen(claims, 1), 0)
+	err := redis.Set("token", token.Gen(claims, 1), 0)
 	if err != nil {
 		return nil, err
 	}
 
-	err = redis.Client.Set("request_id", string(s.id), 0)
+	err = redis.Set("request_id", string(s.id), 0)
 	if err != nil {
 		return nil, err
 	}
 
-	reqid, getErr := redis.Client.Get("request_id")
+	reqid, getErr := redis.Get("request_id")
 	if getErr != nil {
 		return nil, getErr
 	}
 
-	tokenid, tokenErr := redis.Client.Get("token")
+	tokenid, tokenErr := redis.Get("token")
 	if tokenErr != nil {
 		return nil, tokenErr
 	}
