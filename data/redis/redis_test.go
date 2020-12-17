@@ -33,10 +33,9 @@ func (c *testclient) Get(ctx context.Context, name string) *r.StringCmd {
 }
 
 func TestClientGet(t *testing.T) {
-	c := client{
-		Ctx: context.Background(),
-		C:   &testclient{},
-	}
+	Ctx = context.Background()
+	C = &testclient{}
+	c := client{}
 
 	val, err := c.Get("42")
 
@@ -45,10 +44,9 @@ func TestClientGet(t *testing.T) {
 }
 
 func TestClientSet(t *testing.T) {
-	c := client{
-		Ctx: context.Background(),
-		C:   &testclient{},
-	}
+	Ctx = context.Background()
+	C = &testclient{}
+	c := client{}
 
 	err := c.Set("42", "42", 0)
 
@@ -56,10 +54,9 @@ func TestClientSet(t *testing.T) {
 }
 
 func TestClientExists(t *testing.T) {
-	c := client{
-		Ctx: context.Background(),
-		C:   &testclient{},
-	}
+	Ctx = context.Background()
+	C = &testclient{}
+	c := client{}
 
 	_, err := c.Exists("42")
 

@@ -16,14 +16,13 @@ type RedisClient interface {
 }
 
 var Client client
+var Ctx context.Context
+var C RedisClient
 
-type client struct {
-	Ctx context.Context
-	C   RedisClient
-}
+type client struct{}
 
 func (c *client) Exists(key string) (*bool, error) {
-	cmd := c.C.Exists(c.Ctx, key)
+	cmd := C.Exists(Ctx, key)
 	exists := false
 	result, err := cmd.Result()
 
@@ -39,11 +38,11 @@ func (c *client) Exists(key string) (*bool, error) {
 }
 
 func (c *client) Set(key string, value interface{}, exp time.Duration) error {
-	return c.C.Set(c.Ctx, key, value, exp).Err()
+	return C.Set(Ctx, key, value, exp).Err()
 }
 
 func (c *client) Get(name string) (*string, error) {
-	val, err := c.C.Get(c.Ctx, name).Result()
+	val, err := C.Get(Ctx, name).Result()
 
 	if err == r.Nil {
 		return nil, errors.New("does_not_exist")
@@ -73,8 +72,6 @@ func init() {
 		DB:       0,    // use default DB
 	})
 
-	Client = client{
-		Ctx: context.Background(),
-		C:   c,
-	}
+	Ctx = context.Background()
+	C = c
 }
