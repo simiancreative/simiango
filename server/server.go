@@ -62,6 +62,11 @@ func handleService(config service.Config) gin.HandlerFunc {
 
 		result, err := s.Result()
 
+		if err == nil && result == nil {
+			c.Writer.WriteHeader(http.StatusNoContent)
+			return
+		}
+
 		if err == nil {
 			c.JSON(http.StatusOK, result)
 			return

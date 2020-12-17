@@ -39,7 +39,7 @@ func (s sampleService) Result() (interface{}, error) {
 		return nil, tokenErr
 	}
 
-	res := service.ToContentResponse([]interface{}{
+	_ = service.ToContentResponse([]interface{}{
 		claims,
 		map[string]string{"token": *tokenid},
 		map[string]string{"request_id": *reqid},
@@ -47,7 +47,7 @@ func (s sampleService) Result() (interface{}, error) {
 		map[string]interface{}{"url_params": s.params},
 	}, service.ContentResponseMeta{})
 
-	return res, nil
+	return nil, nil
 	// example error response
 	// return nil, errors.New("wooble")
 }
