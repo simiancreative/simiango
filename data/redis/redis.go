@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"encoding"
 	"errors"
 	"os"
 	"time"
@@ -36,18 +37,20 @@ func Set(key string, value interface{}, exp time.Duration) error {
 	return C.Set(Ctx, key, value, exp).Err()
 }
 
-func Get(name string) (*string, error) {
+func Get(name string, rec encoding.BinaryUnmarshaler) error {
 	val, err := C.Get(Ctx, name).Result()
 
 	if err == r.Nil {
-		return nil, errors.New("does_not_exist")
+		return errors.New("does_not_exist")
 	}
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &val, nil
+	rec.UnmarshalBinary([]byte(val))
+
+	return nil
 }
 
 func init() {

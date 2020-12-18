@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/alicebob/miniredis"
@@ -27,8 +28,14 @@ func init() {
 	C = redismock.NewNiceMock(client)
 }
 
+type marshaller struct{}
+
+func (m *marshaller) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, m)
+}
+
 func TestClientGet(t *testing.T) {
-	_, err := Get("42")
+	err := Get("42", &marshaller{})
 	assert.Equal(t, err.Error(), "does_not_exist")
 }
 

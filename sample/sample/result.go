@@ -29,20 +29,21 @@ func (s sampleService) Result() (interface{}, error) {
 		return nil, err
 	}
 
-	reqid, getErr := redis.Get("request_id")
+	resp := &sampleResp{}
+
+	getErr := redis.Get("request_id", resp)
 	if getErr != nil {
 		return nil, getErr
 	}
 
-	tokenid, tokenErr := redis.Get("token")
+	tokenErr := redis.Get("token", resp)
 	if tokenErr != nil {
 		return nil, tokenErr
 	}
 
 	res := service.ToContentResponse([]interface{}{
 		claims,
-		map[string]string{"token": *tokenid},
-		map[string]string{"request_id": *reqid},
+		resp,
 		map[string]interface{}{"body": s.body},
 		map[string]interface{}{"url_params": s.params},
 	}, service.ContentResponseMeta{})
