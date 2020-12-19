@@ -13,7 +13,14 @@ import (
 var Ctx context.Context
 var C r.Cmdable
 
-func Exists(key string) (*bool, error) {
+var Exists ExistsFunc = exists
+var SetNx SetNXFunc = setNX
+var Set SetFunc = set
+var Get GetFunc = get
+
+type ExistsFunc func(string) (*bool, error)
+
+func exists(key string) (*bool, error) {
 	cmd := C.Exists(Ctx, key)
 	exists := false
 	result, err := cmd.Result()
@@ -29,15 +36,21 @@ func Exists(key string) (*bool, error) {
 	return &exists, cmd.Err()
 }
 
-func SetNX(key string, value interface{}, exp time.Duration) error {
+type SetNXFunc func(string, interface{}, time.Duration) error
+
+func setNX(key string, value interface{}, exp time.Duration) error {
 	return C.SetNX(Ctx, key, value, exp).Err()
 }
 
-func Set(key string, value interface{}, exp time.Duration) error {
+type SetFunc func(string, interface{}, time.Duration) error
+
+func set(key string, value interface{}, exp time.Duration) error {
 	return C.Set(Ctx, key, value, exp).Err()
 }
 
-func Get(name string, rec encoding.BinaryUnmarshaler) error {
+type GetFunc func(string, encoding.BinaryUnmarshaler) error
+
+func get(name string, rec encoding.BinaryUnmarshaler) error {
 	val, err := C.Get(Ctx, name).Result()
 
 	if err == r.Nil {
