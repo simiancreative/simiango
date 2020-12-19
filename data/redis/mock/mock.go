@@ -8,6 +8,8 @@ import (
 	"github.com/simiancreative/simiango/data/redis"
 )
 
+var MockedClient *redismock.ClientMock
+
 func init() {
 	mr, err := miniredis.Run()
 	if err != nil {
@@ -18,5 +20,6 @@ func init() {
 		Addr: mr.Addr(),
 	})
 
-	redis.C = redismock.NewNiceMock(client)
+	MockedClient = redismock.NewNiceMock(client)
+	redis.C = MockedClient
 }
