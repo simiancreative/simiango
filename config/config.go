@@ -17,6 +17,8 @@ func init() {
 	appDir, _ := findAppDir(*envFlag)
 	path := joinPath(*appDir, *envFlag)
 
+	os.Setenv("AAS_ENV", *envFlag)
+
 	_ = godotenv.Load(path)
 }
 
