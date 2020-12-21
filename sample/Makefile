@@ -1,4 +1,5 @@
 serve:
+	swag init
 	go run . -env dev
 
 start:

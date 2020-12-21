@@ -6,6 +6,7 @@ import (
 	"github.com/simiancreative/simiango/meta"
 )
 
+// SampleResource represents the model for an order
 type sampleResource struct {
 	Wibble string `json:"wibble" validate:"nonzero"`
 }

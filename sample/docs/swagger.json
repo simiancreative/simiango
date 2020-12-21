@@ -1,0 +1,72 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample service for simian go",
+        "title": "Sample API",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/sample/{id}": {
+            "post": {
+                "description": "one saple endpoint",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sample"
+                ],
+                "summary": "sample simian go api",
+                "parameters": [
+                    {
+                        "description": "Sample Resource",
+                        "name": "resource",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/sample.sampleResource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/sample.sampleResp"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "sample.sampleResource": {
+            "type": "object",
+            "properties": {
+                "wibble": {
+                    "type": "string"
+                }
+            }
+        },
+        "sample.sampleResp": {
+            "type": "object",
+            "properties": {
+                "request_id": {
+                    "type": "string"
+                },
+                "token_id": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -11,6 +11,8 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/mandrigin/gin-spa/spa"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 
 	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/meta"
@@ -143,6 +145,10 @@ func rawBody(source io.ReadCloser) []byte {
 	num, _ := source.Read(buf)
 	reqBody := string(buf[0:num])
 	return []byte(reqBody)
+}
+
+func EnableSwagger() {
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 
 // SetSPA hosts a Single Page App directory at the specified url

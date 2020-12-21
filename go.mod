@@ -3,6 +3,7 @@ module github.com/simiancreative/simiango
 go 1.14
 
 require (
+	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/alicebob/miniredis v2.5.0+incompatible
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -18,6 +19,9 @@ require (
 	github.com/mandrigin/gin-spa v0.0.0-20200212133200-790d0c0c7335
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
+	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
+	github.com/swaggo/gin-swagger v1.3.0
+	github.com/swaggo/swag v1.7.0
 	github.com/yuin/gopher-lua v0.0.0-20200816102855-ee81675732da // indirect
 	gopkg.in/validator.v2 v2.0.0-20200605151824-2b28d334fa05
 	gopkg.in/yaml.v2 v2.3.0

@@ -8,6 +8,15 @@ import (
 	v "github.com/simiancreative/simiango/validate"
 )
 
+// Build godoc
+// @Summary sample simian go api
+// @Description one saple endpoint
+// @Tags sample
+// @Accept  json
+// @Produce  json
+// @Param resource body sampleResource true "Sample Resource"
+// @Success 200 {object} sampleResp
+// @Router /sample/{id} [post]
 func Build(
 	requestID meta.RequestId,
 	rawBody service.RawBody,
