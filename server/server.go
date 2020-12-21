@@ -43,24 +43,25 @@ func InitService(config service.Config) {
 }
 
 func handleService(config service.Config) gin.HandlerFunc {
+	requestID := meta.Id()
+
 	return func(c *gin.Context) {
+		c.Header("X-Request-ID", string(requestID))
+
 		logger.Debug("Server: handling route", logger.Fields{
-			"method": config.Method,
-			"path":   config.Path,
-			"url":    c.Request.URL,
+			"request_id": requestID,
+			"method":     config.Method,
+			"path":       config.Path,
+			"url":        c.Request.URL,
 		})
 
-		parsedBody := rawBody(c.Request.Body)
-		parsedParams := parseParams(c.Params, c.Request.URL)
-
-		s, err := config.Build(meta.Id(), parsedBody, parsedParams)
-		if err != nil {
-			buildErr := service.ToResultError(err, "service failed to build", 500)
+		s, buildErr := buildService(requestID, config, c)
+		if buildErr != nil {
 			c.JSON(buildErr.GetStatus(), buildErr.GetDetails())
 			return
 		}
 
-		result, err := s.Result()
+		result, err := serviceResult(s)
 
 		if err == nil && result == nil {
 			c.Writer.WriteHeader(http.StatusNoContent)
@@ -72,16 +73,49 @@ func handleService(config service.Config) gin.HandlerFunc {
 			return
 		}
 
-		resultErr, ok := err.(*service.ResultError)
-		if !ok {
-			logger.Error("Service Failed", logger.Fields{"err": err})
-			resultErr = service.ToResultError(err, "service failed", 500)
-			c.JSON(resultErr.GetStatus(), resultErr.GetDetails())
-			return
-		}
-
-		c.JSON(resultErr.GetStatus(), resultErr.GetDetails())
+		logger.Error("Service Failed", logger.Fields{"err": err})
+		c.JSON(err.GetStatus(), err.GetDetails())
 	}
+}
+
+func serviceResult(s service.TPL) (interface{}, *service.ResultError) {
+	result, err := s.Result()
+
+	if err == nil && result == nil {
+		return nil, nil
+	}
+
+	if err == nil {
+		return result, nil
+	}
+
+	resultErr, ok := err.(*service.ResultError)
+	if ok {
+		return nil, resultErr
+	}
+
+	logger.Error("Service Failed", logger.Fields{"err": err})
+	resultErr = service.ToResultError(err, "service failed", 500)
+	return nil, resultErr
+}
+
+func buildService(requestID meta.RequestId, config service.Config, c *gin.Context) (service.TPL, *service.ResultError) {
+	parsedBody := rawBody(c.Request.Body)
+	parsedParams := parseParams(c.Params, c.Request.URL)
+	s, err := config.Build(requestID, parsedBody, parsedParams)
+
+	if err == nil {
+		return s, nil
+	}
+
+	resultErr, ok := err.(*service.ResultError)
+	if !ok {
+		logger.Error("Service Build Failed", logger.Fields{"err": err})
+		resultErr = service.ToResultError(err, "service failed", 500)
+		return nil, resultErr
+	}
+
+	return nil, err.(*service.ResultError)
 }
 
 func parseParams(params gin.Params, url *url.URL) service.RawParams {

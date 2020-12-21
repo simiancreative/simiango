@@ -20,7 +20,6 @@ func (m *ResultError) GetStatus() int {
 func (m *ResultError) GetDetails() map[string]interface{} {
 	return map[string]interface{}{
 		"message": m.Message,
-		"field":   m.Field,
 		"reasons": m.Reasons,
 	}
 }

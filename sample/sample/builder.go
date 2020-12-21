@@ -5,6 +5,7 @@ import (
 
 	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/service"
+	v "github.com/simiancreative/simiango/validate"
 )
 
 func Build(
@@ -17,6 +18,11 @@ func Build(
 	// setup body
 	resource := &sampleResource{}
 	service.ParseBody(rawBody, resource)
+
+	result := v.Validate(resource)
+	if result.HasErrors() {
+		return nil, result.ResultError()
+	}
 
 	// setup context
 	decendants, ok := rawParams.Get("decendantsOf")

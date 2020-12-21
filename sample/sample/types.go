@@ -7,7 +7,7 @@ import (
 )
 
 type sampleResource struct {
-	Wibble string `json:"wibble"`
+	Wibble string `json:"wibble" validate:"nonzero"`
 }
 
 type sampleResp struct {
