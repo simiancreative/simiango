@@ -177,6 +177,16 @@ func SetCORS() {
 	}))
 }
 
+func healthGET(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"status": "UP",
+	})
+}
+
+func EnableHealthCheck() {
+	router.Handle("GET", "/status", healthGET)
+}
+
 func Start() {
 	for _, service := range services {
 		InitService(service)

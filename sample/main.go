@@ -20,6 +20,7 @@ import (
 // @BasePath /
 
 func main() {
+	server.EnableHealthCheck()
 	server.EnableSwagger()
 	server.SetCORS()
 
