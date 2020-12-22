@@ -17,6 +17,7 @@ func TestValidateSuccess(t *testing.T) {
 	result := Validate(r)
 
 	assert.Equal(t, false, result.HasErrors())
+	assert.Empty(t, result.ResultError())
 }
 
 func TestValidateFailed(t *testing.T) {
@@ -43,4 +44,9 @@ func TestValidateError(t *testing.T) {
 	errs := err.(validator.ErrorMap)
 
 	assert.Equal(t, "zero value", errs["Wibble"][0].(validator.TextErr).Error())
+}
+
+func TestValid(t *testing.T) {
+	err := Valid("ABBA", "regexp=[ABC]*")
+	assert.NoError(t, err)
 }

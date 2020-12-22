@@ -18,5 +18,5 @@ func TestToResultError(t *testing.T) {
 		{"message": err.Error()},
 	}
 
-	assert.Equal(t, reasons, err.GetDetails()["reasons"])
+	assert.Equal(t, reasons, err.GetDetails().Reasons)
 }

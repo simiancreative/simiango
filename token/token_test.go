@@ -1,11 +1,16 @@
 package token
 
 import (
+	"os"
 	"testing"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	os.Setenv("TOKEN_SECRET", "wombat")
+}
 
 func TestTokenGenAndTest(t *testing.T) {
 	tokenStr := Gen(Claims{"hi": "there"}, 0)

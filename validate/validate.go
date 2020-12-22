@@ -6,9 +6,17 @@ import (
 	"gopkg.in/validator.v2"
 )
 
+func Valid(v interface{}, tags string) error {
+	return validator.Valid(v, tags)
+}
+
 func Validate(v interface{}) Validator {
 	errs := validator.Validate(v)
 	return Validator{Errs: errs}
+}
+
+func AddValidation(name string, f validator.ValidationFunc) error {
+	return validator.SetValidationFunc(name, f)
 }
 
 type Validator struct {

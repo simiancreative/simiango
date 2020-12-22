@@ -9,10 +9,6 @@ import (
 	"github.com/simiancreative/simiango/meta"
 )
 
-func init() {
-	getKey()
-}
-
 // ParseWithSecret attempts to parse a token string given a custom siginin key.
 // Then returns a Token if string/key is valid
 func ParseWithSecret(token string, secret []byte) (*jwt.Token, error) {
