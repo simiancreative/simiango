@@ -1,9 +1,9 @@
 package service
 
 type ResultError struct {
-	Status     int
-	Field      string
-	ErrMessage string
+	Status     int                      `json:"-"`
+	Field      string                   `json:"-"`
+	ErrMessage string                   `json:"-"`
 	Message    string                   `json:"message"`
 	Reasons    []map[string]interface{} `json:"reasons"`
 }
