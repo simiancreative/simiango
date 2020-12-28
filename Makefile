@@ -1,5 +1,5 @@
 test:
-	TOKEN_SECRET=wombat go test ./...
+	./bin/test.sh
 
 coverage:
 	go test -cover ./... -coverprofile=coverage.out
