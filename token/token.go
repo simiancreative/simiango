@@ -1,13 +1,35 @@
 package token
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/simiancreative/simiango/meta"
 )
+
+// Decode accepts a token string and unmarshals the header and payload
+// segments into the given interface{}
+func Decode(token string, v interface{}) error {
+	parts := strings.Split(token, ".")
+
+	decoded, err := jwt.DecodeSegment(parts[0])
+	if err != nil {
+		return err
+	}
+	json.Unmarshal(decoded, v)
+
+	decoded, err = jwt.DecodeSegment(parts[1])
+	if err != nil {
+		return err
+	}
+	json.Unmarshal(decoded, v)
+
+	return nil
+}
 
 // ParseWithSecret attempts to parse a token string given a custom siginin key.
 // Then returns a Token if string/key is valid
