@@ -1,6 +1,7 @@
 # Simian Go
 
 ![tests](https://github.com/simiancreative/simiango/workflows/CI/badge.svg)
+![coverage](https://seriesci.com/simiancreative/simiango/series/master/coverage.svg)
 
 A multi purpose tool set for golang applications. Tools include:
 
