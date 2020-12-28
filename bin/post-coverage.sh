@@ -17,4 +17,4 @@ curl \
     \"value\":\"${total}\",
     \"sha\":\"${GITHUB_SHA}\"
   }" \
-  https://seriesci.com/api/simiancreative/simiango/:series/one
+  https://seriesci.com/api/simiancreative/simiango/coverage/one
