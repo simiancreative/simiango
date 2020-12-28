@@ -16,6 +16,10 @@ import (
 func Decode(token string, v interface{}) error {
 	parts := strings.Split(token, ".")
 
+	if len(parts) != 3 {
+		return errors.New("malformed_token")
+	}
+
 	decoded, err := jwt.DecodeSegment(parts[0])
 	if err != nil {
 		return err
