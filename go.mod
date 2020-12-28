@@ -3,6 +3,7 @@ module github.com/simiancreative/simiango
 go 1.14
 
 require (
+	bou.ke/monkey v1.0.2
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/alicebob/miniredis v2.5.0+incompatible

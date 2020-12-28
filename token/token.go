@@ -21,18 +21,12 @@ func Decode(token string, v interface{}) error {
 	}
 
 	decoded, err := jwt.DecodeSegment(parts[0])
-	if err != nil {
-		return err
-	}
 	json.Unmarshal(decoded, v)
 
 	decoded, err = jwt.DecodeSegment(parts[1])
-	if err != nil {
-		return err
-	}
 	json.Unmarshal(decoded, v)
 
-	return nil
+	return err
 }
 
 // ParseWithSecret attempts to parse a token string given a custom siginin key.
@@ -41,9 +35,13 @@ func ParseWithSecret(token string, secret []byte) (*jwt.Token, error) {
 	t, err := jwt.Parse(
 		token,
 		func(token *jwt.Token) (interface{}, error) {
-			return []byte(getKey()), nil
+			return []byte(secret), nil
 		},
 	)
+
+	if err != nil && err.Error() == "Token is expired" {
+		return nil, errors.New("token_expired")
+	}
 
 	if err != nil {
 		return nil, errors.New("parse_token_failed")
@@ -111,10 +109,6 @@ func Gen(params Claims, expMinutes time.Duration) string {
 }
 
 func getKey() []byte {
-	key, ok := os.LookupEnv("TOKEN_SECRET")
-	if !ok {
-		panic(errors.New("token_signing_key_not_configured"))
-	}
-
+	key := os.Getenv("TOKEN_SECRET")
 	return []byte(key)
 }
