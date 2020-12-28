@@ -60,7 +60,7 @@ func Parse(token string) (*jwt.Token, error) {
 
 // TestWithSecret verifies a token and returns an error if the token is invalid
 func TestWithSecret(token string, secret []byte) error {
-	t, err := Parse(token)
+	t, err := ParseWithSecret(token, secret)
 
 	if err != nil {
 		return err
