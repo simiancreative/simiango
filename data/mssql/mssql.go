@@ -1,13 +1,17 @@
 package mssql
 
+// keep these organized by category with an empty line between each
+// 1. core
+// 2. remote
+// 3. local
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	_ "github.com/denisenkom/go-mssqldb"
-	"github.com/jmoiron/sqlx"
 	"log"
 	"os"
+
+	_ "github.com/denisenkom/go-mssqldb"
+	"github.com/jmoiron/sqlx"
 )
 
 var db *sql.DB

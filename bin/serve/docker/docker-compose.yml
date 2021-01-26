@@ -1,0 +1,19 @@
+version: '3'
+services:
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Melon40twomonkeys
+    ports:
+      - '1433:1433'
+  pg:
+    image: postgres:12
+    environment:
+      - POSTGRES_PASSWORD=Melon40twomonkeys
+    ports:
+      - '54232:54232'
