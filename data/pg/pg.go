@@ -46,7 +46,7 @@ type Conn interface {
 }
 
 func init() {
-	addr := os.Getenv("DATABASE_URL")
+	addr := os.Getenv("PG_URL")
 
 	Ctx = context.Background()
 	C, _ = pgxpool.Connect(Ctx, addr)

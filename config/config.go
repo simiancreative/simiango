@@ -9,15 +9,20 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var envFlag = flag.String("env", "dev", "environment, e.g. development or production")
+var envFlag string
 
 func init() {
-	flag.Parse()
+	flag.StringVar(
+		&envFlag,
+		"env",
+		"dev",
+		"environment, e.g. development or production",
+	)
 
-	appDir, _ := findAppDir(*envFlag)
-	path := joinPath(*appDir, *envFlag)
+	appDir, _ := findAppDir(envFlag)
+	path := joinPath(*appDir, envFlag)
 
-	os.Setenv("APP_ENV", *envFlag)
+	os.Setenv("APP_ENV", envFlag)
 
 	_ = godotenv.Load(path)
 }
