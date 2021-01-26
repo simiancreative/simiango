@@ -3,12 +3,13 @@ package main
 import (
 	_ "github.com/simiancreative/simiango/config"
 	_ "github.com/simiancreative/simiango/data/mssql"
-	_ "github.com/simiancreative/simiango/sample/docs"
+	_ "github.com/simiancreative/simiango/examples/docs"
 
 	"github.com/simiancreative/simiango/server"
 	"github.com/simiancreative/simiango/service"
-	
-	configdata "github.com/simiancreative/simiango/gsample/configdata"
+
+	configdata "github.com/simiancreative/simiango/examples/services/configdata"
+	sample "github.com/simiancreative/simiango/examples/services/sample"
 )
 
 // @title Sample API
@@ -25,6 +26,7 @@ func main() {
 	server.SetCORS()
 
 	server.AddServices(service.Collection{
+		sample.Config,
 		configdata.Config,
 	})
 
