@@ -7,7 +7,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/alicebob/miniredis v2.5.0+incompatible
-	github.com/chappjc/logrus-prefix v0.0.0-20180227015900-3a1d64819adb
+	github.com/denisenkom/go-mssqldb v0.9.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/elliotchance/redismock v1.5.3
 	github.com/elliotchance/redismock/v8 v8.5.4

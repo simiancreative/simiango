@@ -1,13 +1,13 @@
 package mssql
 
 import (
-	_ "github.com/denisenkom/go-mssqldb"
-	"github.com/jmoiron/sqlx"
 	"context"
 	"database/sql"
+	"fmt"
+	_ "github.com/denisenkom/go-mssqldb"
+	"github.com/jmoiron/sqlx"
+	"log"
 	"os"
-    "log"
-    "fmt"
 )
 
 var db *sql.DB
@@ -33,21 +33,19 @@ type ConnX interface {
 }
 
 func init() {
-	addr := os.Getenv("DATABASE_URL")
+	addr := os.Getenv("SQLSERVER_URL")
 
 	Ctx = context.Background()
 	Cx = sqlx.MustConnect("sqlserver", addr)
 
 	var err error
-    db, err = sql.Open("sqlserver", addr)
-    if err != nil {
+	db, err = sql.Open("sqlserver", addr)
+	if err != nil {
 		log.Fatal("error creating connection pool: ", err.Error())
-    }
-    
-    err = db.PingContext(Ctx)
-    if err != nil {
+	}
+
+	err = db.PingContext(Ctx)
+	if err != nil {
 		log.Fatal(err.Error())
-		fmt.Printf("mssql not connected!\n")
-    }
-	fmt.Printf("mssql connected!\n")
+	}
 }
