@@ -7,7 +7,6 @@ package mssql
 import (
 	"context"
 	"database/sql"
-	"log"
 	"os"
 
 	_ "github.com/denisenkom/go-mssqldb"
@@ -39,17 +38,5 @@ type ConnX interface {
 func init() {
 	addr := os.Getenv("SQLSERVER_URL")
 
-	Ctx = context.Background()
-	Cx = sqlx.MustConnect("sqlserver", addr)
-
-	var err error
-	db, err = sql.Open("sqlserver", addr)
-	if err != nil {
-		log.Fatal("error creating connection pool: ", err.Error())
-	}
-
-	err = db.PingContext(Ctx)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	Cx, _ = sqlx.Connect("sqlserver", addr)
 }
