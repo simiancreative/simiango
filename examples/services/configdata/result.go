@@ -1,11 +1,13 @@
 package configdata
 
 import (
-	"github.com/simiancreative/simiango/data/mssql"
+	m "github.com/simiancreative/simiango/data/mssql"
 	"github.com/simiancreative/simiango/service"
+	"fmt"
 )
 
 func (s configDataService) Result() (interface{}, error) {
+	rows, err := readConfigData()
 	if err != nil {
 		return nil, err
 	}
@@ -13,7 +15,7 @@ func (s configDataService) Result() (interface{}, error) {
 	return buildResp(rows), nil
 }
 
-func readConfigData() error {
+func readConfigData() ([]ConfigDataResp, error) {
 	rows, err := dbReadConfigData()
 
 	if err == nil {
@@ -29,47 +31,15 @@ func readConfigData() error {
 	}
 }
 
-func buildResp(v []configDataResp) []ConfigDataResp {
-	return configDataResp
-	/*
-		var configdataresponses []ConfigDataResp
-		for _, element := range v {
-			//code to transform
-			configdatatypes = append(configdatatypes, ConfigDataResp{Tag: tag, PlatformType: platformType, AppHash: appHash, TokenSigningKey: tokenSigningKey, RegistrationExpMilliseconds: registrationExpMilliseconds, TokenExpMinutesseconds: tokenExpMinutesseconds, StatusID: statusID})
-		}
-		return configdataresponses;
-	*/
+func buildResp(v []ConfigDataResp) []ConfigDataResp {
+	return v
 }
 
-func dbReadConfigData() ([]ConfigDataType, error) {
-	ctx := context.Background()
-
-	err := db.PingContext(ctx)
+func dbReadConfigData() ([]ConfigDataResp, error) {
+	rows := []ConfigDataResp{}
+	err := m.Cx.Select(&rows, "EXEC acacia.usp_configuration_info_sel")
 	if err != nil {
 		return nil, err
 	}
-
-	tsql := fmt.Sprintf("EXEC acacia.usp_configuration_info_sel")
-	rows, err := db.QueryContext(ctx, tsql)
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	var configdatatypes []ConfigDataType
-	for rows.Next() {
-
-		err := rows.Scan(&tag, &platformType, &appHash, &tokenSigningKey, &registrationExpMilliseconds, &tokenExpMinutesseconds, &statusID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		log.Println(tag, platformType)
-		configdatatypes = append(configdatatypes, ConfigDataType{Tag: tag, PlatformType: platformType, AppHash: appHash, TokenSigningKey: tokenSigningKey, RegistrationExpMilliseconds: registrationExpMilliseconds, TokenExpMinutesseconds: tokenExpMinutesseconds, StatusID: statusID})
-	}
-
-	return configdatatypes, nil
-
+	return rows, nil
 }
