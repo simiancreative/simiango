@@ -1,10 +1,7 @@
 package configdata
 
 import (
-	"encoding/json"
-
 	"github.com/simiancreative/simiango/meta"
-	"github.com/simplereach/timeutils"
 )
 
 type configDataService struct {
@@ -12,11 +9,11 @@ type configDataService struct {
 }
 
 type ConfigDataResp struct {
-	Tag string `json:"tag"`
-	PlatformType string `json:"platformtype"`
-	AppHash string `json:"apphash"`
-	TokenSigningKey string `json:"tokensigningkey"`
-	RegistrationExpMilliseconds int64 `json:"registrationexpmilliseconds"`
-	TokenExpMinutesseconds int `json:"tokenexpminutesseconds"`
-	StatusID int `json:"statusid"`
+	Tag string `json:"tag" db:"Tag"`
+	PlatformType string `json:"platformtype" db:"PlatformType"`
+	AppHash string `json:"apphash" db:"AppHash"`
+	TokenSigningKey string `json:"tokensigningkey" db:"TokenSigningKey"`
+	RegistrationExpMilliseconds int `json:"registrationexpmilliseconds" db:"RegistrationExpMilliseconds"`
+	TokenExpMinutesSeconds int `json:"tokenexpminutesseconds" db:"TokenExpMinutesSeconds"`
+	StatusID int `json:"statusid" db:"StatusID"`
 }
