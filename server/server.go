@@ -102,9 +102,19 @@ func serviceResult(s service.TPL) (interface{}, *service.ResultError) {
 }
 
 func buildService(requestID meta.RequestId, config service.Config, c *gin.Context) (service.TPL, *service.ResultError) {
+	parsedHeaders := parseHeaders(c.Request)
 	parsedBody := rawBody(c.Request.Body)
 	parsedParams := parseParams(c.Params, c.Request.URL)
-	s, err := config.Build(requestID, parsedBody, parsedParams)
+	s, err := config.Build(requestID, parsedHeaders, parsedBody, parsedParams)
+
+	err = handleAuth(
+		requestID,
+		parsedHeaders,
+		parsedBody,
+		parsedParams,
+		s,
+		config,
+	)
 
 	if err == nil {
 		return s, nil
@@ -118,6 +128,57 @@ func buildService(requestID meta.RequestId, config service.Config, c *gin.Contex
 	}
 
 	return nil, err.(*service.ResultError)
+}
+
+func handleAuth(
+	requestID meta.RequestId,
+	parsedHeaders service.RawHeaders,
+	parsedBody service.RawBody,
+	parsedParams service.RawParams,
+	s service.TPL,
+	config service.Config,
+) error {
+	var err error
+
+	if !config.IsPrivate {
+		return nil
+	}
+
+	if _, ok := interface{}(s).(service.PrivateTPL); config.IsPrivate && !ok {
+		return fmt.Errorf("Private Service requires the Auth method")
+	}
+
+	ps, _ := interface{}(s).(service.PrivateTPL)
+	ok := ps.Auth(requestID, parsedHeaders, parsedBody, parsedParams)
+
+	if !ok {
+		err = fmt.Errorf("Authentication Failed")
+		logger.Error("Authentication Failed", logger.Fields{"err": err})
+		resultErr := service.ToResultError(err, "service auth failed", 401)
+		return resultErr
+	}
+
+	return nil
+}
+
+func parseHeaders(Request *http.Request) service.RawHeaders {
+	var parsedHeaders = service.RawHeaders{}
+
+	for key, values := range Request.Header {
+		parsedHeaders = append(parsedHeaders, service.RawHeader{
+			Key:    key,
+			Values: values,
+		})
+	}
+
+	return parsedHeaders
+}
+
+func rawBody(source io.ReadCloser) []byte {
+	buf := make([]byte, 1024)
+	num, _ := source.Read(buf)
+	reqBody := string(buf[0:num])
+	return []byte(reqBody)
 }
 
 func parseParams(params gin.Params, url *url.URL) service.RawParams {
@@ -138,13 +199,6 @@ func parseParams(params gin.Params, url *url.URL) service.RawParams {
 	}
 
 	return parsedParams
-}
-
-func rawBody(source io.ReadCloser) []byte {
-	buf := make([]byte, 1024)
-	num, _ := source.Read(buf)
-	reqBody := string(buf[0:num])
-	return []byte(reqBody)
 }
 
 func EnableSwagger() {

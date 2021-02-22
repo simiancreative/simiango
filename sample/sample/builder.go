@@ -19,6 +19,7 @@ import (
 // @Router /sample/{id} [post]
 func Build(
 	requestID meta.RequestId,
+	rawHeaders service.RawHeaders,
 	rawBody service.RawBody,
 	rawParams service.RawParams,
 ) (
@@ -45,11 +46,17 @@ func Build(
 		Decendants: decendants.Values[0],
 	}
 
+	headers := sampleHeaders{}
+	for _, header := range rawHeaders {
+		headers[header.Key] = header.Value()
+	}
+
 	// create service instance
 	service := sampleService{
-		id:     requestID,
-		body:   *resource,
-		params: params,
+		id:      requestID,
+		body:    *resource,
+		params:  params,
+		headers: headers,
 	}
 
 	// return service

@@ -5,7 +5,8 @@ import (
 )
 
 var Config = service.Config{
-	Method: "POST",
-	Path:   "/sample/:id",
-	Build:  Build,
+	IsPrivate: true,
+	Method:    "POST",
+	Path:      "/sample/:id",
+	Build:     Build,
 }

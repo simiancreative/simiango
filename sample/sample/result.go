@@ -46,6 +46,7 @@ func (s sampleService) Result() (interface{}, error) {
 		resp,
 		map[string]interface{}{"body": s.body},
 		map[string]interface{}{"url_params": s.params},
+		map[string]interface{}{"headers": s.headers},
 	}, service.ContentResponseMeta{})
 
 	return res, nil
