@@ -25,8 +25,11 @@ type sampleContext struct {
 	Decendants string `json:"decendantsOf"`
 }
 
+type sampleHeaders map[string]string
+
 type sampleService struct {
-	id     meta.RequestId
-	body   sampleResource
-	params sampleContext
+	id      meta.RequestId
+	body    sampleResource
+	params  sampleContext
+	headers sampleHeaders
 }
