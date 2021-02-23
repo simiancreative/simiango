@@ -3,7 +3,6 @@ package configdata
 import (
 	m "github.com/simiancreative/simiango/data/mssql"
 	"github.com/simiancreative/simiango/service"
-	"fmt"
 )
 
 func (s configDataService) Result() (interface{}, error) {
