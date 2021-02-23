@@ -12,5 +12,5 @@ func (s sampleService) Auth(
 	rawParams service.RawParams,
 ) bool {
 	// do things here like check the auth header of validate the cookie
-	return false
+	return true
 }
