@@ -1,4 +1,4 @@
-package configdata
+package mssqlexample
 
 import (
 	"github.com/simiancreative/simiango/service"
@@ -6,6 +6,6 @@ import (
 
 var Config = service.Config{
 	Method: "GET",
-	Path:   "/configdata",
+	Path:   "/mssql-example/products",
 	Build:  Build,
 }

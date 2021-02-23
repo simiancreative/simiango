@@ -38,5 +38,5 @@ type ConnX interface {
 func init() {
 	addr := os.Getenv("SQLSERVER_URL")
 	Ctx = context.Background()
-	Cx, _ = sqlx.Connect("sqlserver", addr)
+	Cx, _ = sqlx.Connect("mssql", addr)
 }

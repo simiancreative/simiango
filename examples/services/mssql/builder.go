@@ -1,4 +1,4 @@
-package configdata
+package mssqlexample
 
 import (
 	"github.com/simiancreative/simiango/meta"
@@ -18,14 +18,15 @@ import (
 // @Router /configdata [get]
 func Build(
 	requestID meta.RequestId,
+	rawHeaders service.RawHeaders,
 	rawBody service.RawBody,
 	rawParams service.RawParams,
 ) (
 	service.TPL, error,
 ) {
 	// create service instance
-	service := configDataService{
-		id:   requestID,
+	service := Service{
+		ID: requestID,
 	}
 
 	return service, nil

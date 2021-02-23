@@ -15,6 +15,7 @@ import (
 // @Router /pg-example/products [get]
 func Build(
 	requestID meta.RequestId,
+	rawHeaders service.RawHeaders,
 	rawBody service.RawBody,
 	rawParams service.RawParams,
 ) (
