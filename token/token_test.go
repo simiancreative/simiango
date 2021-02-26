@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/simplereach/timeutils"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/simiancreative/simiango/timeutils"
 )
 
 func init() {
@@ -33,11 +34,11 @@ func TestTokenGenAndTest(t *testing.T) {
 }
 
 type tokenCarrier struct {
-	JTI     string         `json:"jti"`
-	IAT     timeutils.Time `json:"iat"`
-	ANI     string         `json:"ani"`
-	Brand   string         `json:"brand"`
-	Version string         `json:"version"`
+	JTI     string             `json:"jti"`
+	IAT     timeutils.UnixTime `json:"iat"`
+	ANI     string             `json:"ani"`
+	Brand   string             `json:"brand"`
+	Version string             `json:"version"`
 }
 
 func TestTokenDecode(t *testing.T) {
