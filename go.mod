@@ -24,7 +24,6 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/mandrigin/gin-spa v0.0.0-20200212133200-790d0c0c7335
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
-	github.com/simplereach/timeutils v1.2.0
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
