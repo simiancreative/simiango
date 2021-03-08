@@ -36,7 +36,16 @@ type ConnX interface {
 }
 
 func init() {
+	_, mustConnect := os.LookupEnv("SQLSERVER_REQUIRE_CONNECTION")
 	addr := os.Getenv("SQLSERVER_URL")
+
 	Ctx = context.Background()
-	Cx, _ = sqlx.Connect("mssql", addr)
+
+	if !mustConnect {
+		Cx, _ = sqlx.Connect("mssql", addr)
+	}
+
+	if mustConnect {
+		Cx = sqlx.MustConnect("mssql", addr)
+	}
 }

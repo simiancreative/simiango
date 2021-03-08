@@ -46,9 +46,17 @@ type Conn interface {
 }
 
 func init() {
+	_, mustConnect := os.LookupEnv("PG_REQUIRE_CONNECTION")
 	addr := os.Getenv("PG_URL")
 
 	Ctx = context.Background()
 	C, _ = pgxpool.Connect(Ctx, addr)
-	Cx, _ = sqlx.Connect("pgx", addr)
+
+	if !mustConnect {
+		Cx, _ = sqlx.Connect("pgx", addr)
+	}
+
+	if mustConnect {
+		Cx = sqlx.MustConnect("pgx", addr)
+	}
 }
