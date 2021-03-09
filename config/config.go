@@ -19,6 +19,8 @@ func init() {
 		"environment, e.g. development or production",
 	)
 
+	flag.Parse()
+
 	appDir, _ := findAppDir(envFlag)
 	path := joinPath(*appDir, envFlag)
 
