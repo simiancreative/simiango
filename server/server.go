@@ -107,14 +107,16 @@ func buildService(requestID meta.RequestId, config service.Config, c *gin.Contex
 	parsedParams := parseParams(c.Params, c.Request.URL)
 	s, err := config.Build(requestID, parsedHeaders, parsedBody, parsedParams)
 
-	err = handleAuth(
-		requestID,
-		parsedHeaders,
-		parsedBody,
-		parsedParams,
-		s,
-		config,
-	)
+	if err == nil {
+		err = handleAuth(
+			requestID,
+			parsedHeaders,
+			parsedBody,
+			parsedParams,
+			s,
+			config,
+		)
+	}
 
 	if err == nil {
 		return s, nil
