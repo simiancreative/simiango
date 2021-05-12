@@ -1,4 +1,4 @@
-package mssql
+package mysql
 
 // keep these organized by category with an empty line between each
 // 1. core
