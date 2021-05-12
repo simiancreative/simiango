@@ -6,12 +6,14 @@ import (
 
 	_ "github.com/simiancreative/simiango/data/mssql"
 	_ "github.com/simiancreative/simiango/data/pg"
+	_ "github.com/simiancreative/simiango/data/mysql"
 
 	"github.com/simiancreative/simiango/server"
 	"github.com/simiancreative/simiango/service"
 
 	mssql "github.com/simiancreative/simiango/examples/services/mssql"
 	pg "github.com/simiancreative/simiango/examples/services/pg"
+	mysql "github.com/simiancreative/simiango/examples/services/mysql"
 	sample "github.com/simiancreative/simiango/examples/services/sample"
 )
 
@@ -31,6 +33,7 @@ func main() {
 	server.AddServices(service.Collection{
 		mssql.Config,
 		pg.Config,
+		mysql.Config,
 		sample.Config,
 	})
 
