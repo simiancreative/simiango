@@ -1,20 +1,13 @@
 package pg
 
 import (
-	"context"
 	"database/sql"
 	"os"
 
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
-
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-var Ctx context.Context
-var C Conn
 var Cx ConnX
 
 type ConnX interface {
@@ -35,22 +28,9 @@ type ConnX interface {
 	PrepareNamed(string) (*sqlx.NamedStmt, error)
 }
 
-type Conn interface {
-	Begin(context.Context) (pgx.Tx, error)
-	Exec(context.Context, string, ...interface{}) (pgconn.CommandTag, error)
-	QueryFunc(context.Context, string, []interface{}, []interface{}, func(pgx.QueryFuncRow) error) (pgconn.CommandTag, error)
-	Query(context.Context, string, ...interface{}) (pgx.Rows, error)
-	QueryRow(context.Context, string, ...interface{}) pgx.Row
-	SendBatch(context.Context, *pgx.Batch) pgx.BatchResults
-	Close()
-}
-
 func init() {
 	_, mustConnect := os.LookupEnv("PG_REQUIRE_CONNECTION")
 	addr := os.Getenv("PG_URL")
-
-	Ctx = context.Background()
-	C, _ = pgxpool.Connect(Ctx, addr)
 
 	if !mustConnect {
 		Cx, _ = sqlx.Connect("pgx", addr)

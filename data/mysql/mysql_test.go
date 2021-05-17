@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"context"
 	"testing"
 
 	m "github.com/simiancreative/simiango/mocks/data/mysql"
@@ -10,8 +9,6 @@ import (
 var ConnXMock *m.ConnX
 
 func init() {
-	Ctx = context.Background()
-
 	ConnXMock = &m.ConnX{}
 	Cx = ConnXMock
 

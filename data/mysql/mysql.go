@@ -5,7 +5,6 @@ package mysql
 // 2. remote
 // 3. local
 import (
-	"context"
 	"database/sql"
 	"os"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var Ctx context.Context
 var Cx ConnX
 
 type ConnX interface {
@@ -37,8 +35,6 @@ type ConnX interface {
 func init() {
 	_, mustConnect := os.LookupEnv("MYSQL_REQUIRE_CONNECTION")
 	addr := os.Getenv("MYSQL_URL")
-
-	Ctx = context.Background()
 
 	if !mustConnect {
 		Cx, _ = sqlx.Connect("mysql", addr)

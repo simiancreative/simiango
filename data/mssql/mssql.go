@@ -5,7 +5,6 @@ package mssql
 // 2. remote
 // 3. local
 import (
-	"context"
 	"database/sql"
 	"os"
 
@@ -14,7 +13,6 @@ import (
 )
 
 var db *sql.DB
-var Ctx context.Context
 var Cx ConnX
 
 type ConnX interface {
@@ -38,8 +36,6 @@ type ConnX interface {
 func init() {
 	_, mustConnect := os.LookupEnv("SQLSERVER_REQUIRE_CONNECTION")
 	addr := os.Getenv("SQLSERVER_URL")
-
-	Ctx = context.Background()
 
 	if !mustConnect {
 		Cx, _ = sqlx.Connect("mssql", addr)
