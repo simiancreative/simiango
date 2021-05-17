@@ -1,7 +1,6 @@
 package mssql
 
 import (
-	"context"
 	"testing"
 
 	m "github.com/simiancreative/simiango/mocks/data/mssql"
@@ -10,11 +9,6 @@ import (
 var ConnXMock *m.ConnX
 
 func init() {
-	Ctx = context.Background()
-
-	ConnXMock = &m.ConnX{}
-	Cx = ConnXMock
-
 	ConnXMock = &m.ConnX{}
 	Cx = ConnXMock
 }
