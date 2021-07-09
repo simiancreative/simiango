@@ -243,10 +243,24 @@ func EnableHealthCheck() {
 	router.Handle("GET", "/status", healthGET)
 }
 
+func EnableCustomHealthCheck(path string, check gin.HandlerFunc) {
+	router.Handle("GET", path, check)
+}
+
 func Start() {
 	for _, service := range services {
 		InitService(service)
 	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	logger.Debug(
+		"Server: initialized and starting",
+		logger.Fields{"port": port},
+	)
 
 	router.Run()
 }

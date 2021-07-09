@@ -11,8 +11,6 @@ func init() {
 	logType, _ := os.LookupEnv("LOG_TYPE")
 	logLevel, logLevelExists := os.LookupEnv("LOG_LEVEL")
 
-	log.Info(logType)
-
 	if logType != "line" {
 		log.SetFormatter(&log.JSONFormatter{})
 	}
