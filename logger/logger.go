@@ -84,3 +84,8 @@ func Panic(message string, fields Fields) {
 	logFields := log.Fields(fields)
 	log.WithFields(logFields).Panic(message)
 }
+
+func GetEntry(fields Fields) *log.Entry {
+	logFields := log.Fields(fields)
+	return log.WithFields(logFields)
+}
