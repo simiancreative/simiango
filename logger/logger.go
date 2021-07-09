@@ -42,6 +42,12 @@ func init() {
 	case "panic":
 		log.SetLevel(log.PanicLevel)
 	}
+
+	Debug(
+		"Logger: ready",
+		Fields{"type": logType, "level": logLevel},
+	)
+
 }
 
 func Trace(message string, fields Fields) {
