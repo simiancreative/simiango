@@ -6,6 +6,7 @@ package mongo
 // 3. local
 import (
 	"context"
+	"fmt"
 	"os"
 	"sync"
 
@@ -21,15 +22,15 @@ type MongoDatastore struct {
 }
 
 var (
+	ConnectHandler = connectHandler
 	ConnectToMongo = connectToMongo
 )
 
 func init() {
 	addr := os.Getenv("MONGO_URL")
 	database := os.Getenv("MONGO_DATABASE")
-
 	var mongoDataStore *MongoDatastore
-	db, session := connect(addr, database)
+	db, session, _ := connectHandler(addr, database)
 	if db != nil && session != nil {
 		mongoDataStore = new(MongoDatastore)
 		mongoDataStore.db = db
@@ -38,32 +39,34 @@ func init() {
 	}
 }
 
-func connect(addr string, database string) (a *mongo.Database, b *mongo.Client) {
+func connectHandler(addr string, database string) (a *mongo.Database, b *mongo.Client, c error) {
 	var connectOnce sync.Once
 	var db *mongo.Database
 	var session *mongo.Client
+	var err error
+	fmt.Println("connecting...")
 	connectOnce.Do(func() {
-		session = ConnectToMongo(addr, database)
-		if session != nil {
+		session, err := ConnectToMongo(addr, database)
+		if err == nil {
 			db = session.Database(database)
 		}
 	})
 
 	if session != nil {
-		return db, session
+		return db, session, nil
 	}
 
-	return nil, nil
+	return nil, nil, err
 }
 
-func connectToMongo(addr string, database string) (b *mongo.Client) {
+func connectToMongo(addr string, database string) (b *mongo.Client, c error) {
 	ctx := context.Background()
 	clientOpts := options.Client().ApplyURI(addr)
 
 	client, err := mongo.Connect(ctx, clientOpts)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return client
+	return client, nil
 }
