@@ -21,3 +21,13 @@ services:
       - POSTGRES_PASSWORD=Melon40twomonkeys
     ports:
       - '5432:5432'
+  mongo:
+    build:
+      context: ./mongo/
+      dockerfile: ./Dockerfile
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=Melon40twomonkeys
+      - MONGO_INITDB_DATABASE=ExampleData
+    ports:
+      - '27017:27017'

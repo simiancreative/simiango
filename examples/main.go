@@ -5,15 +5,16 @@ import (
 	_ "github.com/simiancreative/simiango/examples/docs"
 
 	_ "github.com/simiancreative/simiango/data/mssql"
-	_ "github.com/simiancreative/simiango/data/pg"
 	_ "github.com/simiancreative/simiango/data/mysql"
+	_ "github.com/simiancreative/simiango/data/pg"
 
 	"github.com/simiancreative/simiango/server"
 	"github.com/simiancreative/simiango/service"
 
+	mongo "github.com/simiancreative/simiango/examples/services/mongo"
 	mssql "github.com/simiancreative/simiango/examples/services/mssql"
-	pg "github.com/simiancreative/simiango/examples/services/pg"
 	mysql "github.com/simiancreative/simiango/examples/services/mysql"
+	pg "github.com/simiancreative/simiango/examples/services/pg"
 	sample "github.com/simiancreative/simiango/examples/services/sample"
 )
 
@@ -35,6 +36,7 @@ func main() {
 		pg.Config,
 		mysql.Config,
 		sample.Config,
+		mongo.Config,
 	})
 
 	server.Start()
