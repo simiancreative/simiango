@@ -35,15 +35,15 @@ func Build(
 	}
 
 	// setup context
-	decendants, ok := rawParams.Get("decendantsOf")
+	descendants, ok := rawParams.Get("descendantsOf")
 	if !ok {
-		return nil, errors.New("decendants_filter_required")
+		return nil, errors.New("descendants_filter_required")
 	}
 
 	id, _ := rawParams.Get("id")
 	params := sampleContext{
-		ID:         id.Value,
-		Decendants: decendants.Values[0],
+		ID:          id.Value,
+		Descendants: descendants.Values[0],
 	}
 
 	headers := sampleHeaders{}

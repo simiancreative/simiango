@@ -4,6 +4,12 @@ services:
     image: redis
     ports:
       - '6379:6379'
+  redis-sentinel:
+    image: 'bitnami/redis-sentinel:latest'
+    environment:
+      - REDIS_MASTER_HOST=hostfilesentinalentry
+    ports:
+      - '26379:26379'
   mssql:
     build:
       context: ./mssql/

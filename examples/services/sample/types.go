@@ -21,8 +21,8 @@ func (r *sampleResp) UnmarshalBinary(data []byte) error {
 }
 
 type sampleContext struct {
-	ID         string `json:"id"`
-	Decendants string `json:"decendantsOf"`
+	ID          string `json:"id"`
+	Descendants string `json:"descendantsOf"`
 }
 
 type sampleHeaders map[string]string
