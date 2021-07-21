@@ -1,65 +1,40 @@
 package mongo
 
 import (
-	"errors"
-	"fmt"
+	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/integration/mtest"
 )
 
+func init() {
+	addr := os.Getenv("MONGO_URL")
+	database := os.Getenv("MONGO_DATABASE")
+	var mongoDataStore *MongoDatastore
+
+	db, session, _ := connectHandler(addr, database)
+	if db != nil && session != nil {
+		mongoDataStore = new(MongoDatastore)
+		mongoDataStore.db = db
+		mongoDataStore.Session = session
+		Cx = mongoDataStore
+	}
+}
+
 func TestConnect(t *testing.T) {
-	mockError := errors.New("uh oh")
-	testing.Init()
-	subtests := []struct {
-		name           string
-		u              string
-		ConnectHandler func(string, string) (*mongo.Database, *mongo.Client, error)
-		ConnectToMongo func(string, string) (*mongo.Client, error)
-		expectedErr    error
-	}{
-		{
-			name: "Test Connect",
-			ConnectToMongo: func(s string, s2 string) (*mongo.Client, error) {
-				if s != "//u:p@a/db" {
-					return nil, errors.New("wrong connection string")
-				}
-				return nil, nil
-			},
-			ConnectHandler: func(s string, s2 string) (a *mongo.Database, b *mongo.Client, c error) {
-				b, c = ConnectToMongo(s, s2)
-				return nil, b, c
-			},
-		},
-		{
-			name: "error from Connect",
-			ConnectToMongo: func(s string, s2 string) (*mongo.Client, error) {
-				return nil, mockError
-			},
-			ConnectHandler: func(s string, s2 string) (a *mongo.Database, b *mongo.Client, c error) {
-				b, c = ConnectToMongo(s, s2)
-				return nil, b, c
-			},
-			expectedErr: mockError,
-		},
+	mt := mtest.New(t, mtest.NewOptions().ClientType(mtest.Mock))
+	defer mt.Close()
+	ConnectToMongo = func(s string, s2 string) (*mongo.Client, error) {
+		return mt.Client, nil
 	}
 
-	//addr := os.Getenv("MONGO_URL")
-	//database := os.Getenv("MONGO_DATABASE")
-	addr := "//u:p@a/db"
-	database := "db"
+	mt.Run("connect with database name success", func(mt *mtest.T) {
+		database := os.Getenv("MONGO_DATABASE")
+		//mt.AddMockResponses(bson.D{{"ok", 1}, {"acknowledged", true}, {"n", 1}})
 
-	for _, subtest := range subtests {
-		t.Run(subtest.name, func(t *testing.T) {
-			ConnectHandler = subtest.ConnectHandler
-			ConnectToMongo = subtest.ConnectToMongo
-			var err error
-			fmt.Println(addr)
-			_, _, err = ConnectHandler(addr, database)
-
-			if !errors.Is(err, subtest.expectedErr) {
-				t.Errorf("expected error (%v), got error (%v)", subtest.expectedErr, err)
-			}
-		})
-	}
+		testing.Init()
+		assert.Equal(t, database, Cx.db.Name())
+	})
 }

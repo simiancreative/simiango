@@ -21,11 +21,6 @@ type MongoDatastore struct {
 	Session *mongo.Client
 }
 
-var (
-	ConnectHandler = connectHandler
-	ConnectToMongo = connectToMongo
-)
-
 func init() {
 	addr := os.Getenv("MONGO_URL")
 	database := os.Getenv("MONGO_DATABASE")
@@ -46,7 +41,7 @@ func connectHandler(addr string, database string) (a *mongo.Database, b *mongo.C
 	var err error
 	fmt.Println("connecting...")
 	connectOnce.Do(func() {
-		session, err := ConnectToMongo(addr, database)
+		session, err := connectToMongo(addr, database)
 		if err == nil {
 			db = session.Database(database)
 		}
