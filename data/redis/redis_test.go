@@ -49,3 +49,9 @@ func TestClientExists(t *testing.T) {
 	_, err := Exists("42")
 	assert.NoError(t, err)
 }
+
+func TestClientDel(t *testing.T) {
+	err := Set("42", "42", 0)
+	err = Del("42")
+	assert.NoError(t, err)
+}
