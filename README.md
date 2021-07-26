@@ -18,6 +18,6 @@ A multi purpose tool set for golang applications. Tools include:
 ## Setup
 
 Create a go application and import simian go packages as required. See the
-[sample application](https://github.com/simiancreative/simiango/blob/master/sample/main.go)
+[sample application](https://github.com/simiancreative/simiango/blob/master/examples/main.go)
 for usage.
 
