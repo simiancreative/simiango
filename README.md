@@ -1,5 +1,6 @@
 # Simian Go
 
+[![Coverage Status](https://coveralls.io/repos/github/simiancreative/simiango/badge.svg?branch=master)](https://coveralls.io/github/simiancreative/simiango?branch=master)
 [![tests](https://github.com/simiancreative/simiango/workflows/CI/badge.svg)](https://github.com/simiancreative/simiango/actions)
 [![Godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/simiancreative/simiango) 
 [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://github.com/simiancreative/simiango/blob/master/LICENSE)
