@@ -33,4 +33,6 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: make test
