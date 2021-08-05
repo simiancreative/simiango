@@ -11,7 +11,5 @@ goveralls -coverprofile=coverage.out -repotoken=${COVERALLS_TOKEN}
 
 coverage=$(go tool cover -func coverage.out | grep total | awk '{print $3}')
 
-#./bin/post-coverage.sh $coverage
-
 echo
 echo coverage: $coverage
