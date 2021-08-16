@@ -9,7 +9,7 @@ import (
 	"github.com/aymerick/raymond"
 	"github.com/spf13/cobra"
 
-	"github.com/simiancreative/simiango/cmd/app"
+	"github.com/simiancreative/simiango/simian-go/app"
 )
 
 var kind string

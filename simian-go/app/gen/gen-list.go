@@ -7,7 +7,7 @@ import (
 	// "github.com/jedib0t/go-pretty/v6/text"
 	"github.com/spf13/cobra"
 
-	"github.com/simiancreative/simiango/cmd/app"
+	"github.com/simiancreative/simiango/simian-go/app"
 )
 
 var GenListCmd = &cobra.Command{

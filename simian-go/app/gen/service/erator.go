@@ -1,7 +1,7 @@
 package genservice
 
 import (
-	"github.com/simiancreative/simiango/cmd/app/gen"
+	"github.com/simiancreative/simiango/simian-go/app/gen"
 )
 
 var erator = gen.Erator{
