@@ -28,7 +28,6 @@ func init() {
 	os.Setenv("APP_ENV", envFlag)
 
 	_ = godotenv.Load(path)
-
 }
 
 func findAppDir(env string) (*string, error) {
