@@ -16,6 +16,7 @@ require (
 	github.com/gin-gonic/gin v1.7.0
 	github.com/go-redis/redis/v8 v8.4.2
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.1.2
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
 	github.com/jackc/pgconn v1.8.0
