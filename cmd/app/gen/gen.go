@@ -85,16 +85,22 @@ func alertToWrite(e Erator, v Values) error {
 		tpls = append(tpls, tpl.Path)
 	}
 
-	answers := &map[string]interface{}{}
+	answers := map[string]interface{}{}
 
 	fmt.Println(fmt.Sprintf("Creating the following files in %s", path))
 	fmt.Println(strings.Join(tpls, ", "))
-	err := survey.Ask(qs, answers)
+	err := survey.Ask(qs, &answers)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	val := answers["ok"].(bool)
+
+	if !val {
+		err = fmt.Errorf("stopped")
+	}
+
+	return err
 }
 
 func gatherValues(e Erator) (*Values, error) {
