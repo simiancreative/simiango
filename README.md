@@ -22,3 +22,14 @@ Create a go application and import simian go packages as required. See the
 [sample application](https://github.com/simiancreative/simiango/blob/master/examples/main.go)
 for usage.
 
+## CLI
+
+install
+```
+go get -u github.com/simiancreative/simiango/simian-go
+```
+
+run
+```
+simian-go -h
+```
