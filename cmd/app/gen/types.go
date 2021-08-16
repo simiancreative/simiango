@@ -1,6 +1,7 @@
 package gen
 
 type Template struct {
+	IF      string
 	Path    string
 	Content string
 }

@@ -31,10 +31,12 @@ var erator = gen.Erator{
 	},
 	Templates: []gen.Template{
 		{
+			IF:      "IsPrivate",
 			Path:    "auth.go",
 			Content: auth,
 		},
 		{
+			IF:      "IsPrivate",
 			Path:    "auth_test.go",
 			Content: authTest,
 		},

@@ -39,7 +39,7 @@ func runGen() error {
 		return err
 	}
 
-	err = alertToWrite(generator)
+	err = alertToWrite(generator, *values)
 	if err != nil {
 		return err
 	}
@@ -54,6 +54,10 @@ func runGen() error {
 
 func writeContent(e Erator, v Values) error {
 	for _, tpl := range e.Templates {
+		if tpl.IF != "" && !v[tpl.IF].(bool) {
+			continue
+		}
+
 		result, _ := raymond.Render(tpl.Content, v)
 		content := []byte(result)
 		err := ioutil.WriteFile(tpl.Path, content, 0644)
@@ -65,7 +69,7 @@ func writeContent(e Erator, v Values) error {
 	return nil
 }
 
-func alertToWrite(e Erator) error {
+func alertToWrite(e Erator, v Values) error {
 	var qs = []*survey.Question{{
 		Name:     "ok",
 		Validate: survey.Required,
@@ -74,6 +78,10 @@ func alertToWrite(e Erator) error {
 	tpls := []string{}
 
 	for _, tpl := range e.Templates {
+		if tpl.IF != "" && !v[tpl.IF].(bool) {
+			continue
+		}
+
 		tpls = append(tpls, tpl.Path)
 	}
 
