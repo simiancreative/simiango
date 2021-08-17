@@ -28,6 +28,11 @@ var erator = gen.Erator{
 			Name:    "IsPrivate",
 			Message: "Does the service require Auth",
 		},
+		{
+			Type:    "confirm",
+			Name:    "SetupSwagger",
+			Message: "Does the service require swagger documentation",
+		},
 	},
 	Templates: []gen.Template{
 		{

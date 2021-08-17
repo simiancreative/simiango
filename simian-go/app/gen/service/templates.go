@@ -60,7 +60,7 @@ import (
 	"github.com/simiancreative/simiango/service"
 )
 
-{{#if Swagger}}
+{{#if SetupSwagger}}
 // Build godoc
 // @Summary [enter service summary]
 // @Description [enter service description]
@@ -138,7 +138,7 @@ func TestConfig(t *testing.T) {
 
 var result = `package {{ServiceName}}
 
-import ()
+type {{ServiceName}}Service struct {}
 
 func (s *{{ServiceName}}Service) Result() (interface{}, error) {
 	return "", nil
