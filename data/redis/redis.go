@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding"
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -85,8 +84,6 @@ func init() {
 	sentinels, ok := os.LookupEnv("REDIS_SENTINELS")
 	if ok {
 		sentinelList := strings.Split(sentinels, ",")
-
-		fmt.Println("REDIS_SENTINELS configured")
 
 		sentinelPassword, ok := os.LookupEnv("REDIS_SENTINELS_PASS")
 		if !ok {

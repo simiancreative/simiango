@@ -9,7 +9,6 @@ require (
 	github.com/alicebob/miniredis v2.5.0+incompatible
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/denisenkom/go-mssqldb v0.9.0
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/elliotchance/redismock/v8 v8.5.4
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/contrib v0.0.0-20201101042839-6a891bf89f19 // indirect
@@ -26,6 +25,8 @@ require (
 	github.com/jmoiron/sqlx v1.3.0
 	github.com/joho/godotenv v1.3.0
 	github.com/mandrigin/gin-spa v0.0.0-20200212133200-790d0c0c7335
+	github.com/simukti/sqldb-logger v0.0.0-20201125162808-c35f87e285f2
+	github.com/simukti/sqldb-logger/logadapter/logrusadapter v0.0.0-20201125162808-c35f87e285f2
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v1.2.1
 	github.com/stretchr/testify v1.7.0

@@ -5,7 +5,12 @@ import (
 	"os"
 
 	_ "github.com/jackc/pgx/stdlib"
+	"github.com/simiancreative/simiango/logger"
+
 	"github.com/jmoiron/sqlx"
+	sqlLogger "github.com/simukti/sqldb-logger"
+	"github.com/simukti/sqldb-logger/logadapter/logrusadapter"
+	"github.com/sirupsen/logrus"
 )
 
 var Cx ConnX
@@ -32,11 +37,23 @@ func init() {
 	_, mustConnect := os.LookupEnv("PG_REQUIRE_CONNECTION")
 	addr := os.Getenv("PG_URL")
 
-	if !mustConnect {
-		Cx, _ = sqlx.Connect("pgx", addr)
+	dd, _ := sql.Open("pgx", addr)
+
+	if logger.Level() == logrus.DebugLevel {
+		logger := logger.New()
+		loggerAdapter := logrusadapter.New(logger)
+
+		dd = sqlLogger.OpenDriver(
+			addr,
+			dd.Driver(),
+			loggerAdapter,
+		)
 	}
 
-	if mustConnect {
-		Cx = sqlx.MustConnect("pgx", addr)
+	err := dd.Ping()
+	if mustConnect && err != nil {
+		panic(err)
 	}
+
+	Cx = sqlx.NewDb(dd, "pgx")
 }

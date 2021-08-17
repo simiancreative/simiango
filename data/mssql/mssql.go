@@ -9,7 +9,12 @@ import (
 	"os"
 
 	_ "github.com/denisenkom/go-mssqldb"
+	"github.com/simiancreative/simiango/logger"
+
 	"github.com/jmoiron/sqlx"
+	sqlLogger "github.com/simukti/sqldb-logger"
+	"github.com/simukti/sqldb-logger/logadapter/logrusadapter"
+	"github.com/sirupsen/logrus"
 )
 
 var db *sql.DB
@@ -34,14 +39,26 @@ type ConnX interface {
 }
 
 func init() {
-	_, mustConnect := os.LookupEnv("SQLSERVER_REQUIRE_CONNECTION")
 	addr := os.Getenv("SQLSERVER_URL")
 
-	if !mustConnect {
-		Cx, _ = sqlx.Connect("mssql", addr)
+	dd, _ := sql.Open("mssql", addr)
+
+	if logger.Level() == logrus.DebugLevel {
+		logger := logger.New()
+		loggerAdapter := logrusadapter.New(logger)
+
+		dd = sqlLogger.OpenDriver(
+			addr,
+			dd.Driver(),
+			loggerAdapter,
+		)
 	}
 
-	if mustConnect {
-		Cx = sqlx.MustConnect("mssql", addr)
+	_, mustConnect := os.LookupEnv("SQLSERVER_REQUIRE_CONNECTION")
+	err := dd.Ping()
+	if mustConnect && err != nil {
+		panic(err)
 	}
+
+	Cx = sqlx.NewDb(dd, "mssql")
 }

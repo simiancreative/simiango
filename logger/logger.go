@@ -1,91 +1,104 @@
 package logger
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"os"
 )
 
+var global *logrus.Logger
+
 type Fields map[string]interface{}
 
-func init() {
+func Type() string {
 	logType, _ := os.LookupEnv("LOG_TYPE")
-	logLevel, logLevelExists := os.LookupEnv("LOG_LEVEL")
+	return logType
+}
 
-	if logType != "line" {
-		log.SetFormatter(&log.JSONFormatter{})
+func Level() logrus.Level {
+	logLevel, _ := os.LookupEnv("LOG_LEVEL")
+
+	switch logLevel {
+	case "trace":
+		return logrus.TraceLevel
+	case "debug":
+		return logrus.DebugLevel
+	case "info":
+		return logrus.InfoLevel
+	case "warn":
+		return logrus.WarnLevel
+	case "error":
+		return logrus.ErrorLevel
+	case "fatal":
+		return logrus.FatalLevel
+	case "panic":
+		return logrus.PanicLevel
 	}
 
-	if logType == "line" {
-		log.SetFormatter(&log.TextFormatter{
+	return logrus.TraceLevel
+}
+
+func New() *logrus.Logger {
+	inst := logrus.New()
+
+	if Type() != "line" {
+		inst.SetFormatter(&logrus.JSONFormatter{})
+	}
+
+	if Type() == "line" {
+		inst.SetFormatter(&logrus.TextFormatter{
 			FullTimestamp: true,
 		})
 	}
 
-	if !logLevelExists {
-		log.SetLevel(log.TraceLevel)
-		return
-	}
+	inst.SetLevel(Level())
+	return inst
+}
 
-	switch logLevel {
-	case "trace":
-		log.SetLevel(log.TraceLevel)
-	case "debug":
-		log.SetLevel(log.DebugLevel)
-	case "info":
-		log.SetLevel(log.InfoLevel)
-	case "warn":
-		log.SetLevel(log.WarnLevel)
-	case "error":
-		log.SetLevel(log.ErrorLevel)
-	case "fatal":
-		log.SetLevel(log.FatalLevel)
-	case "panic":
-		log.SetLevel(log.PanicLevel)
-	}
+func init() {
+	global = New()
 
 	Debug(
 		"Logger: ready",
-		Fields{"type": logType, "level": logLevel},
+		Fields{"type": Type(), "level": Level()},
 	)
-
 }
 
 func Trace(message string, fields Fields) {
-	logFields := log.Fields(fields)
-	log.WithFields(logFields).Trace(message)
+	logFields := logrus.Fields(fields)
+	global.WithFields(logFields).Trace(message)
 }
 
 func Debug(message string, fields Fields) {
-	logFields := log.Fields(fields)
-	log.WithFields(logFields).Debug(message)
+	logFields := logrus.Fields(fields)
+	global.WithFields(logFields).Debug(message)
 }
 
 func Info(message string, fields Fields) {
-	logFields := log.Fields(fields)
-	log.WithFields(logFields).Info(message)
+	logFields := logrus.Fields(fields)
+	global.WithFields(logFields).Info(message)
 }
 
 func Warn(message string, fields Fields) {
-	logFields := log.Fields(fields)
-	log.WithFields(logFields).Warn(message)
+	logFields := logrus.Fields(fields)
+	global.WithFields(logFields).Warn(message)
 }
 
 func Error(message string, fields Fields) {
-	logFields := log.Fields(fields)
-	log.WithFields(logFields).Error(message)
+	logFields := logrus.Fields(fields)
+	global.WithFields(logFields).Error(message)
 }
 
 func Fatal(message string, fields Fields) {
-	logFields := log.Fields(fields)
-	log.WithFields(logFields).Fatal(message)
+	logFields := logrus.Fields(fields)
+	global.WithFields(logFields).Fatal(message)
 }
 
 func Panic(message string, fields Fields) {
-	logFields := log.Fields(fields)
-	log.WithFields(logFields).Panic(message)
+	logFields := logrus.Fields(fields)
+	global.WithFields(logFields).Panic(message)
 }
 
-func GetEntry(fields Fields) *log.Entry {
-	logFields := log.Fields(fields)
-	return log.WithFields(logFields)
+func GetEntry(fields Fields) *logrus.Entry {
+	logFields := logrus.Fields(fields)
+	return global.WithFields(logFields)
 }

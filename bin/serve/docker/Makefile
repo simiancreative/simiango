@@ -1,2 +1,2 @@
 start:
-	docker-compose -p "simiango" up
+	docker compose -p "simiango" up

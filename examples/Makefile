@@ -3,5 +3,5 @@ serve:
 	go run . -env dev
 
 start:
-	go run . -env production
+	go run . -env dev
 

@@ -7,7 +7,7 @@ import (
 func (s Service) Result() (interface{}, error) {
 	rows := []Product{}
 
-	err := m.Cx.Select(&rows, "select * from Products")
+	err := m.Cx.Select(&rows, "select * from products")
 
 	return rows, err
 }

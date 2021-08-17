@@ -9,7 +9,12 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/simiancreative/simiango/logger"
+
 	"github.com/jmoiron/sqlx"
+	sqlLogger "github.com/simukti/sqldb-logger"
+	"github.com/simukti/sqldb-logger/logadapter/logrusadapter"
+	"github.com/sirupsen/logrus"
 )
 
 var Cx ConnX
@@ -33,14 +38,26 @@ type ConnX interface {
 }
 
 func init() {
-	_, mustConnect := os.LookupEnv("MYSQL_REQUIRE_CONNECTION")
 	addr := os.Getenv("MYSQL_URL")
 
-	if !mustConnect {
-		Cx, _ = sqlx.Connect("mysql", addr)
+	dd, _ := sql.Open("mysql", addr)
+
+	if logger.Level() == logrus.DebugLevel {
+		logger := logger.New()
+		loggerAdapter := logrusadapter.New(logger)
+
+		dd = sqlLogger.OpenDriver(
+			addr,
+			dd.Driver(),
+			loggerAdapter,
+		)
 	}
 
-	if mustConnect {
-		Cx = sqlx.MustConnect("mysql", addr)
+	_, mustConnect := os.LookupEnv("MYSQL_REQUIRE_CONNECTION")
+	err := dd.Ping()
+	if mustConnect && err != nil {
+		panic(err)
 	}
+
+	Cx = sqlx.NewDb(dd, "mysql")
 }
