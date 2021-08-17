@@ -43,7 +43,7 @@ func init() {
 
 	dd, _ := sql.Open("mssql", addr)
 
-	if logger.Level() == logrus.DebugLevel {
+	if logger.Level() >= logrus.DebugLevel {
 		logger := logger.New()
 		loggerAdapter := logrusadapter.New(logger)
 

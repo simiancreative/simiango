@@ -42,7 +42,7 @@ func init() {
 
 	dd, _ := sql.Open("mysql", addr)
 
-	if logger.Level() == logrus.DebugLevel {
+	if logger.Level() >= logrus.DebugLevel {
 		logger := logger.New()
 		loggerAdapter := logrusadapter.New(logger)
 
