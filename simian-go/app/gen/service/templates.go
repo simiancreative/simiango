@@ -60,18 +60,6 @@ import (
 	"github.com/simiancreative/simiango/service"
 )
 
-{{#if SetupSwagger}}
-// Build godoc
-// @Summary [enter service summary]
-// @Description [enter service description]
-// @Tags [add tags]
-// @ID {{ServiceName}}
-// @Produce  json
-// @Success [replace with vlaid response code] {object} [replace with reposne struct]
-// @Failure [replace with error code] {object} errors.ErrorResult "[replace with error_name]"
-// @Security bearer_auth
-// @Router /{{ServiceURL}} [{{ServiceMethod}}]
-{{/if}}
 func Build(
 	requestID meta.RequestId,
 	rawHeaders service.RawHeaders,
@@ -115,6 +103,20 @@ import (
 	"github.com/simiancreative/simiango/server"
 )
 
+{{#if SetupSwagger}}
+// Build godoc
+// @Summary [enter service summary]
+// @Description [enter service description]
+// @Tags [add tags]
+// @ID {{ServiceName}}
+// @Produce  json
+// @Success [replace with valid response code] {object} [replace with response struct]
+// @Failure [replace with error code] {object} service.ResultError "[replace with error_name]"
+{{#if IsPrivate}}
+// @Security bearer_auth
+{{/if}}
+// @Router /{{ServiceURL}} [{{ServiceMethod}}]
+{{/if}}
 var Config = service.Config{
 	IsPrivate: {{IsPrivate}},
 	Method:    "{{ServiceMethod}}",

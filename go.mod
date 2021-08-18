@@ -25,6 +25,10 @@ require (
 	github.com/jmoiron/sqlx v1.3.0
 	github.com/joho/godotenv v1.3.0
 	github.com/mandrigin/gin-spa v0.0.0-20200212133200-790d0c0c7335
+	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/mattn/go-isatty v0.0.13 // indirect
+	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/simukti/sqldb-logger v0.0.0-20201125162808-c35f87e285f2
 	github.com/simukti/sqldb-logger/logadapter/logrusadapter v0.0.0-20201125162808-c35f87e285f2
 	github.com/sirupsen/logrus v1.7.0
@@ -34,5 +38,8 @@ require (
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.7.0
 	github.com/yuin/gopher-lua v0.0.0-20200816102855-ee81675732da // indirect
+	golang.org/x/sys v0.0.0-20210817190340-bfb29a6856f2 // indirect
+	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
+	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/validator.v2 v2.0.0-20200605151824-2b28d334fa05
 )
