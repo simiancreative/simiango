@@ -83,8 +83,8 @@ func Build(
 	// create service instance
 	service := {{ServiceName}}Service{}
 	return &service, nil
-}
-`
+}`
+
 var buildTest = `package {{ServiceName}}
 
 import (
@@ -106,13 +106,13 @@ func TestBuild(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.IsType(t, service, &{{ServiceName}}Service{})
-}
-`
+}`
 
 var config = `package {{ServiceName}}
 
 import (
 	"github.com/simiancreative/simiango/service"
+	"github.com/simiancreative/simiango/server"
 )
 
 var Config = service.Config{
@@ -120,7 +120,14 @@ var Config = service.Config{
 	Method:    "{{ServiceMethod}}",
 	Path:      "/{{ServiceURL}}",
 	Build:     Build,
+}
+
+// dont forget to import your package in your main.go for initialization 
+// _ "path/to/project/{{ServiceName}}"
+func init() {
+	server.AddService(Config)
 }`
+
 var configTest = `package {{ServiceName}}
 
 import (
@@ -142,8 +149,8 @@ type {{ServiceName}}Service struct {}
 
 func (s *{{ServiceName}}Service) Result() (interface{}, error) {
 	return "", nil
-}
-`
+}`
+
 var resultTest = `package {{ServiceName}}
 
 import (
