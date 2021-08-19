@@ -22,6 +22,7 @@ var Cx ConnX
 
 type ConnX interface {
 	sqlx.Queryer
+	sqlx.QueryerContext
 
 	MapperFunc(func(string) string)
 	Rebind(string) string
