@@ -4,37 +4,37 @@ services:
     image: redis
     ports:
       - '6379:6379'
-  redis-sentinel:
-    image: 'bitnami/redis-sentinel:latest'
-    environment:
-      - REDIS_MASTER_HOST=hostfilesentinalentry
-    ports:
-      - '26379:26379'
-  mssql:
-    build:
-      context: ./mssql/
-      dockerfile: ./Dockerfile
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=Melon40twomonkeys
-    ports:
-      - '1433:1433'
-  mysql:
-    build:
-      context: ./mysql/
-      dockerfile: ./Dockerfile
-    ports:
-      - '3306:3306'
-    expose:
-      - '3306'
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=true
-  pg:
-    build:
-      context: ./pg/
-      dockerfile: ./Dockerfile
-    environment:
-      - POSTGRES_PASSWORD=Melon40twomonkeys
-    ports:
-      - '5432:5432'
+  # redis-sentinel:
+  #   image: 'bitnami/redis-sentinel:latest'
+  #   environment:
+  #     - REDIS_MASTER_HOST=hostfilesentinalentry
+  #   ports:
+  #     - '26379:26379'
+  # mssql:
+  #   build:
+  #     context: ./mssql/
+  #     dockerfile: ./Dockerfile
+  #   environment:
+  #     - ACCEPT_EULA=Y
+  #     - SA_PASSWORD=Melon40twomonkeys
+  #   ports:
+  #     - '1433:1433'
+  # mysql:
+  #   build:
+  #     context: ./mysql/
+  #     dockerfile: ./Dockerfile
+  #   ports:
+  #     - '3306:3306'
+  #   expose:
+  #     - '3306'
+  #   command: --default-authentication-plugin=mysql_native_password
+  #   environment:
+  #     - MYSQL_ALLOW_EMPTY_PASSWORD=true
+  # pg:
+  #   build:
+  #     context: ./pg/
+  #     dockerfile: ./Dockerfile
+  #   environment:
+  #     - POSTGRES_PASSWORD=Melon40twomonkeys
+  #   ports:
+  #     - '5432:5432'

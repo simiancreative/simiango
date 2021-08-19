@@ -158,6 +158,7 @@ func parseParams(params gin.Params, url *url.URL) service.RawParams {
 	for k, v := range url.Query() {
 		parsedParams = append(parsedParams, service.RawParam{
 			Key:    k,
+			Value:  v[0],
 			Values: v,
 		})
 	}
