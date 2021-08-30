@@ -48,7 +48,7 @@ func Build(
 
 	headers := sampleHeaders{}
 	for _, header := range rawHeaders {
-		headers[header.Key] = header.Value()
+		headers[header.Key] = header.Value
 	}
 
 	// create service instance
