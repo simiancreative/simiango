@@ -7,11 +7,11 @@ type RawParam struct {
 	Values []string
 }
 
-func (ps RawParams) Get(name string) (*RawParam, bool) {
+func (ps RawParams) Get(name string) (RawParam, bool) {
 	for _, entry := range ps {
 		if entry.Key == name {
-			return &entry, true
+			return entry, true
 		}
 	}
-	return nil, false
+	return RawParam{}, false
 }

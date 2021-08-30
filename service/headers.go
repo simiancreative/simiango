@@ -7,12 +7,12 @@ type RawHeader struct {
 	Values []string
 }
 
-func (ps RawHeaders) Get(name string) (*RawHeader, bool) {
+func (ps RawHeaders) Get(name string) (RawHeader, bool) {
 	for _, entry := range ps {
 		if entry.Key == name {
 			entry.Value = entry.Values[0]
-			return &entry, true
+			return entry, true
 		}
 	}
-	return nil, false
+	return RawHeader{}, false
 }
