@@ -15,6 +15,7 @@ A multi purpose tool set for golang applications. Tools include:
 - Http Server
 - Service Handlers
 - JWT Token
+- Validation
 
 ## Setup
 
