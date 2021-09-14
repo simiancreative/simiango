@@ -27,19 +27,44 @@ func handleService(config service.Config) gin.HandlerFunc {
 
 		result, err := serviceResult(s)
 
-		if err == nil && result == nil {
+		if err != nil {
+			logger.Error("Service Failed", logger.Fields{"err": err})
+			c.JSON(err.GetStatus(), err.GetDetails())
+			return
+		}
+
+		if result == nil {
 			c.Writer.WriteHeader(http.StatusNoContent)
 			return
 		}
 
-		if err == nil {
-			c.JSON(http.StatusOK, result)
+		if config.IsStream {
+			handleStreamingServiceResult(result, c)
 			return
 		}
 
-		logger.Error("Service Failed", logger.Fields{"err": err})
-		c.JSON(err.GetStatus(), err.GetDetails())
+		c.JSON(http.StatusOK, result)
 	}
+}
+
+func handleStreamingServiceResult(result interface{}, c *gin.Context) {
+	streamResult, ok := result.(service.StreamResult)
+
+	if ok {
+		c.Header("Content-Type", streamResult.Type)
+		c.Header("Content-Length", streamResult.Length)
+		c.Stream(streamResult.Writer)
+		return
+	}
+
+	logger.Error("Streaming Service Failed", logger.Fields{})
+	err := service.ToResultError(
+		fmt.Errorf("service does not return a stream result"),
+		"service failed",
+		500,
+	)
+
+	c.JSON(err.GetStatus(), err.GetDetails())
 }
 
 func serviceResult(s service.TPL) (interface{}, *service.ResultError) {

@@ -14,6 +14,7 @@ require (
 	github.com/gin-gonic/contrib v0.0.0-20201101042839-6a891bf89f19 // indirect
 	github.com/gin-gonic/gin v1.7.0
 	github.com/go-redis/redis/v8 v8.4.2
+	github.com/go-resty/resty/v2 v2.6.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.1.2

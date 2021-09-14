@@ -2,9 +2,16 @@ package service
 
 import (
 	"encoding/json"
+	"io"
 
 	"github.com/simiancreative/simiango/meta"
 )
+
+type StreamResult struct {
+	Type   string
+	Length string
+	Writer func(io.Writer) bool
+}
 
 type TPL interface {
 	Result() (interface{}, error)
@@ -16,6 +23,7 @@ type PrivateTPL interface {
 }
 
 type Config struct {
+	IsStream  bool
 	IsPrivate bool
 	Path      string
 	Method    string
