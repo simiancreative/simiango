@@ -13,12 +13,18 @@ type NullString struct {
 
 // Scan implements the Scanner interface for NullString
 func (ns *NullString) Scan(value interface{}) error {
-
-	// if nil then make Valid false
 	if reflect.TypeOf(value) == nil {
 		*ns = NullString{"", false}
-	} else {
+		return nil
+	}
+
+	switch value.(type) {
+	case string:
 		*ns = NullString{value.(string), true}
+	case []uint8:
+		*ns = NullString{string(value.([]uint8)), true}
+	default:
+		*ns = NullString{"", false}
 	}
 
 	return nil
