@@ -11,6 +11,7 @@ import (
 	"github.com/simiancreative/simiango/server"
 	"github.com/simiancreative/simiango/service"
 
+	_ "github.com/simiancreative/simiango/examples/services/crypt"
 	mssql "github.com/simiancreative/simiango/examples/services/mssql"
 	mysql "github.com/simiancreative/simiango/examples/services/mysql"
 	pg "github.com/simiancreative/simiango/examples/services/pg"
