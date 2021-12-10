@@ -42,7 +42,7 @@ func main() {
 		sample.Config,
 	})
 
-	// go server.Start()
+	go server.Start()
 	go amqp.Start()
 
 	// keep main process open
