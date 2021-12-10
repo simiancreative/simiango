@@ -8,6 +8,7 @@ import (
 	_ "github.com/simiancreative/simiango/data/mysql"
 	_ "github.com/simiancreative/simiango/data/pg"
 
+	"github.com/simiancreative/simiango/messaging/amqp"
 	"github.com/simiancreative/simiango/server"
 	"github.com/simiancreative/simiango/service"
 
@@ -17,6 +18,8 @@ import (
 	pg "github.com/simiancreative/simiango/examples/services/pg"
 	sample "github.com/simiancreative/simiango/examples/services/sample"
 	_ "github.com/simiancreative/simiango/examples/services/stream"
+
+	_ "github.com/simiancreative/simiango/examples/services/rabbit"
 )
 
 // @title Sample API
@@ -39,5 +42,9 @@ func main() {
 		sample.Config,
 	})
 
-	server.Start()
+	// go server.Start()
+	go amqp.Start()
+
+	// keep main process open
+	select {}
 }

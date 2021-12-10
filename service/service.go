@@ -25,6 +25,7 @@ type PrivateTPL interface {
 type Config struct {
 	IsStream  bool
 	IsPrivate bool
+	Key       string
 	Path      string
 	Method    string
 	Build     func(meta.RequestId, RawHeaders, RawBody, RawParams) (TPL, error)
