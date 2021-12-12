@@ -6,8 +6,6 @@ import (
 )
 
 var Config = service.Config{
-	IsStream:  true,
-	IsPrivate: false,
 	Key:       "add_user_fob",
 	Build:     Build,
 }
