@@ -22,8 +22,9 @@ func handle(deliveries <-chan amqp.Delivery, done chan error) {
 		), logger.Fields{"headers": d.Headers})
 
 		// select matching services then:
-		// - build
-		// - get result
+		// - build service
+		// - run result
+		// - ack message
 		service, err := findService(d)
 		if err != nil {
 			handleError("find service error", err, d)
