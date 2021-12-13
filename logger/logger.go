@@ -1,8 +1,10 @@
 package logger
 
 import (
-	"github.com/sirupsen/logrus"
+	"fmt"
 	"os"
+
+	"github.com/sirupsen/logrus"
 )
 
 var global *logrus.Logger
@@ -65,6 +67,10 @@ func init() {
 		"Logger: ready",
 		Fields{"type": Type(), "level": Level()},
 	)
+}
+
+func Printf(message string, replacements ...interface{}) {
+	global.Info(fmt.Sprintf(message, replacements...))
 }
 
 func Trace(message string, fields Fields) {
