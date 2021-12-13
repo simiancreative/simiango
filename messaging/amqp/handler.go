@@ -13,18 +13,19 @@ import (
 func handle(deliveries <-chan amqp.Delivery, done chan error) {
 	// https://pkg.go.dev/github.com/rabbitmq/amqp091-go#Delivery
 	for d := range deliveries {
-
-		logger.Debug(fmt.Sprintf(
-			"got %dB delivery: [%v] %q",
-			len(d.Body),
-			d.DeliveryTag,
-			d.Body,
-		), logger.Fields{"headers": d.Headers})
-
-		// select matching services then:
+		// for each delivery
+		// - select matching service
 		// - build service
 		// - run result
 		// - ack message
+
+		logger.Printf(
+			"Amqp: got %dB delivery: [%v] %q",
+			len(d.Body),
+			d.DeliveryTag,
+			d.Body,
+		)
+
 		service, err := findService(d)
 		if err != nil {
 			handleError("find service error", err, d)
@@ -36,7 +37,6 @@ func handle(deliveries <-chan amqp.Delivery, done chan error) {
 			continue
 		}
 
-		// service result, if success
 		d.Ack(false)
 	}
 
@@ -82,13 +82,12 @@ func handleService(d amqp.Delivery, config service.Config) error {
 		return err
 	}
 
-	logger.Debug(
-		fmt.Sprintf("Amqp: delivery success"),
-		logger.Fields{
-			"length": len(d.Body),
-			"dTag":   d.DeliveryTag,
-			"result": result,
-		},
+	logger.Printf(
+		"Amqp: %dB delivery success: [%v] %q, {%v}",
+		len(d.Body),
+		d.DeliveryTag,
+		d.Body,
+		result,
 	)
 
 	return nil
