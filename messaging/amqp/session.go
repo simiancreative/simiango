@@ -67,7 +67,10 @@ func (session *Session) handleReconnect() {
 		conn, err := session.connect()
 
 		if err != nil {
-			logger.Printf("AMQP: Failed to connect. Retrying...")
+			logger.Error(
+				"AMQP: Failed to connect. Retrying... ",
+				logger.Fields{"err": err},
+			)
 
 			select {
 			case <-session.done:
@@ -106,7 +109,10 @@ func (session *Session) handleReInit(conn *amqp.Connection) bool {
 		err := session.init(conn)
 
 		if err != nil {
-			logger.Printf("AMQP: Failed to initialize channel. Retrying...")
+			logger.Error(
+				"AMQP: Failed to initialize channel. Retrying... ",
+				logger.Fields{"err": err},
+			)
 
 			select {
 			case <-session.done:
