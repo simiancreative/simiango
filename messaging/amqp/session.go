@@ -162,7 +162,7 @@ func (session *Session) init(conn *amqp.Connection) error {
 
 	queue, err := ch.QueueDeclare(
 		queueName,
-		false, // Durable
+		true,  // Durable
 		false, // Delete when unused
 		false, // Exclusive
 		false, // No-wait
