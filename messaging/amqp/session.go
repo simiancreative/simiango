@@ -145,12 +145,6 @@ func (session *Session) init(conn *amqp.Connection) error {
 		return err
 	}
 
-	err = ch.Confirm(false)
-
-	if err != nil {
-		return err
-	}
-
 	if err = ch.ExchangeDeclare(
 		exchange,     // name of the exchange
 		exchangeType, // type
