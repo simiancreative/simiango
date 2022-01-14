@@ -8,7 +8,7 @@ import (
 var services service.Collection
 
 func AddService(config service.Config) {
-	logger.Debug("Amqp: adding service", logger.Fields{
+	logger.Debug("AMQP: adding service", logger.Fields{
 		"key": config.Key,
 	})
 
