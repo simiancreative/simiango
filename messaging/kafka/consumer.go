@@ -1,0 +1,57 @@
+package kafka
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+
+	kafka "github.com/segmentio/kafka-go"
+)
+
+func getKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
+	brokers := strings.Split(kafkaURL, ",")
+	return kafka.NewReader(kafka.ReaderConfig{
+		StartOffset: kafka.LastOffset,
+		Brokers:     brokers,
+		GroupID:     groupID,
+		Topic:       topic,
+		MinBytes:    10e3, // 10KB
+		MaxBytes:    10e6, // 10MB
+	})
+}
+
+func NewConsumer(kafkaURL, topic, groupID string) <-chan []byte {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT)
+
+	reader := getKafkaReader(kafkaURL, topic, groupID)
+
+	out := make(chan []byte)
+
+	go func() {
+		sig := <-sigs
+		fmt.Println("SIGINT received", sig, "closing...")
+		close(out)
+		reader.Close()
+	}()
+
+	go func() {
+		for {
+			m, err := reader.ReadMessage(context.Background())
+			if err != nil {
+				log.Fatalln(err)
+				//break
+			}
+			out <- m.Value
+		}
+		//close(out)
+		//reader.Close()
+
+	}()
+
+	return out
+}
