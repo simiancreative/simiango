@@ -1,4 +1,6 @@
-Builtin validators
+# Validate
+
+## Builtin validators
 
 ```
 len
@@ -41,4 +43,41 @@ regexp
 
 nonnil
 	Validates that the given value is not nil. (Usage: nonnil)
+```
+## Custom validators
+
+Define a custom validator by using AddValidation.
+
+```
+// Very simple validator
+func notZZ(v interface{}, param string) error {
+	st := reflect.ValueOf(v)
+	if st.Kind() != reflect.String {
+		return errors.New("notZZ only validates strings")
+	}
+	if st.String() == "ZZ" {
+		return errors.New("value cannot be ZZ")
+	}
+	return nil
+}
+```
+
+Then call AddValidation
+
+```
+validate.AddValidation("notzz", notZZ)
+```
+
+Now you can use notzz as a validation tag. This will print "Field A error: value cannot be ZZ"
+
+```
+type T struct {
+	A string  `validate:"nonzero,notzz"`
+}
+
+t := T{"ZZ"}
+
+if errs := validator.Validate(t); errs != nil {
+	fmt.Printf("Field A error: %s\n", errs["A"][0])
+}
 ```
