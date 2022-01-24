@@ -1,5 +1,7 @@
 # Validate
 
+Basic wrapper around https://github.com/go-validator/validator#usage with some added features to support service.ResultError. 
+
 ## Builtin validators
 
 ```
