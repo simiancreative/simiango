@@ -50,3 +50,11 @@ func TestScanFail(t *testing.T) {
 		)
 	}
 }
+
+func BenchmarkScan(b *testing.B) {
+	for _, test := range tests {
+		for i := 0; i < b.N; i++ {
+			test.Func(test.FailParam)
+		}
+	}
+}
