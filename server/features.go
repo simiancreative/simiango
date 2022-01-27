@@ -8,15 +8,9 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/mandrigin/gin-spa/spa"
-	"github.com/swaggo/files"
-	"github.com/swaggo/gin-swagger"
 
 	"github.com/simiancreative/simiango/logger"
 )
-
-func EnableSwagger() {
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-}
 
 // SetSPA hosts a Single Page App directory at the specified url
 func SetSPA(url string, dir string) {
