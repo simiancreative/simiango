@@ -3,13 +3,13 @@ package kafka
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 
 	kafka "github.com/segmentio/kafka-go"
+	"github.com/simiancreative/simiango/logger"
 )
 
 func getKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
@@ -24,13 +24,13 @@ func getKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
 	})
 }
 
-func NewConsumer(kafkaURL, topic, groupID string) <-chan []byte {
+func NewConsumer(kafkaURL, topic, groupID string) <-chan kafka.Message {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT)
 
 	reader := getKafkaReader(kafkaURL, topic, groupID)
 
-	out := make(chan []byte)
+	out := make(chan kafka.Message)
 
 	go func() {
 		sig := <-sigs
@@ -43,10 +43,10 @@ func NewConsumer(kafkaURL, topic, groupID string) <-chan []byte {
 		for {
 			m, err := reader.ReadMessage(context.Background())
 			if err != nil {
-				log.Fatalln(err)
+				logger.Error("Error reading message", logger.Fields{"err": err.Error()})
 				//break
 			}
-			out <- m.Value
+			out <- m
 		}
 		//close(out)
 		//reader.Close()

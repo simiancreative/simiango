@@ -2,7 +2,6 @@ package kafka
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 
@@ -24,29 +23,14 @@ func closeWriter(writer *kafka.Writer) {
 	}
 }
 
-func buildMessages(result Result) []kafka.Message {
-	messages := []kafka.Message{}
-
-	for _, content := range result.Content {
-		marshalled, _ := json.Marshal(content)
-		messages = append(messages, kafka.Message{
-			Key:   []byte(result.Key),
-			Value: marshalled,
-		})
-	}
-
-	return messages
-}
-
-func NewProducer(kafkaURL, topic string, in <-chan Result) <-chan bool {
+func NewProducer(kafkaURL, topic string, in <-chan []kafka.Message) <-chan bool {
 	writer := getKafkaWriter(kafkaURL, topic)
 	done := make(chan bool)
 
 	go func() {
 		defer closeWriter(writer)
 
-		for result := range in {
-			messages := buildMessages(result)
+		for messages := range in {
 			err := writer.WriteMessages(
 				context.Background(),
 				messages...,
