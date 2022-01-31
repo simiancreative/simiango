@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"encoding/json"
 	"fmt"
 
 	kafka "github.com/segmentio/kafka-go"
@@ -8,6 +9,20 @@ import (
 	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/service"
 )
+
+func buildKafkaMessages(messages service.Messages) []kafka.Message {
+	kafkaMessages := []kafka.Message{}
+
+	for _, message := range messages {
+		marshalled, _ := json.Marshal(message.Value)
+		kafkaMessages = append(kafkaMessages, kafka.Message{
+			Key:   []byte(message.Key),
+			Value: marshalled,
+		})
+	}
+
+	return kafkaMessages
+}
 
 func handle(c <-chan kafka.Message) <-chan []kafka.Message {
 	out := make(chan []kafka.Message)
@@ -26,54 +41,22 @@ func handle(c <-chan kafka.Message) <-chan []kafka.Message {
 		fmt.Printf("******* the kafka message.Key: %s\n", message.Key)
 		fmt.Printf("******* the kafka message.Value: %s\n", message.Value)
 		requestID := meta.Id()
-		readerService, err := buildService(requestID, readerConfig, message.Value)
+		service, err := buildService(requestID, readerConfig, message.Value)
 		if err != nil {
 			logger.Error("error building service", logger.Fields{"err": err.Error()})
 			return
 		}
 
-		object, err := readerService.Result()
+		messages, err := service.Result()
 		if err != nil {
 			logger.Error("error on exec result", logger.Fields{"err": err.Error()})
 			return
 		}
 
-		writerConfig, err := findService("writer")
-		if err != nil {
-			logger.Warn("no writer service found", logger.Fields{
-				"err": err.Error(),
-			})
-			return
+		fmt.Printf("**** Got messages %+v\n", messages)
+		if len(messages) > 0 {
+			out <- buildKafkaMessages(messages)
 		}
-
-		body, ok := object.(service.RawBody)
-		if !ok {
-			logger.Error("Error casting interface object to RawBody", logger.Fields{
-				"err": fmt.Sprintf("casted to type %T, value: %v", body, body),
-			})
-			return
-		}
-		writerService, err := buildService(requestID, writerConfig, body)
-		if err != nil {
-			logger.Error("error building service", logger.Fields{"err": err.Error()})
-			return
-		}
-
-		object, err = writerService.Result()
-		if err != nil {
-			logger.Error("error on exec result", logger.Fields{"err": err.Error()})
-			return
-		}
-
-		messages, ok := object.([]kafka.Message)
-		if !ok {
-			logger.Error("Error casting interface object to array of messages", logger.Fields{
-				"err": fmt.Sprintf("casted to type %T, value: %v", messages, messages),
-			})
-			return
-		}
-		fmt.Printf("Got messages %+v\n", messages)
-		out <- messages
 	}
 
 	go func() {

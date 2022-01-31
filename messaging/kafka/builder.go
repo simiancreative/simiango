@@ -9,8 +9,8 @@ func buildService(
 	requestID meta.RequestId,
 	config service.Config,
 	body service.RawBody,
-) (service.TPL, error) {
-	s, err := config.Build(requestID, service.RawHeaders{}, body, service.RawParams{})
+) (service.MessageTPL, error) {
+	s, err := config.BuildMessages(requestID, service.RawHeaders{}, body, service.RawParams{})
 	if err == nil {
 		return s, nil
 	}

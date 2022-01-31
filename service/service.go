@@ -22,13 +22,25 @@ type PrivateTPL interface {
 	TPL
 }
 
+type Message struct {
+	Key   string
+	Value interface{}
+}
+
+type Messages []Message
+
+type MessageTPL interface {
+	Result() (Messages, error)
+}
+
 type Config struct {
-	IsStream  bool
-	IsPrivate bool
-	Key       string
-	Path      string
-	Method    string
-	Build     func(meta.RequestId, RawHeaders, RawBody, RawParams) (TPL, error)
+	IsStream      bool
+	IsPrivate     bool
+	Key           string
+	Path          string
+	Method        string
+	Build         func(meta.RequestId, RawHeaders, RawBody, RawParams) (TPL, error)
+	BuildMessages func(meta.RequestId, RawHeaders, RawBody, RawParams) (MessageTPL, error)
 }
 type Collection []Config
 
