@@ -2,10 +2,10 @@ package kafka
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	kafka "github.com/segmentio/kafka-go"
+	"github.com/simiancreative/simiango/logger"
 )
 
 func getKafkaWriter(kafkaURL, topic string) *kafka.Writer {
@@ -17,7 +17,7 @@ func getKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 }
 
 func closeWriter(writer *kafka.Writer) {
-	fmt.Println("closing writer")
+	logger.Printf("closing writer\n")
 	if err := writer.Close(); err != nil {
 		log.Fatal("failed to close writer:", err)
 	}

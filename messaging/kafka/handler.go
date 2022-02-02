@@ -24,11 +24,10 @@ func buildKafkaMessages(messages service.Messages) []kafka.Message {
 	return kafkaMessages
 }
 
-func handle(c <-chan kafka.Message) <-chan []kafka.Message {
+func Handle(c <-chan kafka.Message) <-chan []kafka.Message {
 	out := make(chan []kafka.Message)
 
 	handler := func(message kafka.Message) {
-		fmt.Printf("******* the kafka message received: %+v\n", message)
 		readerConfig, err := findService("reader")
 		if err != nil {
 			logger.Error("error finding reader service", logger.Fields{
@@ -38,8 +37,6 @@ func handle(c <-chan kafka.Message) <-chan []kafka.Message {
 			})
 			return
 		}
-		fmt.Printf("******* the kafka message.Key: %s\n", message.Key)
-		fmt.Printf("******* the kafka message.Value: %s\n", message.Value)
 		requestID := meta.Id()
 		service, err := buildService(requestID, readerConfig, message.Value)
 		if err != nil {
@@ -53,7 +50,6 @@ func handle(c <-chan kafka.Message) <-chan []kafka.Message {
 			return
 		}
 
-		fmt.Printf("**** Got messages %+v\n", messages)
 		if len(messages) > 0 {
 			out <- buildKafkaMessages(messages)
 		}

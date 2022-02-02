@@ -1,11 +1,7 @@
 package kafka
 
-import (
-	"fmt"
-	"os"
-)
-
-func Start() {
+/*
+func Start(url, readerTopic, groupID string) {
 	url := os.Getenv("KAFKA_BROKERS")
 
 	readerTopic := os.Getenv("KAFKA_READER_TOPIC")
@@ -21,3 +17,4 @@ func Start() {
 	}
 
 }
+*/
