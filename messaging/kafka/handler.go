@@ -28,7 +28,7 @@ func Handle(c <-chan kafka.Message) <-chan []kafka.Message {
 	out := make(chan []kafka.Message)
 
 	handler := func(message kafka.Message) {
-		readerConfig, err := findService("reader")
+		readerConfig, err := findService(message.Topic)
 		if err != nil {
 			logger.Error("error finding reader service", logger.Fields{
 				"message_key":   string(message.Key),
