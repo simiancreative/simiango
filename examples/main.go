@@ -9,6 +9,7 @@ import (
 	_ "github.com/simiancreative/simiango/data/pg"
 
 	"github.com/simiancreative/simiango/messaging/amqp"
+	"github.com/simiancreative/simiango/messaging/kafka"
 	"github.com/simiancreative/simiango/server"
 	"github.com/simiancreative/simiango/service"
 
@@ -19,6 +20,7 @@ import (
 	sample "github.com/simiancreative/simiango/examples/services/sample"
 	_ "github.com/simiancreative/simiango/examples/services/stream"
 
+	_ "github.com/simiancreative/simiango/examples/services/kafka"
 	_ "github.com/simiancreative/simiango/examples/services/rabbit"
 )
 
@@ -44,6 +46,7 @@ func main() {
 
 	go server.Start()
 	go amqp.Start()
+	go kafka.Start()
 
 	// keep main process open
 	select {}
