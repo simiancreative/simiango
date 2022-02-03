@@ -9,9 +9,7 @@ import (
 )
 
 var Config = service.Config{
-	IsStream:      true, // please check
-	IsPrivate:     false,
-	Key:           os.Getenv("KAFKA_READER_TOPIC"), // please check
+	Key:           os.Getenv("KAFKA_READER_TOPIC"),
 	BuildMessages: Build,
 }
 
