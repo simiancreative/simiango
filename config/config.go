@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/joho/godotenv"
-
 )
 
 var envFlag string
