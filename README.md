@@ -8,14 +8,24 @@
 
 A multi purpose tool set for golang applications. Tools include:
 
-- Config
-- Redis
+- Dotenv Config
 - Logger
-- Meta
 - Http Server
+  - Private Routes
+  - Streaming Response
+  - Request Parameter Parsing
 - Service Handlers
-- JWT Token
-- Validation
+- Reversible and Non-Reversible encryption
+- JWT Token Generation and Validation
+- Struct Validation
+- Various Service Implementations meant to abstract the usage into a simple interface
+  - Mysql
+  - Mssql
+  - Postrges
+  - Sql null types without valid checking 😅
+  - Redis
+  - AMQP
+  - Kafka
 
 ## Setup
 
@@ -27,7 +37,7 @@ for usage.
 
 install
 ```
-go get -u github.com/simiancreative/simiango/simian-go
+go install github.com/simiancreative/simiango/simian-go@latest
 ```
 
 run

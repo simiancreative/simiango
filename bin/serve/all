@@ -1,17 +1,6 @@
 #!/usr/bin/env bash
 
-if ! command -v overmind &> /dev/null
-then
-    echo "overmind could not be found, install it first:"
-    echo "https://github.com/DarthSim/overmind#installation"
-    exit
-fi
+procfile="./bin/serve/Procfile"
 
-if ! command -v fswatch &> /dev/null
-then
-    echo "fswatch could not be found, install it first:"
-    echo "https://github.com/emcrisostomo/fswatch"
-    exit
-fi
-
-overmind s -N
+go install github.com/mattn/goreman@latest
+goreman -f $procfile start
