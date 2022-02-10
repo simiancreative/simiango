@@ -9,10 +9,12 @@ type rabbitService struct {
 }
 
 func (s *rabbitService) Result() (interface{}, error) {
-	return nil, amqp.Publish(amqp.Publisher{
+	publisher := amqp.Publisher{
 		Exchange: "hello",
 		Queue:    "sweetie",
 		Type:     "direct",
 		Data:     s,
-	})
+	}
+
+	return nil, publisher.Publish()
 }
