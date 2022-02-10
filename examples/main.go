@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	_ "github.com/simiancreative/simiango/config"
 
 	_ "github.com/simiancreative/simiango/data/mssql"
@@ -22,6 +24,7 @@ import (
 	_ "github.com/simiancreative/simiango/examples/services/kafka"
 	_ "github.com/simiancreative/simiango/examples/services/param"
 	_ "github.com/simiancreative/simiango/examples/services/rabbit"
+	_ "github.com/simiancreative/simiango/examples/services/rabbit2"
 )
 
 func main() {
@@ -36,8 +39,16 @@ func main() {
 	})
 
 	go server.Start()
-	go amqp.Start()
-	go kafka.Start()
+
+	_, startRabbit := os.LookupEnv("AMQP")
+	if startRabbit {
+		go amqp.Start()
+	}
+
+	_, startKafka := os.LookupEnv("KAFKA")
+	if startKafka {
+		go kafka.Start()
+	}
 
 	// keep main process open
 	select {}

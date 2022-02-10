@@ -70,6 +70,10 @@ func isMatch(key string, d amqp.Delivery) bool {
 
 func handleService(d amqp.Delivery, config service.Config) error {
 	requestID := meta.Id()
+
+	if d.Headers == nil {
+		d.Headers = amqp.Table{}
+	}
 	d.Headers["X-Request-ID"] = string(requestID)
 
 	s, buildErr := buildService(requestID, config, d)

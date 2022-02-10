@@ -1,6 +1,7 @@
 package amqp
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -27,6 +28,7 @@ type Session struct {
 	notifyConnClose chan *amqp.Error
 	notifyChanClose chan *amqp.Error
 	notifyConfirm   chan amqp.Confirmation
+	notifyReturn    chan amqp.Return
 	isReady         bool
 }
 
@@ -50,11 +52,11 @@ var (
 // New creates a new consumer state instance, and automatically
 // attempts to connect to the server.
 func NewSession() *Session {
-	session := Session{
+	session = &Session{
 		done: make(chan bool),
 	}
 	session.handleReconnect()
-	return &session
+	return session
 }
 
 // handleReconnect will wait for a connection error on
@@ -136,8 +138,8 @@ func (session *Session) handleReInit(conn *amqp.Connection) bool {
 
 // init will initialize channel & declare queue
 func (session *Session) init(conn *amqp.Connection) error {
-	exchange := os.Getenv("AMQP_EXHANGE_NAME")
-	exchangeType := os.Getenv("AMQP_EXHANGE_TYPE")
+	exchange := os.Getenv("AMQP_EXCHANGE_NAME")
+	exchangeType := os.Getenv("AMQP_EXCHANGE_TYPE")
 
 	ch, err := conn.Channel()
 
@@ -159,6 +161,7 @@ func (session *Session) init(conn *amqp.Connection) error {
 
 	queueName := os.Getenv("AMQP_QUEUE_NAME")
 	queueKey := os.Getenv("AMQP_QUEUE_KEY")
+	_, dontConsume := os.LookupEnv("AMQP_DONT_CONSUME")
 
 	queue, err := ch.QueueDeclare(
 		queueName,
@@ -189,6 +192,10 @@ func (session *Session) init(conn *amqp.Connection) error {
 
 	logger.Printf("AMQP: Setup Complete")
 
+	if dontConsume {
+		return nil
+	}
+
 	go session.Stream()
 
 	return nil
@@ -208,8 +215,10 @@ func (session *Session) changeChannel(channel *amqp.Channel) {
 	session.channel = channel
 	session.notifyChanClose = make(chan *amqp.Error)
 	session.notifyConfirm = make(chan amqp.Confirmation, 1)
+	session.notifyReturn = make(chan amqp.Return, 1)
 	session.channel.NotifyClose(session.notifyChanClose)
 	session.channel.NotifyPublish(session.notifyConfirm)
+	session.channel.NotifyReturn(session.notifyReturn)
 }
 
 // Stream will continuously put queue items on the channel.
@@ -246,6 +255,76 @@ func (session *Session) Stream() error {
 	go handle(deliveries, consumerDone)
 
 	return <-consumerDone
+}
+
+type Publisher struct {
+	amqp.Publishing
+
+	Exchange string
+	Queue    string
+	Type     string
+	Data     interface{}
+}
+
+// Publish will push data onto the queue, and wait for a confirm.
+// If no confirms are received until within the resendTimeout,
+// it continuously re-sends messages until a confirm is received.
+// This will block until the server sends a confirm. Errors are
+// only returned if the push action itself fails, see UnsafePush.
+func Publish(p Publisher) error {
+	if !session.isReady {
+		return errors.New("failed to push: not connected")
+	}
+
+	body, _ := json.Marshal(p.Data)
+
+	if err := session.channel.ExchangeDeclare(
+		p.Exchange,
+		p.Type,
+		true,
+		false,
+		false,
+		false,
+		nil,
+	); err != nil {
+		return err
+	}
+
+	queue, err := session.channel.QueueDeclare(
+		p.Queue,
+		true,  // Durable
+		false, // Delete when unused
+		false, // Exclusive
+		false, // No-wait
+		nil,   // Arguments
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return session.channel.Publish(
+		p.Exchange, // Exchange
+		queue.Name, // Routing key
+		false,      // Mandatory
+		false,      // Immediate
+		amqp.Publishing{
+			Headers:         p.Headers,
+			ContentType:     p.ContentType,
+			ContentEncoding: p.ContentEncoding,
+			DeliveryMode:    p.DeliveryMode,
+			Priority:        p.Priority,
+			CorrelationId:   p.CorrelationId,
+			ReplyTo:         p.ReplyTo,
+			Expiration:      p.Expiration,
+			MessageId:       p.MessageId,
+			Timestamp:       p.Timestamp,
+			Type:            p.Type,
+			UserId:          p.UserId,
+			AppId:           p.AppId,
+			Body:            body,
+		},
+	)
 }
 
 // Close will cleanly shutdown the channel and connection.

@@ -6,8 +6,8 @@ import (
 )
 
 var Config = service.Config{
-	Key:       "add_user_fob",
-	Build:     Build,
+	Key:   "add_user_fob",
+	Build: Build,
 }
 
 // dont forget to import your package in your main.go for initialization
