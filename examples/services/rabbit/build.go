@@ -19,6 +19,8 @@ func Build(
 	fmt.Println(rawHeaders, rawParams)
 
 	// create service instance
-	service := rabbitService{}
+	service := rabbitService{
+		Hello: "Sweetie",
+	}
 	return &service, nil
 }

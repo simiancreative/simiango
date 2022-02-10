@@ -1,6 +1,12 @@
 package main
 
 import (
+	"os"
+
+	//
+	// must be first, all env vars are loaded then others services that depend on
+	// config can be loaded afterward
+	//
 	_ "github.com/simiancreative/simiango/config"
 
 	_ "github.com/simiancreative/simiango/data/mssql"
@@ -10,34 +16,33 @@ import (
 	"github.com/simiancreative/simiango/messaging/amqp"
 	"github.com/simiancreative/simiango/messaging/kafka"
 	"github.com/simiancreative/simiango/server"
-	"github.com/simiancreative/simiango/service"
 
 	_ "github.com/simiancreative/simiango/examples/services/crypt"
-	mssql "github.com/simiancreative/simiango/examples/services/mssql"
-	mysql "github.com/simiancreative/simiango/examples/services/mysql"
-	pg "github.com/simiancreative/simiango/examples/services/pg"
-	sample "github.com/simiancreative/simiango/examples/services/sample"
-	_ "github.com/simiancreative/simiango/examples/services/stream"
-
 	_ "github.com/simiancreative/simiango/examples/services/kafka"
+	_ "github.com/simiancreative/simiango/examples/services/mssql"
+	_ "github.com/simiancreative/simiango/examples/services/mysql"
 	_ "github.com/simiancreative/simiango/examples/services/param"
+	_ "github.com/simiancreative/simiango/examples/services/pg"
 	_ "github.com/simiancreative/simiango/examples/services/rabbit"
+	_ "github.com/simiancreative/simiango/examples/services/sample"
+	_ "github.com/simiancreative/simiango/examples/services/stream"
 )
 
 func main() {
 	server.EnableHealthCheck()
 	server.SetCORS()
 
-	server.AddServices(service.Collection{
-		mssql.Config,
-		pg.Config,
-		mysql.Config,
-		sample.Config,
-	})
-
 	go server.Start()
-	go amqp.Start()
-	go kafka.Start()
+
+	_, startRabbit := os.LookupEnv("AMQP")
+	if startRabbit {
+		go amqp.Start()
+	}
+
+	_, startKafka := os.LookupEnv("KAFKA")
+	if startKafka {
+		go kafka.Start()
+	}
 
 	// keep main process open
 	select {}

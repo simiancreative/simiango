@@ -27,6 +27,7 @@ type Session struct {
 	notifyConnClose chan *amqp.Error
 	notifyChanClose chan *amqp.Error
 	notifyConfirm   chan amqp.Confirmation
+	notifyReturn    chan amqp.Return
 	isReady         bool
 }
 
@@ -50,11 +51,11 @@ var (
 // New creates a new consumer state instance, and automatically
 // attempts to connect to the server.
 func NewSession() *Session {
-	session := Session{
+	session = &Session{
 		done: make(chan bool),
 	}
 	session.handleReconnect()
-	return &session
+	return session
 }
 
 // handleReconnect will wait for a connection error on
@@ -136,8 +137,8 @@ func (session *Session) handleReInit(conn *amqp.Connection) bool {
 
 // init will initialize channel & declare queue
 func (session *Session) init(conn *amqp.Connection) error {
-	exchange := os.Getenv("AMQP_EXHANGE_NAME")
-	exchangeType := os.Getenv("AMQP_EXHANGE_TYPE")
+	exchange := os.Getenv("AMQP_EXCHANGE_NAME")
+	exchangeType := os.Getenv("AMQP_EXCHANGE_TYPE")
 
 	ch, err := conn.Channel()
 
@@ -159,6 +160,7 @@ func (session *Session) init(conn *amqp.Connection) error {
 
 	queueName := os.Getenv("AMQP_QUEUE_NAME")
 	queueKey := os.Getenv("AMQP_QUEUE_KEY")
+	_, dontConsume := os.LookupEnv("AMQP_DONT_CONSUME")
 
 	queue, err := ch.QueueDeclare(
 		queueName,
@@ -189,6 +191,10 @@ func (session *Session) init(conn *amqp.Connection) error {
 
 	logger.Printf("AMQP: Setup Complete")
 
+	if dontConsume {
+		return nil
+	}
+
 	go session.Stream()
 
 	return nil
@@ -208,8 +214,10 @@ func (session *Session) changeChannel(channel *amqp.Channel) {
 	session.channel = channel
 	session.notifyChanClose = make(chan *amqp.Error)
 	session.notifyConfirm = make(chan amqp.Confirmation, 1)
+	session.notifyReturn = make(chan amqp.Return, 1)
 	session.channel.NotifyClose(session.notifyChanClose)
 	session.channel.NotifyPublish(session.notifyConfirm)
+	session.channel.NotifyReturn(session.notifyReturn)
 }
 
 // Stream will continuously put queue items on the channel.
