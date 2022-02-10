@@ -20,6 +20,7 @@ import (
 	_ "github.com/simiancreative/simiango/examples/services/stream"
 
 	_ "github.com/simiancreative/simiango/examples/services/kafka"
+	_ "github.com/simiancreative/simiango/examples/services/param"
 	_ "github.com/simiancreative/simiango/examples/services/rabbit"
 )
 

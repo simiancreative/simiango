@@ -29,7 +29,7 @@ func parseHeaders(headers amqp.Table) service.RawHeaders {
 	var parsedHeaders = service.RawHeaders{}
 
 	for key, value := range headers {
-		parsedHeaders = append(parsedHeaders, service.RawHeader{
+		parsedHeaders = append(parsedHeaders, service.ParamItem{
 			Key:    key,
 			Values: []string{fmt.Sprintf("%v", value)},
 		})
@@ -41,62 +41,62 @@ func parseHeaders(headers amqp.Table) service.RawHeaders {
 func parseParams(d amqp.Delivery) service.RawParams {
 	var parsedParams = service.RawParams{}
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "ContentType",
 		Value: fmt.Sprintf("%v", d.ContentType),
 	})
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "ContentEncoding",
 		Value: fmt.Sprintf("%v", d.ContentEncoding),
 	})
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "DeliveryMode",
 		Value: fmt.Sprintf("%v", d.DeliveryMode),
 	})
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "Priority",
 		Value: fmt.Sprintf("%v", d.Priority),
 	})
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "CorrelationId",
 		Value: fmt.Sprintf("%v", d.CorrelationId),
 	})
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "ReplyTo",
 		Value: fmt.Sprintf("%v", d.ReplyTo),
 	})
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "Expiration",
 		Value: fmt.Sprintf("%v", d.Expiration),
 	})
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "MessageId",
 		Value: fmt.Sprintf("%v", d.MessageId),
 	})
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "Timestamp",
 		Value: fmt.Sprintf("%v", d.Timestamp),
 	})
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "Type",
 		Value: fmt.Sprintf("%v", d.Type),
 	})
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "UserId",
 		Value: fmt.Sprintf("%v", d.UserId),
 	})
 
-	parsedParams = append(parsedParams, service.RawParam{
+	parsedParams = append(parsedParams, service.ParamItem{
 		Key:   "AppId",
 		Value: fmt.Sprintf("%v", d.AppId),
 	})

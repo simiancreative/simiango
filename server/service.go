@@ -92,6 +92,7 @@ func buildService(requestID meta.RequestId, config service.Config, c *gin.Contex
 	parsedHeaders := parseHeaders(c.Request)
 	parsedBody := rawBody(c.Request.Body)
 	parsedParams := parseParams(c.Params, c.Request.URL)
+
 	s, err := config.Build(requestID, parsedHeaders, parsedBody, parsedParams)
 
 	if err == nil {
@@ -154,7 +155,7 @@ func parseHeaders(request *http.Request) service.RawHeaders {
 	var parsedHeaders = service.RawHeaders{}
 
 	for key, values := range request.Header {
-		parsedHeaders = append(parsedHeaders, service.RawHeader{
+		parsedHeaders = append(parsedHeaders, service.ParamItem{
 			Key:    key,
 			Values: values,
 		})
@@ -174,14 +175,14 @@ func parseParams(params gin.Params, url *url.URL) service.RawParams {
 	var parsedParams = service.RawParams{}
 
 	for _, element := range params {
-		parsedParams = append(parsedParams, service.RawParam{
+		parsedParams = append(parsedParams, service.ParamItem{
 			Key:   element.Key,
 			Value: element.Value,
 		})
 	}
 
 	for k, v := range url.Query() {
-		parsedParams = append(parsedParams, service.RawParam{
+		parsedParams = append(parsedParams, service.ParamItem{
 			Key:    k,
 			Value:  v[0],
 			Values: v,
