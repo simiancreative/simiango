@@ -139,10 +139,10 @@ func handleAuth(
 	}
 
 	ps, _ := interface{}(s).(service.PrivateTPL)
-	ok := ps.Auth(requestID, parsedHeaders, parsedBody, parsedParams)
+	err = ps.Auth(requestID, parsedHeaders, parsedBody, parsedParams)
 
-	if !ok {
-		err = fmt.Errorf("Authentication Failed")
+	if err != nil {
+		err = fmt.Errorf("Authentication Failed: %v", err.Error())
 		logger.Error("Authentication Failed", logger.Fields{"err": err})
 		resultErr := service.ToResultError(err, "service auth failed", 401)
 		return resultErr

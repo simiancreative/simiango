@@ -18,7 +18,7 @@ type TPL interface {
 }
 
 type PrivateTPL interface {
-	Auth(meta.RequestId, RawHeaders, RawBody, RawParams) bool
+	Auth(meta.RequestId, RawHeaders, RawBody, RawParams) error
 	TPL
 }
 
