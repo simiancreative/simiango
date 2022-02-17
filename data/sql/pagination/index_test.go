@@ -18,7 +18,7 @@ func init() {
 
 	ConnXMock.
 		On(
-			"Select",
+			"Get",
 			&total,
 			`
 	SELECT COUNT(*)
