@@ -24,17 +24,17 @@ services:
   #     - SA_PASSWORD=Melon40twomonkeys
   #   ports:
   #     - '1433:1433'
-  # mysql:
-  #   build:
-  #     context: ./mysql/
-  #     dockerfile: ./Dockerfile
-  #   ports:
-  #     - '3306:3306'
-  #   expose:
-  #     - '3306'
-  #   command: --default-authentication-plugin=mysql_native_password
-  #   environment:
-  #     - MYSQL_ALLOW_EMPTY_PASSWORD=true
+  mysql:
+    build:
+      context: ./mysql/
+      dockerfile: ./Dockerfile
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
   # pg:
   #   build:
   #     context: ./pg/
