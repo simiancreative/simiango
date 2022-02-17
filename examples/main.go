@@ -21,6 +21,7 @@ import (
 	_ "github.com/simiancreative/simiango/examples/services/kafka"
 	_ "github.com/simiancreative/simiango/examples/services/mssql"
 	_ "github.com/simiancreative/simiango/examples/services/mysql"
+	_ "github.com/simiancreative/simiango/examples/services/mysql-page"
 	_ "github.com/simiancreative/simiango/examples/services/param"
 	_ "github.com/simiancreative/simiango/examples/services/pg"
 	_ "github.com/simiancreative/simiango/examples/services/rabbit"

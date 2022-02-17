@@ -1,14 +1,14 @@
 package service
 
 import (
-	"math"
+	"reflect"
 )
 
 type ContentResponse struct {
-	Content    []interface{} `json:"content"`
-	First      bool          `json:"first"`
-	Last       bool          `json:"last"`
-	TotalPages int           `json:"total_pages"`
+	Content    interface{} `json:"content"`
+	First      bool        `json:"first"`
+	Last       bool        `json:"last"`
+	TotalPages int         `json:"total_pages"`
 	ContentResponseMeta
 }
 
@@ -19,11 +19,16 @@ type ContentResponseMeta struct {
 }
 
 func ToContentResponse(
-	resources []interface{},
+	resources interface{},
 	meta ContentResponseMeta,
 ) ContentResponse {
+	rv := reflect.ValueOf(resources)
+	if rv.Kind() == reflect.Ptr {
+		rv = reflect.Indirect(rv)
+	}
+
 	if meta.Total == 0 {
-		meta.Total = len(resources)
+		meta.Total = rv.Len()
 	}
 
 	if meta.Size == 0 {
@@ -36,13 +41,13 @@ func ToContentResponse(
 
 	pages := meta.Total / meta.Size
 
-	total_pages := float64(pages)
+	totalPages := float64(pages)
 	if pages <= 0 {
-		total_pages = math.Ceil(total_pages)
+		totalPages = 1
 	}
 
 	last := false
-	if len(resources) == 0 || int(total_pages) == meta.Page {
+	if rv.Len() == 0 || int(totalPages) == meta.Page {
 		last = true
 	}
 
@@ -55,7 +60,7 @@ func ToContentResponse(
 		Content:             resources,
 		First:               first,
 		Last:                last,
-		TotalPages:          int(total_pages),
+		TotalPages:          int(totalPages),
 		ContentResponseMeta: meta,
 	}
 }
