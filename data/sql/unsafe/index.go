@@ -4,39 +4,20 @@ import (
 	"github.com/simiancreative/simiango/data/sql"
 )
 
-func Query(Cx sql.ConnX, query string, params ...interface{}) (interface{}, error) {
-	rows, err := Cx.Query(query, params...)
+type Unsafe struct {
+	Cx    sql.ConnX
+	Query string
+}
 
-	if err != nil {
+type UnsafeItem map[string]interface{}
+type UnsafeContent []UnsafeItem
+
+func (u *Unsafe) UnsafeSelect(params ...interface{}) (UnsafeContent, error) {
+	items := UnsafeContent{}
+
+	if err := u.Cx.Select(&items, u.Query, params...); err != nil {
 		return nil, err
 	}
 
-	cols, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-
-	rawResult := make([][]byte, len(cols))
-	result := make([]string, len(cols))
-	dest := make([]interface{}, len(cols))
-
-	for i, _ := range rawResult {
-		dest[i] = &rawResult[i]
-	}
-
-	for rows.Next() {
-		err = rows.Scan(dest...)
-		if err != nil {
-			return nil, err
-		}
-
-		for i, raw := range rawResult {
-			if raw == nil {
-				result[i] = "\\N"
-			} else {
-				result[i] = string(raw)
-			}
-		}
-	}
-	return result, nil
+	return items, nil
 }
