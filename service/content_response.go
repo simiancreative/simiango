@@ -1,21 +1,27 @@
 package service
 
 import (
+	"fmt"
 	"reflect"
 )
 
 type ContentResponse struct {
-	Content    interface{} `json:"content"`
-	First      bool        `json:"first"`
-	Last       bool        `json:"last"`
-	TotalPages int         `json:"total_pages"`
+	Content interface{} `json:"content"`
+	ContentResponseContext
 	ContentResponseMeta
 }
 
+type ContentResponseContext struct {
+	First      bool `json:"first"`
+	Last       bool `json:"last"`
+	TotalPages int  `json:"total_pages"`
+}
+
 type ContentResponseMeta struct {
-	Size  int `json:"size"`
-	Total int `json:"total"`
-	Page  int `json:"current_page"`
+	Size  int   `json:"size"`
+	Total int   `json:"total"`
+	Page  int   `json:"current_page"`
+	Error error `json:"error,omitempty"`
 }
 
 func ToContentResponse(
@@ -25,6 +31,14 @@ func ToContentResponse(
 	rv := reflect.ValueOf(resources)
 	if rv.Kind() == reflect.Ptr {
 		rv = reflect.Indirect(rv)
+	}
+
+	if rv.Kind() != reflect.Slice {
+		meta.Error = fmt.Errorf(
+			"cant create a content response from '%v'",
+			resources,
+		)
+		return ContentResponse{resources, ContentResponseContext{}, meta}
 	}
 
 	if meta.Total == 0 {
@@ -56,11 +70,15 @@ func ToContentResponse(
 		first = true
 	}
 
+	context := ContentResponseContext{
+		First:      first,
+		Last:       last,
+		TotalPages: int(totalPages),
+	}
+
 	return ContentResponse{
-		Content:             resources,
-		First:               first,
-		Last:                last,
-		TotalPages:          int(totalPages),
-		ContentResponseMeta: meta,
+		Content:                resources,
+		ContentResponseContext: context,
+		ContentResponseMeta:    meta,
 	}
 }
