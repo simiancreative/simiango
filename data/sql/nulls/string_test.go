@@ -1,17 +1,27 @@
 package nulls
 
 func init() {
+	valid := func(v interface{}) bool {
+		inst := v.(*String)
+		return inst.Valid
+	}
+
+	value := func(v interface{}) interface{} {
+		inst := v.(*String)
+		return inst.Value
+	}
+
 	registerTest(test{
 		Name: "String",
-		Func: func(v interface{}) (bool, interface{}, error) {
-			inst := &String{}
-			err := inst.Scan(v)
-
-			return inst.Valid, inst.Value, err
+		GetInst: func() interface{} {
+			return &String{}
 		},
+		Valid:   valid,
+		Value:   value,
 		Param:   "hi",
 		Matcher: "hi",
 
 		FailParam: 0,
+		MarshalledParam: "hi",
 	})
 }

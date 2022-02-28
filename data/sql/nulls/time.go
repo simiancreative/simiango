@@ -2,6 +2,7 @@ package nulls
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -37,7 +38,12 @@ func (nt *Time) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON for Time
 func (nt *Time) UnmarshalJSON(b []byte) error {
 	s := string(b)
-	// s = Stripchars(s, "\"")
+	s = strings.Trim(string(b), "\"")
+
+	if s == "null" {
+		nt.Time = time.Time{}
+		return nil
+	}
 
 	x, err := time.Parse(time.RFC3339, s)
 	if err != nil {

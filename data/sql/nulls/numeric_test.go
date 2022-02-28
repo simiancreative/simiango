@@ -1,45 +1,52 @@
 package nulls
 
 func init() {
+	valid := func(v interface{}) bool {
+		inst := v.(*Numeric)
+		return inst.Valid
+	}
+
+	value := func(v interface{}) interface{} {
+		inst := v.(*Numeric)
+		return inst.Value
+	}
+
 	registerTest(test{
 		Name: "Numeric - Float",
-		Func: func(v interface{}) (bool, interface{}, error) {
-			inst := &Numeric{}
-			err := inst.Scan(v)
-
-			return inst.Valid, inst.Value, err
+		GetInst: func() interface{} {
+			return &Numeric{}
 		},
-
-		Param:     0.00,
-		Matcher:   0.00,
-		FailParam: "hi",
+		Valid:           valid,
+		Value:           value,
+		Param:           0.00,
+		Matcher:         0.00,
+		FailParam:       "hi",
+		MarshalledParam: 0.00,
 	})
 
 	registerTest(test{
 		Name: "Numeric - []unit8",
-		Func: func(v interface{}) (bool, interface{}, error) {
-			inst := &Numeric{}
-			err := inst.Scan(v)
-
-			return inst.Valid, inst.Value, err
+		GetInst: func() interface{} {
+			return &Numeric{}
 		},
-
-		Param:     make([]uint8, 8),
-		Matcher:   0.00,
-		FailParam: "hi",
+		Valid:           valid,
+		Value:           value,
+		Param:           make([]uint8, 8),
+		Matcher:         0.00,
+		FailParam:       "hi",
+		MarshalledParam: 0.00,
 	})
 
 	registerTest(test{
 		Name: "Numeric - []byte 6",
-		Func: func(v interface{}) (bool, interface{}, error) {
-			inst := &Numeric{}
-			err := inst.Scan(v)
-
-			return inst.Valid, inst.Value, err
+		GetInst: func() interface{} {
+			return &Numeric{}
 		},
-
-		Param:     make([]byte, 6),
-		Matcher:   float64(0),
-		FailParam: "hi",
+		Valid:           valid,
+		Value:           value,
+		Param:           make([]byte, 6),
+		Matcher:         float64(0),
+		FailParam:       "hi",
+		MarshalledParam: 0.00,
 	})
 }

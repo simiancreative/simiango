@@ -1,21 +1,33 @@
 package nulls
 
-import "time"
+import (
+	"time"
+)
 
 func init() {
+	valid := func(v interface{}) bool {
+		inst := v.(*Time)
+		return inst.Valid
+	}
+
+	value := func(v interface{}) interface{} {
+		inst := v.(*Time)
+		return inst.Time
+	}
+
 	t := time.Time{}
 
 	registerTest(test{
-		Name: "Time",
-		Func: func(v interface{}) (bool, interface{}, error) {
-			inst := &Time{}
-			err := inst.Scan(v)
+		Name:            "Time",
+		Valid:           valid,
+		Value:           value,
+		Param:           t,
+		Matcher:         t,
+		FailParam:       "hi",
+		MarshalledParam: t,
 
-			return inst.Valid, inst.Time, err
+		GetInst: func() interface{} {
+			return &Time{}
 		},
-		Param:   t,
-		Matcher: t,
-
-		FailParam: "hi",
 	})
 }

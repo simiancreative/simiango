@@ -1,17 +1,27 @@
 package nulls
 
 func init() {
+	valid := func(v interface{}) bool {
+		inst := v.(*BitToInt64)
+		return inst.Valid
+	}
+
+	value := func(v interface{}) interface{} {
+		inst := v.(*BitToInt64)
+		return inst.Value
+	}
+
 	registerTest(test{
 		Name: "BitToInt64",
-		Func: func(v interface{}) (bool, interface{}, error) {
-			inst := &BitToInt64{}
-			err := inst.Scan(v)
-
-			return inst.Valid, inst.Value, err
+		GetInst: func() interface{} {
+			return &BitToInt64{}
 		},
+		Valid:   valid,
+		Value:   value,
 		Param:   true,
 		Matcher: int64(1),
 
-		FailParam: "hi",
+		FailParam:       "hi",
+		MarshalledParam: true,
 	})
 }
