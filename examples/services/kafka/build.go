@@ -1,6 +1,8 @@
 package kafka
 
 import (
+	"fmt"
+
 	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/service"
 )
@@ -8,13 +10,20 @@ import (
 func Build(
 	requestID meta.RequestId,
 	rawHeaders service.RawHeaders,
-	rawBody service.RawBody,
+	message service.RawBody,
 	rawParams service.RawParams,
 ) (
 	service.MessageTPL, error,
 ) {
 
+	fmt.Println("Headers", rawHeaders)
+	fmt.Println("Params", rawParams)
+
 	// create service instance
-	service := kafkaService{}
-	return &service, nil
+	s := kafkaService{}
+
+	// messages values are in the body
+	service.ParseBody(message, &s)
+
+	return &s, nil
 }

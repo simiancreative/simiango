@@ -3,6 +3,7 @@ package kafka
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	kafka "github.com/segmentio/kafka-go"
 	"github.com/simiancreative/simiango/logger"
@@ -25,20 +26,22 @@ func buildKafkaMessages(messages service.Messages) []kafka.Message {
 }
 
 func Handle(c <-chan kafka.Message) <-chan []kafka.Message {
+	handlerName := os.Getenv("KAFKA_HANDLER")
+
+	readerConfig, err := findService(handlerName)
+
+	if err != nil {
+		logger.Panic("error finding reader service", logger.Fields{
+			"err": err.Error(),
+		})
+	}
+
 	out := make(chan []kafka.Message)
 
 	handler := func(message kafka.Message) {
-		readerConfig, err := findService(message.Topic)
-		if err != nil {
-			logger.Error("error finding reader service", logger.Fields{
-				"message_key":   string(message.Key),
-				"message_value": string(message.Value),
-				"err":           err.Error(),
-			})
-			return
-		}
 		requestID := meta.Id()
-		service, err := buildService(requestID, readerConfig, message.Value)
+
+		service, err := buildService(requestID, readerConfig, message)
 		if err != nil {
 			logger.Error("error building service", logger.Fields{"err": err.Error()})
 			return
