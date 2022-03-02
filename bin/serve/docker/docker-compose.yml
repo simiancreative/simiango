@@ -4,11 +4,6 @@ services:
     image: redis
     ports:
       - '6379:6379'
-  rabbit:
-    image: rabbitmq:3-management
-    ports:
-      - '5672:5672'
-      - '15672:15672'
   # redis-sentinel:
   #   image: 'bitnami/redis-sentinel:latest'
   #   environment:
@@ -24,6 +19,32 @@ services:
   #     - SA_PASSWORD=Melon40twomonkeys
   #   ports:
   #     - '1433:1433'
+
+  rabbit:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9094:9094"
+    environment:
+
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://kafka:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   mysql:
     build:
       context: ./mysql/
@@ -35,6 +56,7 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
+
   # pg:
   #   build:
   #     context: ./pg/
