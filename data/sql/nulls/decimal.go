@@ -15,11 +15,9 @@ func (nt *Decimal) Scan(value interface{}) error {
 		*nt = Decimal{Float64fromUint8s(value.([]uint8)), true}
 	case float64:
 		*nt = Decimal{value.(float64), true}
-	default:
+	case nil:
 		*nt = Decimal{float64(0), false}
-	}
-
-	if !nt.Valid {
+	default:
 		return handleError(value)
 	}
 

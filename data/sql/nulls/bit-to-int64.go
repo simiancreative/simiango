@@ -19,11 +19,9 @@ func (nt *BitToInt64) Scan(value interface{}) error {
 			bit = 1
 		}
 		*nt = BitToInt64{bit, true}
-	default:
+	case nil:
 		*nt = BitToInt64{int64(0), false}
-	}
-
-	if !nt.Valid {
+	default:
 		return handleError(value)
 	}
 

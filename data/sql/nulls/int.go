@@ -13,11 +13,9 @@ func (nt *Int64) Scan(value interface{}) error {
 	switch value.(type) {
 	case int64:
 		*nt = Int64{value.(int64), true}
-	default:
+	case nil:
 		*nt = Int64{int64(0), false}
-	}
-
-	if !nt.Valid {
+	default:
 		return handleError(value)
 	}
 

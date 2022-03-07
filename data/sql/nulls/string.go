@@ -15,11 +15,9 @@ func (ns *String) Scan(value interface{}) error {
 	switch value.(type) {
 	case string:
 		*ns = String{value.(string), true}
-	default:
+	case nil:
 		*ns = String{"", false}
-	}
-
-	if !ns.Valid {
+	default:
 		return handleError(value)
 	}
 

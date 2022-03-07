@@ -13,11 +13,9 @@ func (nt *Bool) Scan(value interface{}) error {
 	switch value.(type) {
 	case bool:
 		*nt = Bool{value.(bool), true}
-	default:
+	case nil:
 		*nt = Bool{false, false}
-	}
-
-	if !nt.Valid {
+	default:
 		return handleError(value)
 	}
 

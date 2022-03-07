@@ -15,11 +15,9 @@ func (nt *Time) Scan(value interface{}) error {
 	switch value.(type) {
 	case time.Time:
 		*nt = Time{value.(time.Time), true}
-	default:
+	case nil:
 		*nt = Time{time.Time{}, false}
-	}
-
-	if !nt.Valid {
+	default:
 		return handleError(value)
 	}
 

@@ -15,11 +15,9 @@ func (nt *Numeric) Scan(value interface{}) error {
 		*nt = Numeric{Float64fromUint8s(value.([]uint8)), true}
 	case float64:
 		*nt = Numeric{value.(float64), true}
-	default:
+	case nil:
 		*nt = Numeric{float64(0), false}
-	}
-
-	if !nt.Valid {
+	default:
 		return handleError(value)
 	}
 
