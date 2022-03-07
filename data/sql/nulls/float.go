@@ -14,9 +14,9 @@ func (nt *Float64) Scan(value interface{}) error {
 	case float64:
 		*nt = Float64{value.(float64), true}
 	case nil:
-		return handleError(value)
-	default:
 		*nt = Float64{float64(0), false}
+	default:
+		return handleError(value)
 	}
 
 	return nil
