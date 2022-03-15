@@ -5,13 +5,24 @@ import (
 )
 
 func (p *Page) NamedSelect(items interface{}, arg interface{}) (*service.ContentResponse, error) {
-	total, err := getNamedCount(p, arg)
+	countQuery := p.buildCountQuery()
+	query := p.buildQuery()
+
+	var total int
+
+	nstmt, err := p.Cx.PrepareNamed(countQuery)
 	if err != nil {
 		return nil, err
 	}
+	if err := nstmt.Get(&total, arg); err != nil {
+		return nil, err
+	}
 
-	err = getNamed(p, items, arg)
+	nstmt, err = p.Cx.PrepareNamed(query)
 	if err != nil {
+		return nil, err
+	}
+	if err := nstmt.Select(items, arg); err != nil {
 		return nil, err
 	}
 
@@ -19,31 +30,4 @@ func (p *Page) NamedSelect(items interface{}, arg interface{}) (*service.Content
 	resp := service.ToContentResponse(items, meta)
 
 	return &resp, nil
-}
-
-func getNamedCount(p *Page, arg interface{}) (int, error) {
-	var total int
-	query := p.buildCountQuery()
-
-	nstmt, err := p.Cx.PrepareNamed(query)
-	if err != nil {
-		return 0, err
-	}
-
-	err = nstmt.Get(&total, arg)
-
-	return total, err
-}
-
-func getNamed(p *Page, items interface{}, arg interface{}) error {
-	query := p.buildQuery()
-
-	nstmt, err := p.Cx.PrepareNamed(query)
-	if err != nil {
-		return err
-	}
-
-	err = nstmt.Select(&items, arg)
-
-	return err
 }
