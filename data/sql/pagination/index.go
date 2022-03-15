@@ -13,6 +13,7 @@ type Page struct {
 	Cx         sql.ConnX
 	Attributes string
 	From       string
+	Join       string
 	Where      string
 	Order      string
 	Page       int
@@ -43,6 +44,7 @@ func (p *Page) buildCountQuery() string {
 	return buildQuery(`
 	SELECT COUNT(*)
 	FROM {{ .From }}
+	{{if .Join -}} {{.Join}} {{- end}}
 	{{if .Where -}} WHERE {{.Where}} {{- end}}
 	`, p)
 }
@@ -51,6 +53,7 @@ func (p *Page) buildQuery() string {
 	return buildQuery(`
 	SELECT {{.Attributes}}
 	FROM {{.From}}
+	{{if .Join -}} {{.Join}} {{- end}}
 	{{if .Where -}} WHERE {{.Where}} {{- end}}
 	{{if .Order -}} ORDER BY {{.Order}} {{- end}}
 	LIMIT {{ .Limit }}

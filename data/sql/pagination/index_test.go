@@ -1,10 +1,7 @@
 package pagination
 
 import (
-	"testing"
-
 	m "github.com/simiancreative/simiango/mocks/data/mysql"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -23,6 +20,7 @@ func init() {
 			`
 	SELECT COUNT(*)
 	FROM devices
+	
 	WHERE gateway_id = ?
 	`,
 			"1234",
@@ -42,6 +40,7 @@ func init() {
 			`
 	SELECT id
 	FROM devices
+	
 	WHERE gateway_id = ?
 	ORDER BY created_at DESC
 	LIMIT 25
@@ -63,24 +62,3 @@ type Item struct {
 }
 
 type Items []Item
-
-func TestPage(t *testing.T) {
-	p := Page{
-		Cx:         ConnXMock,
-		Attributes: "id",
-		From:       "devices",
-		Where:      "gateway_id = ?",
-		Order:      "created_at DESC",
-		Page:       1,
-		PageSize:   25,
-	}
-
-	v := Items{}
-
-	content, err := p.Select(&v, "1234")
-	contentItems, _ := content.Content.(*Items)
-
-	assert.NoError(t, err)
-	assert.Equal(t, (*contentItems)[0].ID, "456")
-	assert.Equal(t, v[0].ID, "456")
-}
