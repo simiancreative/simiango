@@ -26,7 +26,11 @@ func getNamedCount(p *Page, arg interface{}) (int, error) {
 	query := p.buildCountQuery()
 
 	nstmt, err := p.Cx.PrepareNamed(query)
-	err = nstmt.Select(&total, arg)
+	if err != nil {
+		return 0, err
+	}
+
+	err = nstmt.Get(&total, arg)
 
 	return total, err
 }
@@ -35,6 +39,10 @@ func getNamed(p *Page, items interface{}, arg interface{}) error {
 	query := p.buildQuery()
 
 	nstmt, err := p.Cx.PrepareNamed(query)
+	if err != nil {
+		return err
+	}
+
 	err = nstmt.Select(&items, arg)
 
 	return err
