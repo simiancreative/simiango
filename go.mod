@@ -29,8 +29,7 @@ require (
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
-	github.com/mitchellh/go-server-timing v1.0.1
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/p768lwy3/gin-server-timing v0.0.0-20200316080543-ab69795cf847
 	github.com/rabbitmq/amqp091-go v1.2.0
 	github.com/segmentio/kafka-go v0.4.27
 	github.com/simukti/sqldb-logger v0.0.0-20201125162808-c35f87e285f2
