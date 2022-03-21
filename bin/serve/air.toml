@@ -3,7 +3,7 @@ tmp_dir = "tmp"
 
 [build]
   bin = "./examples/tmp/main"
-  cmd = "go build -o ./examples/tmp/main ./examples"
+  cmd = "go mod tidy && go build -o ./examples/tmp/main ./examples"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor"]
   exclude_file = []

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io"
 
+	"github.com/gin-gonic/gin"
+	"github.com/p768lwy3/gin-server-timing"
 	"github.com/simiancreative/simiango/meta"
 )
 
@@ -22,6 +24,10 @@ type PrivateTPL interface {
 	TPL
 }
 
+type ContextTPL interface {
+	Result(Req) (interface{}, error)
+}
+
 type Message struct {
 	Key   string
 	Value interface{}
@@ -33,7 +39,24 @@ type MessageTPL interface {
 	Result() (Messages, error)
 }
 
+type Req struct {
+	ID      meta.RequestId
+	Headers RawHeaders
+	Body    RawBody
+	Params  RawParams
+	Timer   *servertiming.Header
+	Context *gin.Context
+}
+
+type Kind int
+
+const (
+	DEFAULT Kind = iota // 0
+	DIRECT              // 1, and so on.
+)
+
 type Config struct {
+	Kind          Kind
 	IsStream      bool
 	IsPrivate     bool
 	Key           string
@@ -41,6 +64,8 @@ type Config struct {
 	Method        string
 	Build         func(meta.RequestId, RawHeaders, RawBody, RawParams) (TPL, error)
 	BuildMessages func(meta.RequestId, RawHeaders, RawBody, RawParams) (MessageTPL, error)
+	Direct        func(req Req) (interface{}, error)
+	Auth          func(Req) error
 }
 type Collection []Config
 

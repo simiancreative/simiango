@@ -1,0 +1,83 @@
+package server
+
+import (
+	"fmt"
+
+	"github.com/simiancreative/simiango/logger"
+	"github.com/simiancreative/simiango/service"
+)
+
+func handleDefault(config service.Config, req service.Req) (interface{}, *service.ResultError) {
+	s, err := buildService(config, req)
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	return serviceResult(s)
+}
+
+func buildService(
+	config service.Config,
+	req service.Req,
+) (service.TPL, *service.ResultError) {
+	c := req.Context
+	requestID := req.ID
+	parsedHeaders := parseHeaders(c.Request)
+	parsedBody := rawBody(c.Request.Body)
+	parsedParams := parseParams(c.Params, c.Request.URL)
+
+	s, err := config.Build(requestID, parsedHeaders, parsedBody, parsedParams)
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	err = handleAuth(req, s, config)
+
+	if err == nil {
+		return s, nil
+	}
+
+	return nil, handleError(err)
+}
+
+func handleAuth(
+	req service.Req,
+	s service.TPL,
+	config service.Config,
+) error {
+	var err error
+
+	if !config.IsPrivate {
+		return nil
+	}
+
+	if _, ok := interface{}(s).(service.PrivateTPL); config.IsPrivate && !ok {
+		return fmt.Errorf("Private Service requires the Auth method")
+	}
+
+	ps, _ := interface{}(s).(service.PrivateTPL)
+	err = ps.Auth(req.ID, req.Headers, req.Body, req.Params)
+
+	if err != nil {
+		err = fmt.Errorf("Authentication Failed: %v", err.Error())
+		logger.Error("Authentication Failed", logger.Fields{"err": err})
+		resultErr := service.ToResultError(err, "service auth failed", 401)
+		return resultErr
+	}
+
+	return nil
+}
+
+func serviceResult(s service.TPL) (interface{}, *service.ResultError) {
+	result, err := s.Result()
+
+	if err == nil && result == nil {
+		return nil, nil
+	}
+
+	if err == nil {
+		return result, nil
+	}
+
+	return nil, handleError(err)
+}

@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/p768lwy3/gin-server-timing"
 
 	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/service"
@@ -15,7 +16,11 @@ var services service.Collection
 func init() {
 	gin.SetMode(gin.ReleaseMode)
 	router = gin.New()
-	router.Use(JSONLogMiddleware(), gin.Recovery())
+	router.Use(
+		servertiming.Middleware(),
+		JSONLogMiddleware(),
+		gin.Recovery(),
+	)
 }
 
 func Start() {
