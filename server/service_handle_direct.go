@@ -18,6 +18,8 @@ func handleDirect(config service.Config, req service.Req) (interface{}, *service
 		return result, nil
 	}
 
+	fmt.Println(err)
+
 	return nil, handleError(err)
 }
 
