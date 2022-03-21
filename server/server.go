@@ -15,7 +15,11 @@ var services service.Collection
 func init() {
 	gin.SetMode(gin.ReleaseMode)
 	router = gin.New()
-	router.Use(JSONLogMiddleware(), gin.Recovery())
+	router.Use(
+		TimingMiddleware(),
+		JSONLogMiddleware(),
+		gin.Recovery(),
+	)
 }
 
 func Start() {
