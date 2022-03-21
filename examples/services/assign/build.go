@@ -11,13 +11,12 @@ func Build(
 	rawBody service.RawBody,
 	rawParams service.RawParams,
 ) (
-	service.MessageTPL, error,
+	service.TPL, error,
 ) {
 
 	// create service instance
-	s := assignService{
-		rawEvent: rawBody,
-	}
+	s := assignService{}
+
 	service.ParseBody(rawBody, &s.event)
 	return &s, nil
 }

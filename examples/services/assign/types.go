@@ -10,8 +10,8 @@ type Event struct {
 // Types that can be null and must remain in null
 // must be pointers
 type AssignableStruct struct {
-	ID         string
-	StatusName string  `assign:"status_name"`
-	Error      *string `assign:"error"`
-	Status     *int    `assign:"status"`
+	ID         string  `json:"-"`
+	StatusName string  `json:"status_name,omitempty" assign:"status_name"`
+	Error      *string `json:"error,omitempty" assign:"error"`
+	Status     *int    `json:"status,omitempty" assign:"status"`
 }

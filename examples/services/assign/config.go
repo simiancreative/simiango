@@ -6,8 +6,9 @@ import (
 )
 
 var Config = service.Config{
-	Key:           "assign-example",
-	BuildMessages: Build,
+	Method: "POST",
+	Path:   "/assign",
+	Build:  Build,
 }
 
 // dont forget to import your package in your main.go for initialization
