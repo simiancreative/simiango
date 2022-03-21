@@ -17,6 +17,7 @@ import (
 	"github.com/simiancreative/simiango/messaging/kafka"
 	"github.com/simiancreative/simiango/server"
 
+	_ "github.com/simiancreative/simiango/examples/services/assign"
 	_ "github.com/simiancreative/simiango/examples/services/crypt"
 	_ "github.com/simiancreative/simiango/examples/services/kafka"
 	_ "github.com/simiancreative/simiango/examples/services/mssql"
