@@ -12,10 +12,11 @@ func Start() {
 
 	c1 := NewConsumer(url, readerTopic, groupID)
 
-	c2 := Handle(c1)
+	c2, handlerDone := Handle(c1)
 
 	if writerTopic, present := os.LookupEnv("KAFKA_WRITER_TOPIC"); present {
 		done := NewProducer(url, writerTopic, c2)
 		fmt.Println(<-done)
 	}
+	fmt.Println(<-handlerDone)
 }
