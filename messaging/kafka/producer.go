@@ -2,7 +2,11 @@ package kafka
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	kafka "github.com/segmentio/kafka-go"
 	"github.com/simiancreative/simiango/logger"
@@ -26,6 +30,15 @@ func closeWriter(writer *kafka.Writer) {
 func NewProducer(kafkaURL, topic string, in <-chan []kafka.Message) <-chan bool {
 	writer := getKafkaWriter(kafkaURL, topic)
 	done := make(chan bool)
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT)
+	go func() {
+		sig := <-sigs
+		fmt.Println("Producer, SIGINT received", sig, "closing...")
+		done <- true
+		closeWriter(writer)
+	}()
 
 	go func() {
 		defer closeWriter(writer)

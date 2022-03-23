@@ -34,7 +34,7 @@ func NewConsumer(kafkaURL, topic, groupID string) <-chan kafka.Message {
 
 	go func() {
 		sig := <-sigs
-		fmt.Println("SIGINT received", sig, "closing...")
+		fmt.Println("Consumer, SIGINT received", sig, "closing...")
 		close(out)
 		reader.Close()
 	}()
