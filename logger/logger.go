@@ -52,10 +52,6 @@ func New() *logrus.Logger {
 		})
 	}
 
-	if Level() == logrus.TraceLevel {
-		inst.SetReportCaller(true)
-	}
-
 	inst.SetLevel(Level())
 	return inst
 }
