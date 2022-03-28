@@ -1,6 +1,7 @@
 package direct
 
 import (
+	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/server"
 	"github.com/simiancreative/simiango/service"
 
@@ -8,11 +9,11 @@ import (
 )
 
 var Config = service.Config{
-	Kind:      service.DIRECT,
-	IsPrivate: true,
-	Method:    "GET",
-	Path:      "/direct",
-	Direct:    direct,
+	Kind:   service.DIRECT,
+	Method: "GET",
+	Path:   "/direct",
+	Direct: direct,
+	After:  after,
 }
 
 type Product struct {
@@ -30,8 +31,15 @@ func direct(req service.Req) (interface{}, error) {
 	return rows, err
 }
 
+// after is run asynchronously after so as to not delay the service return
+func after(config service.Config, req service.Req) {
+	logger.Printf("in after: (%v %v) -> (%v) %v",
+		config.Method, config.Path, "direct", req.Timer.String(),
+	)
+}
+
 // dont forget to import your package in your main.go for initialization
-// _ "path/to/project/stream"
+// _ "path/to/project/direct"
 func init() {
 	server.AddService(Config)
 }

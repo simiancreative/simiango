@@ -7,7 +7,8 @@ go install github.com/mattn/goveralls@latest
 list=`go list ./... | grep -v mocks | grep -v docs | grep -v errors`
 
 go test -cover -coverprofile=coverage.out $list
-goveralls -coverprofile=coverage.out -repotoken=${COVERALLS_TOKEN}
+goveralls -coverprofile=coverage.out -repotoken=${COVERALLS_TOKEN} \
+  || echo 'not posted to coveralls'
 
 coverage=$(go tool cover -func coverage.out | grep total | awk '{print $3}')
 

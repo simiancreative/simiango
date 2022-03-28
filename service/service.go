@@ -66,6 +66,7 @@ type Config struct {
 	BuildMessages func(meta.RequestId, RawHeaders, RawBody, RawParams) (MessageTPL, error)
 	Direct        func(req Req) (interface{}, error)
 	Auth          func(Req) error
+	After         func(Config, Req)
 }
 type Collection []Config
 

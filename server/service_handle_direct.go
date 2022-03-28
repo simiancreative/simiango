@@ -8,6 +8,10 @@ import (
 )
 
 func handleDirect(config service.Config, req service.Req) (interface{}, *service.ResultError) {
+	if err := handleDirectAuth(req, config); err != nil {
+		return nil, handleError(err)
+	}
+
 	result, err := config.Direct(req)
 
 	if err == nil && result == nil {
@@ -17,8 +21,6 @@ func handleDirect(config service.Config, req service.Req) (interface{}, *service
 	if err == nil {
 		return result, nil
 	}
-
-	fmt.Println(err)
 
 	return nil, handleError(err)
 }

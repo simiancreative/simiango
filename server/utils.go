@@ -62,3 +62,11 @@ func handleError(err error) *service.ResultError {
 
 	return err.(*service.ResultError)
 }
+
+func handleAfter(config service.Config, req service.Req) {
+	if config.After == nil {
+		return
+	}
+
+	config.After(config, req)
+}

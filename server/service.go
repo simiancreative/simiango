@@ -39,6 +39,8 @@ func handleService(config service.Config) gin.HandlerFunc {
 		timer.Stop()
 		servertiming.WriteHeader(c)
 
+		go handleAfter(config, req)
+
 		if err != nil {
 			logger.Error("Service Failed", logger.Fields{"err": err})
 			c.JSON(err.GetStatus(), err.GetDetails())
