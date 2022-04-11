@@ -49,4 +49,17 @@ func init() {
 		FailParam:       "hi",
 		MarshalledParam: 0.00,
 	})
+
+	registerTest(test{
+		Name: "Numeric - string",
+		GetInst: func() interface{} {
+			return &Numeric{}
+		},
+		Valid:           valid,
+		Value:           value,
+		Param:           "0.23",
+		Matcher:         float64(0.23),
+		FailParam:       "hi",
+		MarshalledParam: 0.23,
+	})
 }

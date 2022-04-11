@@ -2,6 +2,7 @@ package nulls
 
 import (
 	"encoding/json"
+	"strconv"
 )
 
 type Numeric struct {
@@ -15,6 +16,14 @@ func (nt *Numeric) Scan(value interface{}) error {
 		*nt = Numeric{Float64fromUint8s(value.([]uint8)), true}
 	case float64:
 		*nt = Numeric{value.(float64), true}
+	case string:
+		fValue, err := strconv.ParseFloat(value.(string), 64)
+
+		if err != nil {
+			return handleError(value)
+		}
+
+		*nt = Numeric{fValue, true}
 	case nil:
 		*nt = Numeric{float64(0), false}
 	default:
