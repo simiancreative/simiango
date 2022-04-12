@@ -7,11 +7,11 @@ package sql
 import (
 	"database/sql"
 	"os"
-
-	_ "github.com/denisenkom/go-mssqldb"
-	"github.com/simiancreative/simiango/logger"
+	"strconv"
+	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/simiancreative/simiango/logger"
 	sqlLogger "github.com/simukti/sqldb-logger"
 	"github.com/simukti/sqldb-logger/logadapter/logrusadapter"
 	"github.com/sirupsen/logrus"
@@ -39,6 +39,21 @@ func Connect(driver string, addrVar string, mustConnectVar string) *sqlx.DB {
 	addr := os.Getenv(addrVar)
 
 	dd, _ := sql.Open(driver, addr)
+
+	if maxOpenStr, ok := os.LookupEnv("DB_MAX_OPEN_CONNECTIONS"); ok {
+		maxOpen, _ := strconv.Atoi(maxOpenStr)
+		dd.SetMaxOpenConns(maxOpen)
+	}
+
+	if maxIdleStr, ok := os.LookupEnv("DB_MAX_IDLE_CONNECTIONS"); ok {
+		maxIdle, _ := strconv.Atoi(maxIdleStr)
+		dd.SetMaxIdleConns(maxIdle)
+	}
+
+	if ttlStr, ok := os.LookupEnv("DB_CONNECTIONS_MAX_LIFETIME_MINUTES"); ok {
+		ttl, _ := strconv.Atoi(ttlStr)
+		dd.SetConnMaxLifetime(time.Duration(ttl) * time.Minute)
+	}
 
 	if logger.Level() >= logrus.TraceLevel {
 		logger := logger.New()
