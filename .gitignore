@@ -1,2 +1,3 @@
 coverage.out
 examples/tmp
+bin/serve/docker/prometheus/data
