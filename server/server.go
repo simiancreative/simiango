@@ -40,3 +40,7 @@ func Start() {
 
 	router.Run()
 }
+
+func GetRouter() *gin.Engine {
+	return router
+}

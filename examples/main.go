@@ -16,6 +16,7 @@ import (
 	"github.com/simiancreative/simiango/messaging/amqp"
 	"github.com/simiancreative/simiango/messaging/kafka"
 	"github.com/simiancreative/simiango/server"
+	"github.com/simiancreative/simiango/stats/prometheus"
 
 	_ "github.com/simiancreative/simiango/examples/services/assign"
 	_ "github.com/simiancreative/simiango/examples/services/crypt"
@@ -32,6 +33,8 @@ import (
 )
 
 func main() {
+	prometheus.Handle()
+
 	server.EnableHealthCheck()
 	server.SetCORS()
 

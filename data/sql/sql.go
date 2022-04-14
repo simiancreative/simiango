@@ -10,8 +10,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/dlmiddlecote/sqlstats"
 	"github.com/jmoiron/sqlx"
 	"github.com/simiancreative/simiango/logger"
+	"github.com/simiancreative/simiango/stats/prometheus"
 	sqlLogger "github.com/simukti/sqldb-logger"
 	"github.com/simukti/sqldb-logger/logadapter/logrusadapter"
 	"github.com/sirupsen/logrus"
@@ -40,19 +42,10 @@ func Connect(driver string, addrVar string, mustConnectVar string) *sqlx.DB {
 
 	dd, _ := sql.Open(driver, addr)
 
-	if maxOpenStr, ok := os.LookupEnv("DB_MAX_OPEN_CONNECTIONS"); ok {
-		maxOpen, _ := strconv.Atoi(maxOpenStr)
-		dd.SetMaxOpenConns(maxOpen)
-	}
-
-	if maxIdleStr, ok := os.LookupEnv("DB_MAX_IDLE_CONNECTIONS"); ok {
-		maxIdle, _ := strconv.Atoi(maxIdleStr)
-		dd.SetMaxIdleConns(maxIdle)
-	}
-
-	if ttlStr, ok := os.LookupEnv("DB_CONNECTIONS_MAX_LIFETIME_MINUTES"); ok {
-		ttl, _ := strconv.Atoi(ttlStr)
-		dd.SetConnMaxLifetime(time.Duration(ttl) * time.Minute)
+	_, mustConnect := os.LookupEnv(mustConnectVar)
+	err := dd.Ping()
+	if mustConnect && err != nil {
+		panic(err)
 	}
 
 	if logger.Level() >= logrus.TraceLevel {
@@ -66,11 +59,37 @@ func Connect(driver string, addrVar string, mustConnectVar string) *sqlx.DB {
 		)
 	}
 
-	_, mustConnect := os.LookupEnv(mustConnectVar)
-	err := dd.Ping()
-	if mustConnect && err != nil {
-		panic(err)
+	db := sqlx.NewDb(dd, driver)
+
+	if _, ok := os.LookupEnv("DB_COLLECT_STATS"); ok {
+		collector := sqlstats.NewStatsCollector(driver, db)
+		prometheus.Register(collector)
 	}
 
-	return sqlx.NewDb(dd, driver)
+	if maxOpenStr, ok := os.LookupEnv("DB_MAX_OPEN_CONNECTIONS"); ok {
+		maxOpen, _ := strconv.Atoi(maxOpenStr)
+		db.SetMaxOpenConns(maxOpen)
+	}
+
+	if maxIdleStr, ok := os.LookupEnv("DB_MAX_IDLE_CONNECTIONS"); ok {
+		maxIdle, _ := strconv.Atoi(maxIdleStr)
+		db.SetMaxIdleConns(maxIdle)
+	}
+
+	if ttlStr, ok := os.LookupEnv("DB_CONNECTIONS_MAX_LIFETIME_MINUTES"); ok {
+		ttl, _ := strconv.Atoi(ttlStr)
+		db.SetConnMaxLifetime(time.Duration(ttl) * time.Minute)
+	}
+
+	if primeCountStr, ok := os.LookupEnv("DB_PRIME_CONNECTIONS"); ok {
+		primeCount, _ := strconv.Atoi(primeCountStr)
+		sum := 0
+
+		for i := 1; i < primeCount; i++ {
+			sum += i
+			go db.Ping()
+		}
+	}
+
+	return db
 }
