@@ -1,15 +1,12 @@
 package assign
 
 import (
-	"github.com/simiancreative/simiango/meta"
 	"reflect"
 )
 
 type Assignable map[string]interface{}
 
 func (ps Assignable) Assign(v interface{}) error {
-	defer meta.RescuePanic(v)
-
 	return parseAssignable("assign", v, ps)
 }
 
