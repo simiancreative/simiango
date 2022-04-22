@@ -17,15 +17,18 @@ var (
 )
 
 func RescuePanic(v interface{}) {
-	if r := recover(); r != nil {
-		logger.Error(
-			fmt.Sprintf("(%v) caused panic and was recovered", r),
-			logger.Fields{
-				"stack":   string(stack(3)),
-				"context": fmt.Sprintf("%#v", v),
-			},
-		)
+	r := recover()
+	if r == nil {
+		return
 	}
+
+	logger.Error(
+		fmt.Sprintf("(%v) caused panic and was recovered", r),
+		logger.Fields{
+			"stack":   string(stack(3)),
+			"context": fmt.Sprintf("%#v", v),
+		},
+	)
 }
 
 func stack(skip int) []byte {
