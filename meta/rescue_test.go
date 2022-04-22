@@ -7,7 +7,7 @@ import (
 )
 
 func TestRescue(t *testing.T) {
-	defer RescuePanic(t)
+	defer RescuePanic(Id(), t)
 
 	testpanic()
 

@@ -16,7 +16,7 @@ var (
 	slash     = []byte("/")
 )
 
-func RescuePanic(v interface{}) {
+func RescuePanic(id RequestId, context interface{}) {
 	r := recover()
 	if r == nil {
 		return
@@ -25,8 +25,9 @@ func RescuePanic(v interface{}) {
 	logger.Error(
 		fmt.Sprintf("(%v) caused panic and was recovered", r),
 		logger.Fields{
-			"stack":   string(stack(3)),
-			"context": fmt.Sprintf("%#v", v),
+			"request_id": string(id),
+			"stack":      string(stack(3)),
+			"context":    fmt.Sprintf("%+v", context),
 		},
 	)
 }

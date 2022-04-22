@@ -69,9 +69,9 @@ func isMatch(key string, d amqp.Delivery) bool {
 }
 
 func handleService(d amqp.Delivery, config service.Config) error {
-	defer meta.RescuePanic(d)
-
 	requestID := meta.Id()
+
+	defer meta.RescuePanic(requestID, d)
 
 	if d.Headers == nil {
 		d.Headers = amqp.Table{}
