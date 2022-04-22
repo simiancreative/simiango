@@ -20,11 +20,10 @@ func buildService(
 	config service.Config,
 	req service.Req,
 ) (service.TPL, *service.ResultError) {
-	c := req.Context
 	requestID := req.ID
-	parsedHeaders := parseHeaders(c.Request)
-	parsedBody := rawBody(c.Request.Body)
-	parsedParams := parseParams(c.Params, c.Request.URL)
+	parsedHeaders := req.Headers
+	parsedBody := req.Body
+	parsedParams := req.Params
 
 	s, err := config.Build(requestID, parsedHeaders, parsedBody, parsedParams)
 	if err != nil {

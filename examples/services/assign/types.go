@@ -3,8 +3,8 @@ package assign
 import "github.com/simiancreative/simiango/meta/assign"
 
 type Event struct {
-	Type string            `json:"type"`
-	Body assign.Assignable `json:"body"`
+	Type string          `json:"type"`
+	Body assign.Assigner `json:"body"`
 }
 
 // Types that can be null and must remain in null

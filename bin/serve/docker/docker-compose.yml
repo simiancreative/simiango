@@ -1,23 +1,23 @@
 version: '3'
 services:
 
-  grafana:
-    build:
-      context: ./grafana
-    container_name: grafana
-    ports:
-      - 3000:3000
-    volumes:
-      - ./grafana:/var/lib/grafana
+  # grafana:
+  #   build:
+  #     context: ./grafana
+  #   container_name: grafana
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - ./grafana:/var/lib/grafana
 
-  prometheus:
-    image: prom/prometheus:v2.30.3
-    ports:
-      - 9090:9090
-    volumes:
-      - ./prometheus/config:/etc/prometheus
-      - ./prometheus/data:/prometheus
-    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+  # prometheus:
+  #   image: prom/prometheus:v2.30.3
+  #   ports:
+  #     - 9090:9090
+  #   volumes:
+  #     - ./prometheus/config:/etc/prometheus
+  #     - ./prometheus/data:/prometheus
+  #   command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
   # redis:
   #   image: redis
@@ -46,24 +46,24 @@ services:
   #     - '5672:5672'
   #     - '15672:15672'
 
-  # zookeeper:
-  #   image: wurstmeister/zookeeper
-  #   ports:
-  #     - "2181:2181"
-  # kafka:
-  #   image: wurstmeister/kafka
-  #   ports:
-  #     - "9094:9094"
-  #   environment:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9094:9094"
+    environment:
 
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     KAFKA_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://kafka:9094
-  #     KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
-  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
-  #     KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://kafka:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
 
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   mysql:
     build:

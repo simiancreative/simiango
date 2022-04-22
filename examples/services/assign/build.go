@@ -13,7 +13,6 @@ func Build(
 ) (
 	service.TPL, error,
 ) {
-
 	// create service instance
 	s := assignService{}
 

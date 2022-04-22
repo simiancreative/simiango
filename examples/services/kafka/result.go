@@ -1,8 +1,7 @@
 package kafka
 
 import (
-	"fmt"
-
+	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/service"
 )
 
@@ -11,7 +10,7 @@ type kafkaService struct {
 }
 
 func (s *kafkaService) Result() (service.Messages, error) {
-	fmt.Println("Result, called", s)
+	logger.Printf("Kafka Service: Result called - %v", s)
 
 	messages := make(service.Messages, 1)
 	messages[0] = service.Message{
@@ -27,7 +26,7 @@ func (s *kafkaService) Result() (service.Messages, error) {
 		},
 	}
 
-	fmt.Println("Result, complete", messages)
+	logger.Printf("Kafka Service: Result complete - %v", messages)
 
 	return messages, nil
 }

@@ -51,6 +51,8 @@ func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
 	}()
 
 	handler := func(message kafka.Message) {
+		defer meta.RescuePanic(message)
+
 		requestID := meta.Id()
 
 		service, err := buildService(requestID, readerConfig, message)

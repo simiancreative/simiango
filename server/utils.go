@@ -2,6 +2,7 @@ package server
 
 import (
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -25,9 +26,7 @@ func parseHeaders(request *http.Request) service.RawHeaders {
 }
 
 func rawBody(source io.ReadCloser) []byte {
-	buf := make([]byte, 1024)
-	num, _ := source.Read(buf)
-	reqBody := string(buf[0:num])
+	reqBody, _ := ioutil.ReadAll(source)
 	return []byte(reqBody)
 }
 

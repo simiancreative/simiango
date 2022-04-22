@@ -4,13 +4,13 @@ import (
 	"reflect"
 )
 
-type Assignable map[string]interface{}
+type Assigner map[string]interface{}
 
-func (ps Assignable) Assign(v interface{}) error {
+func (ps Assigner) Assign(v interface{}) error {
 	return parseAssignable("assign", v, ps)
 }
 
-func parseAssignable(tagName string, v interface{}, assignable Assignable) error {
+func parseAssignable(tagName string, v interface{}, assigner Assigner) error {
 	t := reflect.TypeOf(v).Elem()
 	rv := reflect.ValueOf(v).Elem()
 
@@ -22,7 +22,7 @@ func parseAssignable(tagName string, v interface{}, assignable Assignable) error
 			continue
 		}
 
-		val, ok := assignable[tag]
+		val, ok := assigner[tag]
 
 		if !ok {
 			continue
@@ -47,11 +47,13 @@ func setVal(fv reflect.Value, val interface{}, name string) {
 		if val == nil {
 			src := reflect.Zero(fv.Type())
 			fv.Set(src)
-		} else {
-			fv.Set(reflect.New(fv.Type().Elem()))
-			deref := fv.Elem()
-			deref.Set(reflect.ValueOf(val).Convert(deref.Type()))
+			return
 		}
+
+		fv.Set(reflect.New(fv.Type().Elem()))
+		deref := fv.Elem()
+
+		deref.Set(reflect.ValueOf(val).Convert(deref.Type()))
 
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		if value, ok := val.(int64); ok {

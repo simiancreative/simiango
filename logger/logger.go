@@ -69,6 +69,10 @@ func Printf(message string, replacements ...interface{}) {
 	global.Info(fmt.Sprintf(message, replacements...))
 }
 
+func Errorf(message string, replacements ...interface{}) {
+	global.Error(fmt.Sprintf(message, replacements...))
+}
+
 func Trace(message string, fields Fields) {
 	logFields := logrus.Fields(fields)
 	global.WithFields(logFields).Trace(message)

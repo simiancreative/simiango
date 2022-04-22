@@ -1,8 +1,7 @@
 package kafka
 
 import (
-	"fmt"
-
+	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/service"
 )
@@ -16,8 +15,8 @@ func Build(
 	service.MessageTPL, error,
 ) {
 
-	fmt.Println("Headers", rawHeaders)
-	fmt.Println("Params", rawParams)
+	logger.Printf("Kafka Service: Headers - %v", rawHeaders)
+	logger.Printf("Kafka Service: Params - %v", rawParams)
 
 	// create service instance
 	s := kafkaService{}
