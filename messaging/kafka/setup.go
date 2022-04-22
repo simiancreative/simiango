@@ -8,6 +8,6 @@ import (
 var services service.Collection
 
 func AddService(config service.Config) {
-	logger.Printf("Kafka: adding service, key: %s\n", config.Key)
+	logger.Printf("Kafka: adding service, key: %s", config.Key)
 	services = append(services, config)
 }

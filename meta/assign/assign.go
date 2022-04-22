@@ -1,12 +1,15 @@
 package assign
 
 import (
+	"github.com/simiancreative/simiango/meta"
 	"reflect"
 )
 
 type Assignable map[string]interface{}
 
 func (ps Assignable) Assign(v interface{}) error {
+	defer meta.RescuePanic(v)
+
 	return parseAssignable("assign", v, ps)
 }
 
@@ -47,11 +50,13 @@ func setVal(fv reflect.Value, val interface{}, name string) {
 		if val == nil {
 			src := reflect.Zero(fv.Type())
 			fv.Set(src)
-		} else {
-			fv.Set(reflect.New(fv.Type().Elem()))
-			deref := fv.Elem()
-			deref.Set(reflect.ValueOf(val).Convert(deref.Type()))
+			return
 		}
+
+		fv.Set(reflect.New(fv.Type().Elem()))
+		deref := fv.Elem()
+
+		deref.Set(reflect.ValueOf(val).Convert(deref.Type()))
 
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		if value, ok := val.(int64); ok {
