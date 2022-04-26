@@ -53,6 +53,8 @@ func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
 	handler := func(message kafka.Message) {
 		requestID := meta.Id()
 
+		defer meta.RescuePanic(requestID, message)
+
 		service, err := buildService(requestID, readerConfig, message)
 		if err != nil {
 			logger.Error("error building service", logger.Fields{"err": err.Error()})
@@ -68,8 +70,6 @@ func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
 		if len(messages) > 0 {
 			out <- buildKafkaMessages(messages)
 		}
-
-		meta.RescuePanic(requestID, message)
 	}
 
 	go func() {
