@@ -13,21 +13,17 @@ import (
 	"github.com/simiancreative/simiango/service"
 )
 
-func buildKafkaMessages(messages service.Messages) []kafka.Message {
-	kafkaMessages := []kafka.Message{}
-
+func buildKafkaMessages(messages service.Messages, out chan<- kafka.Message) {
 	for _, message := range messages {
 		marshalled, _ := json.Marshal(message.Value)
-		kafkaMessages = append(kafkaMessages, kafka.Message{
+		out <- kafka.Message{
 			Key:   []byte(message.Key),
 			Value: marshalled,
-		})
+		}
 	}
-
-	return kafkaMessages
 }
 
-func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
+func Handle(c <-chan kafka.Message) (<-chan kafka.Message, <-chan bool) {
 	handlerName := os.Getenv("KAFKA_HANDLER")
 
 	readerConfig, err := findService(handlerName)
@@ -39,7 +35,7 @@ func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
 	}
 
 	done := make(chan bool)
-	out := make(chan []kafka.Message)
+	out := make(chan kafka.Message)
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT)
@@ -68,13 +64,13 @@ func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
 		}
 
 		if len(messages) > 0 {
-			out <- buildKafkaMessages(messages)
+			buildKafkaMessages(messages, out)
 		}
 	}
 
 	go func() {
 		for message := range c {
-			go handler(message)
+			handler(message)
 		}
 		done <- true
 		close(out)

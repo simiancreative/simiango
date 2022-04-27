@@ -21,7 +21,8 @@ import (
 	_ "github.com/simiancreative/simiango/examples/services/assign"
 	_ "github.com/simiancreative/simiango/examples/services/crypt"
 	_ "github.com/simiancreative/simiango/examples/services/direct"
-	_ "github.com/simiancreative/simiango/examples/services/kafka"
+	_ "github.com/simiancreative/simiango/examples/services/kafka/consume"
+	_ "github.com/simiancreative/simiango/examples/services/kafka/ingest"
 	_ "github.com/simiancreative/simiango/examples/services/mssql"
 	_ "github.com/simiancreative/simiango/examples/services/mysql"
 	_ "github.com/simiancreative/simiango/examples/services/mysql-page"
@@ -37,6 +38,7 @@ func main() {
 
 	server.EnableHealthCheck()
 	server.SetCORS()
+	server.AddPprof()
 
 	go server.Start()
 

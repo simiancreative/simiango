@@ -3,6 +3,8 @@ package kafka
 import (
 	"fmt"
 	"os"
+
+	"github.com/simiancreative/simiango/logger"
 )
 
 func Start() {
@@ -15,8 +17,8 @@ func Start() {
 	c2, handlerDone := Handle(c1)
 
 	if writerTopic, present := os.LookupEnv("KAFKA_WRITER_TOPIC"); present {
-		done := NewProducer(url, writerTopic, c2)
-		fmt.Println(<-done)
+		go NewProducer(url, writerTopic, c2)
+		logger.Printf("Kafka: Producer setup (topic: %v)", writerTopic)
 	}
 	fmt.Println(<-handlerDone)
 }

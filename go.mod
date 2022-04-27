@@ -11,6 +11,7 @@ require (
 	github.com/dlmiddlecote/sqlstats v1.0.2
 	github.com/elliotchance/redismock/v8 v8.5.4
 	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/contrib v0.0.0-20201101042839-6a891bf89f19 // indirect
 	github.com/gin-gonic/gin v1.7.0
 	github.com/go-redis/redis/v8 v8.4.2

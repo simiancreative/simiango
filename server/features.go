@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/mandrigin/gin-spa/spa"
 
@@ -50,4 +51,8 @@ func EnableHealthCheck() {
 
 func EnableCustomHealthCheck(path string, check gin.HandlerFunc) {
 	router.Handle("GET", path, check)
+}
+
+func AddPprof() {
+	pprof.Register(router)
 }
