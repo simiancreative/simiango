@@ -14,6 +14,10 @@ import (
 )
 
 func buildKafkaMessages(messages service.Messages, out chan<- kafka.Message) {
+	if len(messages) == 0 {
+		return
+	}
+
 	for _, message := range messages {
 		marshalled, _ := json.Marshal(message.Value)
 		out <- kafka.Message{
@@ -63,9 +67,7 @@ func Handle(c <-chan kafka.Message) (<-chan kafka.Message, <-chan bool) {
 			return
 		}
 
-		if len(messages) > 0 {
-			buildKafkaMessages(messages, out)
-		}
+		buildKafkaMessages(messages, out)
 	}
 
 	go func() {
