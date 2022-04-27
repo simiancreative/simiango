@@ -17,7 +17,7 @@ func Start() {
 	c2, handlerDone := Handle(c1)
 
 	if writerTopic, present := os.LookupEnv("KAFKA_WRITER_TOPIC"); present {
-		go NewProducer(url, writerTopic, c2)
+		NewProducer(url, writerTopic, c2)
 		logger.Printf("Kafka: Producer setup (topic: %v)", writerTopic)
 	}
 	fmt.Println(<-handlerDone)
