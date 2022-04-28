@@ -11,6 +11,7 @@ import (
 func getKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
 	brokers := strings.Split(kafkaURL, ",")
 	return kafka.NewReader(kafka.ReaderConfig{
+		Logger:      Logger{},
 		StartOffset: kafka.LastOffset,
 		Brokers:     brokers,
 		GroupID:     groupID,

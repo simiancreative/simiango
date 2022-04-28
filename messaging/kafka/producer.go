@@ -33,6 +33,7 @@ func getBatchSize() int {
 
 func getKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 	return &kafka.Writer{
+		Logger:    Logger{},
 		Addr:      kafka.TCP(kafkaURL),
 		Topic:     topic,
 		Balancer:  &kafka.LeastBytes{},
