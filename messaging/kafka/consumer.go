@@ -48,7 +48,7 @@ func NewConsumer(kafkaURL, topic, groupID string, done <-chan bool) <-chan kafka
 func readMessages(reader *kafka.Reader, messages chan kafka.Message) {
 	m, err := reader.ReadMessage(context.Background())
 	if err != nil {
-		logger.Error("Error reading message", logger.Fields{"err": err.Error()})
+		logger.Error("Kafka: Error reading message", logger.Fields{"err": err.Error()})
 		return
 	}
 
