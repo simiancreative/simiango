@@ -25,7 +25,7 @@ func buildKafkaMessages(messages service.Messages, out chan<- kafka.Message) {
 	}
 }
 
-func Handle(messages <-chan kafka.Message, done <-chan bool) <-chan kafka.Message {
+func Handle(messages <-chan kafka.Message) <-chan kafka.Message {
 	handlerName := os.Getenv("KAFKA_HANDLER")
 
 	readerConfig, err := findService(handlerName)

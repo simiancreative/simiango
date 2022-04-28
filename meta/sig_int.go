@@ -10,15 +10,16 @@ import (
 
 var cleaners []func()
 var done = make(chan bool, 1)
+var exit = make(chan bool, 1)
 var initialized bool
 
 func AddCleanup(cleaner func()) {
 	cleaners = append(cleaners, cleaner)
 }
 
-func CatchSig() chan bool {
+func CatchSig() (chan bool, chan bool) {
 	if initialized {
-		return done
+		return done, exit
 	}
 
 	initialized = true
@@ -38,8 +39,8 @@ func CatchSig() chan bool {
 
 		logger.Printf("Meta: shutdown complete")
 
-		os.Exit(0)
+		close(exit)
 	}()
 
-	return done
+	return done, exit
 }

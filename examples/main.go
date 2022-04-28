@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	//
@@ -8,6 +9,8 @@ import (
 	// config can be loaded afterward
 	//
 	_ "github.com/simiancreative/simiango/config"
+
+	"github.com/simiancreative/simiango/meta"
 
 	_ "github.com/simiancreative/simiango/data/mssql"
 	_ "github.com/simiancreative/simiango/data/mysql"
@@ -34,6 +37,8 @@ import (
 )
 
 func main() {
+	done, exit := meta.CatchSig()
+
 	prometheus.Handle()
 
 	server.EnableHealthCheck()
@@ -49,9 +54,9 @@ func main() {
 
 	_, startKafka := os.LookupEnv("KAFKA")
 	if startKafka {
-		go kafka.Start()
+		go kafka.Start(done)
 	}
 
 	// keep main process open
-	select {}
+	<-exit
 }

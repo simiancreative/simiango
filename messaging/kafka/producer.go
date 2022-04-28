@@ -53,7 +53,7 @@ func Writer(kafkaURL, topic string) *kafka.Writer {
 	return getKafkaWriter(kafkaURL, topic)
 }
 
-func NewProducer(kafkaURL, topic string, in <-chan kafka.Message, done <-chan bool) {
+func NewProducer(kafkaURL, topic string, in <-chan kafka.Message) {
 	writer := getKafkaWriter(kafkaURL, topic)
 
 	go func() {
