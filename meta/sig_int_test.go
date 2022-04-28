@@ -17,11 +17,12 @@ func TestAddCleaner(t *testing.T) {
 func TestCatchSig(t *testing.T) {
 	assert.Equal(t, false, initialized)
 
-	done := CatchSig()
+	done, exit := CatchSig()
 
 	assert.Equal(t, true, initialized)
 
-	sameDone := CatchSig()
+	sameDone, sameExit := CatchSig()
 
 	assert.Equal(t, done, sameDone)
+	assert.Equal(t, exit, sameExit)
 }

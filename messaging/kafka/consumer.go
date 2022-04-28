@@ -21,7 +21,7 @@ func getKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
 	})
 }
 
-func NewConsumer(kafkaURL, topic, groupID string, done <-chan bool) <-chan kafka.Message {
+func NewConsumer(kafkaURL, topic, groupID string, done context.Context) <-chan kafka.Message {
 	reader := getKafkaReader(kafkaURL, topic, groupID)
 
 	stop := false
@@ -32,7 +32,7 @@ func NewConsumer(kafkaURL, topic, groupID string, done <-chan bool) <-chan kafka
 		defer reader.Close()
 
 		select {
-		case <-done:
+		case <-done.Done():
 			stop = true
 			logger.Printf("Kafka: closing consumer")
 			return

@@ -1,13 +1,14 @@
 package kafka
 
 import (
+	"context"
 	"os"
 
 	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/meta"
 )
 
-func Start(done chan bool) {
+func Start(done context.Context) {
 	url := os.Getenv("KAFKA_BROKERS")
 	readerTopic := os.Getenv("KAFKA_READER_TOPIC")
 	groupID := os.Getenv("KAFKA_READER_GROUP")

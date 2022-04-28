@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	//
@@ -58,5 +57,5 @@ func main() {
 	}
 
 	// keep main process open
-	<-exit
+	<-exit.Done()
 }

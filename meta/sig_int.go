@@ -1,6 +1,7 @@
 package meta
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -9,20 +10,23 @@ import (
 )
 
 var cleaners []func()
-var done = make(chan bool, 1)
-var exit = make(chan bool, 1)
+var done context.Context
+var exit context.Context
 var initialized bool
 
 func AddCleanup(cleaner func()) {
 	cleaners = append(cleaners, cleaner)
 }
 
-func CatchSig() (chan bool, chan bool) {
+func CatchSig() (context.Context, context.Context) {
 	if initialized {
 		return done, exit
 	}
 
 	initialized = true
+
+	done, doneCancel := context.WithCancel(context.Background())
+	exit, exitCancel := context.WithCancel(context.Background())
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
@@ -31,7 +35,7 @@ func CatchSig() (chan bool, chan bool) {
 		sig := <-sigs
 		logger.Printf("Meta: begin shutdown (%+v)", sig)
 
-		close(done)
+		doneCancel()
 
 		for _, cleaner := range cleaners {
 			cleaner()
@@ -39,7 +43,7 @@ func CatchSig() (chan bool, chan bool) {
 
 		logger.Printf("Meta: shutdown complete")
 
-		close(exit)
+		exitCancel()
 	}()
 
 	return done, exit
