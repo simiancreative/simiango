@@ -1,6 +1,7 @@
 package meta
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,14 +16,17 @@ func TestAddCleaner(t *testing.T) {
 }
 
 func TestCatchSig(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
 	assert.Equal(t, false, initialized)
 
 	done, exit := CatchSig()
 
 	assert.Equal(t, true, initialized)
 
-	sameDone, sameExit := CatchSig()
+	CatchSig()
 
-	assert.Equal(t, done, sameDone)
-	assert.Equal(t, exit, sameExit)
+	assert.IsType(t, done, ctx)
+	assert.IsType(t, exit, ctx)
+
+	cancel()
 }
