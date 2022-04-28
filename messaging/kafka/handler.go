@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
 
 	kafka "github.com/segmentio/kafka-go"
 	"github.com/simiancreative/simiango/logger"
@@ -27,7 +25,7 @@ func buildKafkaMessages(messages service.Messages) []kafka.Message {
 	return kafkaMessages
 }
 
-func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
+func Handle(c <-chan kafka.Message, done <-chan bool) (<-chan []kafka.Message, <-chan bool) {
 	handlerName := os.Getenv("KAFKA_HANDLER")
 
 	readerConfig, err := findService(handlerName)
@@ -38,17 +36,19 @@ func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
 		})
 	}
 
-	done := make(chan bool)
+	//done := make(chan bool)
 	out := make(chan []kafka.Message)
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT)
-	go func() {
-		sig := <-sigs
-		fmt.Println("Handler, SIGINT received", sig, "closing...")
-		done <- true
-		close(out)
-	}()
+	/*
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, syscall.SIGINT)
+		go func() {
+			sig := <-sigs
+			fmt.Println("Handler, SIGINT received", sig, "closing...")
+			done <- true
+			close(out)
+		}()
+	*/
 
 	handler := func(message kafka.Message) {
 		requestID := meta.Id()
@@ -73,11 +73,17 @@ func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
 	}
 
 	go func() {
+		defer close(out)
 		for message := range c {
-			go handler(message)
+			select {
+			case <-done:
+				return
+			default:
+				go handler(message)
+			}
 		}
-		done <- true
-		close(out)
+		//done <- true
+		//close(out)
 	}()
 
 	return out, done

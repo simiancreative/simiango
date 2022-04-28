@@ -2,11 +2,7 @@ package kafka
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
 
 	kafka "github.com/segmentio/kafka-go"
 	"github.com/simiancreative/simiango/logger"
@@ -27,33 +23,40 @@ func closeWriter(writer *kafka.Writer) {
 	}
 }
 
-func NewProducer(kafkaURL, topic string, in <-chan []kafka.Message) <-chan bool {
+func NewProducer(kafkaURL, topic string, in <-chan []kafka.Message, done <-chan bool) <-chan bool {
 	writer := getKafkaWriter(kafkaURL, topic)
-	done := make(chan bool)
+	//done := make(chan bool)
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT)
-	go func() {
-		sig := <-sigs
-		fmt.Println("Producer, SIGINT received", sig, "closing...")
-		done <- true
-		closeWriter(writer)
-	}()
+	/*
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, syscall.SIGINT)
+		go func() {
+			sig := <-sigs
+			fmt.Println("Producer, SIGINT received", sig, "closing...")
+			done <- true
+			closeWriter(writer)
+		}()
+	*/
 
 	go func() {
 		defer closeWriter(writer)
 
 		for messages := range in {
-			err := writer.WriteMessages(
-				context.Background(),
-				messages...,
-			)
-			if err != nil {
-				log.Fatal("Failed to write messages:", err)
+			select {
+			case <-done:
+				return
+			default:
+				err := writer.WriteMessages(
+					context.Background(),
+					messages...,
+				)
+				if err != nil {
+					log.Fatal("Failed to write messages:", err)
+				}
 			}
 		}
 
-		done <- true
+		//done <- true
 	}()
 	return done
 }
