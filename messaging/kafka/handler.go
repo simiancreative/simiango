@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
 
 	kafka "github.com/segmentio/kafka-go"
 	"github.com/simiancreative/simiango/logger"
@@ -13,21 +11,21 @@ import (
 	"github.com/simiancreative/simiango/service"
 )
 
-func buildKafkaMessages(messages service.Messages) []kafka.Message {
-	kafkaMessages := []kafka.Message{}
+func buildKafkaMessages(messages service.Messages, out chan<- kafka.Message) {
+	if len(messages) == 0 {
+		return
+	}
 
 	for _, message := range messages {
 		marshalled, _ := json.Marshal(message.Value)
-		kafkaMessages = append(kafkaMessages, kafka.Message{
+		out <- kafka.Message{
 			Key:   []byte(message.Key),
 			Value: marshalled,
-		})
+		}
 	}
-
-	return kafkaMessages
 }
 
-func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
+func Handle(messages <-chan kafka.Message) <-chan kafka.Message {
 	handlerName := os.Getenv("KAFKA_HANDLER")
 
 	readerConfig, err := findService(handlerName)
@@ -38,17 +36,7 @@ func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
 		})
 	}
 
-	done := make(chan bool)
-	out := make(chan []kafka.Message)
-
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT)
-	go func() {
-		sig := <-sigs
-		fmt.Println("Handler, SIGINT received", sig, "closing...")
-		done <- true
-		close(out)
-	}()
+	results := make(chan kafka.Message)
 
 	handler := func(message kafka.Message) {
 		requestID := meta.Id()
@@ -67,20 +55,27 @@ func Handle(c <-chan kafka.Message) (<-chan []kafka.Message, <-chan bool) {
 			return
 		}
 
-		if len(messages) > 0 {
-			out <- buildKafkaMessages(messages)
-		}
+		buildKafkaMessages(messages, results)
 	}
 
 	go func() {
-		for message := range c {
-			go handler(message)
+		defer close(results)
+
+		for {
+			if _, open := <-messages; !open {
+				logger.Printf("Kafka: closing handler")
+				return
+			}
 		}
-		done <- true
-		close(out)
 	}()
 
-	return out, done
+	go func() {
+		for message := range messages {
+			handler(message)
+		}
+	}()
+
+	return results
 }
 
 func findService(key string) (service.Config, error) {

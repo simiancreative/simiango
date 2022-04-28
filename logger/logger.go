@@ -65,6 +65,10 @@ func init() {
 	)
 }
 
+func Debugf(message string, replacements ...interface{}) {
+	global.Debug(fmt.Sprintf(message, replacements...))
+}
+
 func Printf(message string, replacements ...interface{}) {
 	global.Info(fmt.Sprintf(message, replacements...))
 }

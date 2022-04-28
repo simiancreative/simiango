@@ -6,11 +6,11 @@ import (
 )
 
 type kafkaService struct {
-	Hi string `json:"hi"`
+	Time int64 `json:"time"`
 }
 
 func (s *kafkaService) Result() (service.Messages, error) {
-	logger.Printf("Kafka Service: Result called - %v", s)
+	logger.Printf("Kafka Service: Result called - %+v", s)
 
 	messages := make(service.Messages, 1)
 	messages[0] = service.Message{
@@ -20,13 +20,13 @@ func (s *kafkaService) Result() (service.Messages, error) {
 
 		// message value
 		Value: struct {
-			field string
+			field int64
 		}{
-			field: s.Hi,
+			field: s.Time,
 		},
 	}
 
-	logger.Printf("Kafka Service: Result complete - %v", messages)
+	logger.Printf("Kafka Service: Result complete - %+v", messages)
 
 	return messages, nil
 }

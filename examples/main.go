@@ -9,6 +9,8 @@ import (
 	//
 	_ "github.com/simiancreative/simiango/config"
 
+	"github.com/simiancreative/simiango/meta"
+
 	_ "github.com/simiancreative/simiango/data/mssql"
 	_ "github.com/simiancreative/simiango/data/mysql"
 	_ "github.com/simiancreative/simiango/data/pg"
@@ -21,7 +23,8 @@ import (
 	_ "github.com/simiancreative/simiango/examples/services/assign"
 	_ "github.com/simiancreative/simiango/examples/services/crypt"
 	_ "github.com/simiancreative/simiango/examples/services/direct"
-	_ "github.com/simiancreative/simiango/examples/services/kafka"
+	_ "github.com/simiancreative/simiango/examples/services/kafka/consume"
+	_ "github.com/simiancreative/simiango/examples/services/kafka/ingest"
 	_ "github.com/simiancreative/simiango/examples/services/mssql"
 	_ "github.com/simiancreative/simiango/examples/services/mysql"
 	_ "github.com/simiancreative/simiango/examples/services/mysql-page"
@@ -33,10 +36,13 @@ import (
 )
 
 func main() {
+	done, exit := meta.CatchSig()
+
 	prometheus.Handle()
 
 	server.EnableHealthCheck()
 	server.SetCORS()
+	server.AddPprof()
 
 	go server.Start()
 
@@ -47,9 +53,9 @@ func main() {
 
 	_, startKafka := os.LookupEnv("KAFKA")
 	if startKafka {
-		go kafka.Start()
+		go kafka.Start(done)
 	}
 
 	// keep main process open
-	select {}
+	<-exit.Done()
 }
