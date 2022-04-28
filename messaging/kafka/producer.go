@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/signal"
 	"strconv"
-	"syscall"
 	"time"
 
 	kafka "github.com/segmentio/kafka-go"
@@ -55,44 +53,42 @@ func Writer(kafkaURL, topic string) *kafka.Writer {
 	return getKafkaWriter(kafkaURL, topic)
 }
 
-func NewProducer(kafkaURL, topic string, in <-chan kafka.Message) <-chan bool {
+func NewProducer(kafkaURL, topic string, in <-chan kafka.Message, done <-chan bool) {
 	writer := getKafkaWriter(kafkaURL, topic)
-	done := make(chan bool)
-
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT)
-
-	go func() {
-		sig := <-sigs
-		logger.Printf("Producer, SIGINT received %v, closing...", sig)
-		done <- true
-		closeWriter(writer)
-	}()
 
 	go func() {
 		defer closeWriter(writer)
 
 		batches := BatchMessages(in, getBatchSize(), getBatchTimeout())
+
+		defer close(batches)
+
 		for messages := range batches {
-			err := writer.WriteMessages(
-				context.Background(),
-				messages...,
-			)
-
-			if err != nil {
-				logger.Error("Kafka Producer: Failed to write messages", logger.Fields{"err": err})
-				continue
+			select {
+			case <-done:
+				logger.Printf("Kafka: closing handler")
+				return
+			default:
+				writeMessage(writer, messages)
 			}
-
-			logger.Info("Kafka Producer: wrote messages to kafka", logger.Fields{
-				"topic":    topic,
-				"count":    len(messages),
-				"messages": fmt.Sprintf("%+v", messages),
-			})
 		}
-
-		done <- true
 	}()
+}
 
-	return done
+func writeMessage(writer *kafka.Writer, messages []kafka.Message) {
+	err := writer.WriteMessages(
+		context.Background(),
+		messages...,
+	)
+
+	if err != nil {
+		logger.Error("Kafka Producer: Failed to write messages", logger.Fields{"err": err})
+		return
+	}
+
+	logger.Info("Kafka Producer: wrote messages to kafka", logger.Fields{
+		"topic":    writer.Topic,
+		"count":    len(messages),
+		"messages": fmt.Sprintf("%+v", messages),
+	})
 }

@@ -2,11 +2,7 @@ package kafka
 
 import (
 	"context"
-	"fmt"
-	"os"
-	"os/signal"
 	"strings"
-	"syscall"
 
 	kafka "github.com/segmentio/kafka-go"
 	"github.com/simiancreative/simiango/logger"
@@ -19,39 +15,44 @@ func getKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
 		Brokers:     brokers,
 		GroupID:     groupID,
 		Topic:       topic,
-		MinBytes:    10e3, // 10KB
+		MinBytes:    1,    // 1B
 		MaxBytes:    10e6, // 10MB
 	})
 }
 
-func NewConsumer(kafkaURL, topic, groupID string) <-chan kafka.Message {
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT)
-
+func NewConsumer(kafkaURL, topic, groupID string, done <-chan bool) <-chan kafka.Message {
 	reader := getKafkaReader(kafkaURL, topic, groupID)
 
-	out := make(chan kafka.Message)
+	messages := make(chan kafka.Message)
 
 	go func() {
-		sig := <-sigs
-		fmt.Println("Consumer, SIGINT received", sig, "closing...")
-		close(out)
-		reader.Close()
+		defer reader.Close()
+		defer close(messages)
+
+		select {
+		case <-done:
+			logger.Printf("Kafka: closing consumer")
+			return
+		}
 	}()
 
 	go func() {
 		for {
-			m, err := reader.ReadMessage(context.Background())
-			if err != nil {
-				logger.Error("Error reading message", logger.Fields{"err": err.Error()})
-				//break
-			}
-			out <- m
+			readMessages(reader, messages)
 		}
-		//close(out)
-		//reader.Close()
-
 	}()
 
-	return out
+	return messages
+}
+
+func readMessages(reader *kafka.Reader, messages chan kafka.Message) {
+	m, err := reader.ReadMessage(context.Background())
+	if err != nil {
+		logger.Error("Error reading message", logger.Fields{"err": err.Error()})
+		return
+	}
+
+	messages <- m
+
+	logger.Printf("Kafka: read message (%+v)", m)
 }
