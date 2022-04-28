@@ -26,8 +26,8 @@ func NewConsumer(kafkaURL, topic, groupID string, done <-chan bool) <-chan kafka
 	messages := make(chan kafka.Message)
 
 	go func() {
-		defer reader.Close()
 		defer close(messages)
+		defer reader.Close()
 
 		select {
 		case <-done:

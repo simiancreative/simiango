@@ -61,14 +61,17 @@ func Handle(messages <-chan kafka.Message, done <-chan bool) <-chan kafka.Messag
 	go func() {
 		defer close(results)
 
-		for message := range messages {
-			select {
-			case <-done:
+		for {
+			if _, open := <-messages; !open {
 				logger.Printf("Kafka: closing handler")
 				return
-			default:
-				handler(message)
 			}
+		}
+	}()
+
+	go func() {
+		for message := range messages {
+			handler(message)
 		}
 	}()
 

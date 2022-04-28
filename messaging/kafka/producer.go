@@ -32,7 +32,6 @@ func getBatchSize() int {
 }
 
 func getKafkaWriter(kafkaURL, topic string) *kafka.Writer {
-
 	return &kafka.Writer{
 		Addr:      kafka.TCP(kafkaURL),
 		Topic:     topic,
@@ -42,10 +41,10 @@ func getKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 }
 
 func closeWriter(writer *kafka.Writer) {
-	logger.Printf("closing writer")
+	logger.Printf("Kafka: closing writer")
 
 	if err := writer.Close(); err != nil {
-		logger.Fatal("failed to close writer:", logger.Fields{"err": err})
+		logger.Fatal("Kafka: failed to close writer:", logger.Fields{"err": err})
 	}
 }
 
@@ -61,16 +60,8 @@ func NewProducer(kafkaURL, topic string, in <-chan kafka.Message, done <-chan bo
 
 		batches := BatchMessages(in, getBatchSize(), getBatchTimeout())
 
-		defer close(batches)
-
 		for messages := range batches {
-			select {
-			case <-done:
-				logger.Printf("Kafka: closing handler")
-				return
-			default:
-				writeMessage(writer, messages)
-			}
+			writeMessage(writer, messages)
 		}
 	}()
 }
