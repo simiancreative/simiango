@@ -10,11 +10,14 @@ import (
 	"os"
 
 	_ "github.com/simiancreative/simiango/config"
+	"github.com/simiancreative/simiango/server"
+	"github.com/simiancreative/simiango/stats/prometheus"
 
 	_ "github.com/simiancreative/simiango/data/mssql"
 	_ "github.com/simiancreative/simiango/data/mysql"
 	_ "github.com/simiancreative/simiango/data/pg"
 
+	"github.com/simiancreative/simiango/messaging/amqp"
 	"github.com/simiancreative/simiango/messaging/kafka"
 
 	_ "github.com/simiancreative/simiango/examples/services/assign"
@@ -32,19 +35,17 @@ import (
 )
 
 func main() {
-	/*
-		prometheus.Handle()
+	prometheus.Handle()
 
-		server.EnableHealthCheck()
-		server.SetCORS()
+	server.EnableHealthCheck()
+	server.SetCORS()
 
-		go server.Start()
+	go server.Start()
 
-		_, startRabbit := os.LookupEnv("AMQP")
-		if startRabbit {
-			go amqp.Start()
-		}
-	*/
+	_, startRabbit := os.LookupEnv("AMQP")
+	if startRabbit {
+		go amqp.Start()
+	}
 
 	_, startKafka := os.LookupEnv("KAFKA")
 	if startKafka {
