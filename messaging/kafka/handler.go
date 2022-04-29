@@ -6,7 +6,6 @@ import (
 	"os"
 
 	kafka "github.com/segmentio/kafka-go"
-	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/service"
 )
@@ -31,7 +30,7 @@ func Handle(messages <-chan kafka.Message) <-chan kafka.Message {
 	readerConfig, err := findService(handlerName)
 
 	if err != nil {
-		logger.Panic("error finding reader service", logger.Fields{
+		kl.Panic("error finding reader service", fields{
 			"err": err.Error(),
 		})
 	}
@@ -45,31 +44,22 @@ func Handle(messages <-chan kafka.Message) <-chan kafka.Message {
 
 		service, err := buildService(requestID, readerConfig, message)
 		if err != nil {
-			logger.Error("error building service", logger.Fields{"err": err.Error()})
+			kl.Error("error building service", fields{"err": err.Error()})
 			return
 		}
 
 		messages, err := service.Result()
 		if err != nil {
-			logger.Error("error on exec result", logger.Fields{"err": err.Error()})
+			kl.Error("error on exec result", fields{"err": err.Error()})
 			return
 		}
-
 		buildKafkaMessages(messages, results)
 	}
 
 	go func() {
 		defer close(results)
+		defer kl.Printf("closing handler")
 
-		for {
-			if _, open := <-messages; !open {
-				logger.Printf("Kafka: closing handler")
-				return
-			}
-		}
-	}()
-
-	go func() {
 		for message := range messages {
 			handler(message)
 		}

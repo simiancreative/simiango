@@ -5,13 +5,12 @@ import (
 	"strings"
 
 	kafka "github.com/segmentio/kafka-go"
-	"github.com/simiancreative/simiango/logger"
 )
 
 func getKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
 	brokers := strings.Split(kafkaURL, ",")
 	return kafka.NewReader(kafka.ReaderConfig{
-		Logger:      Logger{},
+		Logger:      kl,
 		StartOffset: kafka.LastOffset,
 		Brokers:     brokers,
 		GroupID:     groupID,
@@ -34,17 +33,13 @@ func NewConsumer(kafkaURL, topic, groupID string, done context.Context) <-chan k
 		select {
 		case <-done.Done():
 			stop = true
-			logger.Printf("Kafka: closing consumer")
+			kl.Printf("closing consumer")
 			return
 		}
 	}()
 
 	go func() {
-		for {
-			if stop {
-				return
-			}
-
+		for !stop {
 			readMessages(reader, messages)
 		}
 	}()
@@ -55,11 +50,11 @@ func NewConsumer(kafkaURL, topic, groupID string, done context.Context) <-chan k
 func readMessages(reader *kafka.Reader, messages chan kafka.Message) {
 	m, err := reader.ReadMessage(context.Background())
 	if err != nil {
-		logger.Error("Kafka: Error reading message", logger.Fields{"err": err.Error()})
+		kl.Error("Error reading message", fields{"err": err.Error()})
 		return
 	}
 
 	messages <- m
 
-	logger.Printf("Kafka: read message (%+v)", m)
+	kl.Printf("read message (%+v)", m)
 }

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	kafka "github.com/segmentio/kafka-go"
-	"github.com/simiancreative/simiango/logger"
 )
 
 func getBatchTimeout() time.Duration {
@@ -33,7 +32,7 @@ func getBatchSize() int {
 
 func getKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 	return &kafka.Writer{
-		Logger:    Logger{},
+		Logger:    kl,
 		Addr:      kafka.TCP(kafkaURL),
 		Topic:     topic,
 		Balancer:  &kafka.LeastBytes{},
@@ -42,10 +41,10 @@ func getKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 }
 
 func closeWriter(writer *kafka.Writer) {
-	logger.Printf("Kafka: closing writer")
+	kl.Printf("closing writer")
 
 	if err := writer.Close(); err != nil {
-		logger.Fatal("Kafka: failed to close writer:", logger.Fields{"err": err})
+		kl.Fatal("failed to close writer:", fields{"err": err})
 	}
 }
 
@@ -74,11 +73,11 @@ func writeMessage(writer *kafka.Writer, messages []kafka.Message) {
 	)
 
 	if err != nil {
-		logger.Error("Kafka Producer: Failed to write messages", logger.Fields{"err": err})
+		kl.Error("Kafka Producer: Failed to write messages", fields{"err": err})
 		return
 	}
 
-	logger.Info("Kafka Producer: wrote messages to kafka", logger.Fields{
+	kl.Info("Kafka Producer: wrote messages to kafka", fields{
 		"topic":    writer.Topic,
 		"count":    len(messages),
 		"messages": fmt.Sprintf("%+v", messages),

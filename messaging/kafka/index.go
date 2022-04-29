@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 
-	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/meta"
 )
 
@@ -21,11 +20,11 @@ func Start(done context.Context) {
 		<-messages
 		<-results
 
-		logger.Printf("Kafka: cleanup complete")
+		kl.Printf("cleanup complete")
 	})
 
 	if writerTopic, present := os.LookupEnv("KAFKA_WRITER_TOPIC"); present {
 		NewProducer(url, writerTopic, results)
-		logger.Printf("Kafka: Producer setup (topic: %v)", writerTopic)
+		kl.Printf("Producer setup (topic: %v)", writerTopic)
 	}
 }
