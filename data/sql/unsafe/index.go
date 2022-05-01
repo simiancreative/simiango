@@ -20,7 +20,22 @@ type Content []Item
 func (u *Unsafe) UnsafeSelect(query string, params ...interface{}) (Content, error) {
 	items := Content{}
 
-	err := u.Cx.Select(&items, query, params...)
+	rows, err := u.Cx.Queryx(query, params...)
+	if err != nil {
+		return items, err
+	}
+
+	for rows.Next() {
+		item := Item{}
+		err := rows.MapScan(item)
+		if err != nil {
+			return items, err
+		}
+
+		items = append(items, item)
+	}
+
+	rows.Close()
 
 	return items, err
 }
@@ -30,7 +45,19 @@ func (u *Unsafe) UnsafeSelect(query string, params ...interface{}) (Content, err
 func (u *Unsafe) UnsafeGet(query string, params ...interface{}) (Item, error) {
 	item := Item{}
 
-	err := u.Cx.Get(&item, query, params...)
+	rows, err := u.Cx.Queryx(query, params...)
+	if err != nil {
+		return item, err
+	}
+
+	rows.Next()
+
+	err = rows.MapScan(item)
+	if err != nil {
+		return item, err
+	}
+
+	rows.Close()
 
 	return item, err
 }
