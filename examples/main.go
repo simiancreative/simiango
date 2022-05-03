@@ -33,6 +33,7 @@ import (
 	_ "github.com/simiancreative/simiango/examples/services/rabbit"
 	_ "github.com/simiancreative/simiango/examples/services/sample"
 	_ "github.com/simiancreative/simiango/examples/services/stream"
+	_ "github.com/simiancreative/simiango/examples/services/unsafe"
 )
 
 func main() {

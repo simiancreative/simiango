@@ -5,65 +5,66 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	sqlx "github.com/jmoiron/sqlx"
+	"github.com/simiancreative/simiango/mocks/data/sql"
 
 	"github.com/stretchr/testify/assert"
 )
 
 var ConnXMock *sqlx.DB
 
-var mockItem = Item{"id": int64(23), "name": "Floppy diskette"}
-
-var mockContent = Content{
+var mockContent = []interface{}{
 	// demonstrating that this is not a type safe solution and has the potential
 	// to cause runtime errors
-	Item{"id": int64(23), "name": "Floppy diskette"},
-	Item{"id": "one", "name": int64(42)},
+	Item{"id": int64(42), "name": "Floppy diskette"},
+	Item{"id": int64(12), "name": "SSD"},
 }
 
-func setup(t *testing.T) func() error {
-	db, mock, err := sqlmock.New()
+func setupQuery(t *testing.T) func() error {
+	db, mock, clos := mocks.SetupAndMock("mysql", t)
+	ConnXMock = db
 
-	ConnXMock = sqlx.NewDb(db, "mysql")
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	rows := sqlmock.NewRows([]string{"id", "name"})
+	for _, i := range mockContent {
+		rows.AddRow(i.(Item)["id"], i.(Item)["name"])
 	}
 
-	rows := sqlmock.NewRows([]string{"id", "name"}).
-		AddRow(int64(23), "Floppy diskette").
-		AddRow("one", int64(42))
-
 	mock.
-		ExpectQuery("SELECT id FROM devices WHERE gateway_id = ?").
+		ExpectQuery("SELECT id, name FROM devices WHERE gateway_id = ?").
 		WithArgs("1234").
 		WillReturnRows(rows)
 
-	return ConnXMock.Close
+	return clos
 }
 
 func TestUnsafeSelect(t *testing.T) {
-	defer setup(t)()
+	defer setupQuery(t)()
 
 	u := Unsafe{Cx: ConnXMock}
 
-	content, err := u.UnsafeSelect(
-		"SELECT id FROM devices WHERE gateway_id = ?",
+	result, err := u.UnsafeSelect(
+		"SELECT id, name FROM devices WHERE gateway_id = ?",
 		"1234",
 	)
 
 	assert.NoError(t, err, "has error")
-	assert.Equal(t, content, mockContent, "content is different")
+	assert.Equal(t, result.Content, mockContent, "content is different")
 }
 
 func TestUnsafeGet(t *testing.T) {
-	defer setup(t)()
+	defer setupQuery(t)()
 
 	u := Unsafe{Cx: ConnXMock}
 
-	content, err := u.UnsafeGet(
-		"SELECT id FROM devices WHERE gateway_id = ?",
+	result, err := u.UnsafeGet(
+		"SELECT id, name FROM devices WHERE gateway_id = ?",
 		"1234",
 	)
 
+	mockResult := Result{
+		Columns: []Column{{Name: "id"}, {Name: "name"}},
+		Content: []interface{}{mockContent[0]},
+	}
+
 	assert.NoError(t, err)
-	assert.Equal(t, content, mockItem)
+	assert.Equal(t, mockResult, result)
 }

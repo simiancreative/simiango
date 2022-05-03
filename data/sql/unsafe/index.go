@@ -9,55 +9,52 @@ type Unsafe struct {
 	Cx sql.ConnX
 }
 
-// Item is used as a container for sql rows with unknown values
-type Item map[string]interface{}
-
-// Content is used as a container for Unsafe Items
-type Content []Item
-
 // UnsafeSelect is used when expecting multiple instances of output values where
 // types are unknown
-func (u *Unsafe) UnsafeSelect(query string, params ...interface{}) (Content, error) {
-	items := Content{}
+func (u *Unsafe) UnsafeSelect(query string, params ...interface{}) (Result, error) {
+	result := Result{}
 
 	rows, err := u.Cx.Queryx(query, params...)
 	if err != nil {
-		return items, err
+		return result, err
 	}
 
 	for rows.Next() {
-		item := Item{}
-		err := rows.MapScan(item)
-		if err != nil {
-			return items, err
+		if err := result.addColumns(rows); err != nil {
+			return result, err
 		}
 
-		items = append(items, item)
+		if err := result.addItem(rows); err != nil {
+			return result, err
+		}
 	}
 
 	rows.Close()
 
-	return items, err
+	return result, err
 }
 
 // UnsafeGet is used when expecting a single instance of output values where
 // types are unknown
-func (u *Unsafe) UnsafeGet(query string, params ...interface{}) (Item, error) {
-	item := Item{}
+func (u *Unsafe) UnsafeGet(query string, params ...interface{}) (Result, error) {
+	result := Result{}
 
 	rows, err := u.Cx.Queryx(query, params...)
 	if err != nil {
-		return item, err
+		return result, err
 	}
 
 	rows.Next()
 
-	err = rows.MapScan(item)
-	if err != nil {
-		return item, err
+	if err := result.addColumns(rows); err != nil {
+		return result, err
+	}
+
+	if err := result.addItem(rows); err != nil {
+		return result, err
 	}
 
 	rows.Close()
 
-	return item, err
+	return result, err
 }

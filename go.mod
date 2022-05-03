@@ -17,7 +17,7 @@ require (
 	github.com/gin-gonic/gin v1.7.0
 	github.com/go-redis/redis/v8 v8.4.2
 	github.com/go-resty/resty/v2 v2.6.0
-	github.com/go-sql-driver/mysql v1.5.0
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.1.2
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
@@ -25,7 +25,7 @@ require (
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/jackc/pgx/v4 v4.10.1
 	github.com/jedib0t/go-pretty/v6 v6.2.4
-	github.com/jmoiron/sqlx v1.3.0
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.3.0
 	github.com/mandrigin/gin-spa v0.0.0-20200212133200-790d0c0c7335
 	github.com/mattn/go-colorable v0.1.8 // indirect
@@ -35,7 +35,6 @@ require (
 	github.com/p768lwy3/gin-server-timing v0.0.0-20200316080543-ab69795cf847
 	github.com/prometheus/client_golang v1.12.1
 	github.com/rabbitmq/amqp091-go v1.2.0
-	github.com/sanity-io/litter v1.5.5
 	github.com/segmentio/kafka-go v0.4.27
 	github.com/simukti/sqldb-logger v0.0.0-20201125162808-c35f87e285f2
 	github.com/simukti/sqldb-logger/logadapter/logrusadapter v0.0.0-20201125162808-c35f87e285f2
