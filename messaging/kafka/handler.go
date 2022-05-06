@@ -40,11 +40,16 @@ func Handle(messages <-chan kafka.Message) <-chan kafka.Message {
 	handler := func(message kafka.Message) {
 		requestID := meta.Id()
 
-		defer meta.RescuePanic(requestID, message)
+		defer meta.RescuePanic(requestID, MessageSimplified(message))
 
 		service, err := buildService(requestID, readerConfig, message)
 		if err != nil {
 			kl.Error("error building service", fields{"err": err.Error()})
+			return
+		}
+
+		if service == nil {
+			kl.Info("no service returned", fields{"message": MessageAsString(message)})
 			return
 		}
 

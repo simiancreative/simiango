@@ -24,6 +24,7 @@ import (
 	_ "github.com/simiancreative/simiango/examples/services/crypt"
 	_ "github.com/simiancreative/simiango/examples/services/direct"
 	_ "github.com/simiancreative/simiango/examples/services/kafka/consume"
+	_ "github.com/simiancreative/simiango/examples/services/kafka/consume-without-messages"
 	_ "github.com/simiancreative/simiango/examples/services/kafka/ingest"
 	_ "github.com/simiancreative/simiango/examples/services/mssql"
 	_ "github.com/simiancreative/simiango/examples/services/mysql"
