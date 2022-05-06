@@ -43,13 +43,13 @@ func Handle(messages <-chan kafka.Message) <-chan kafka.Message {
 		defer meta.RescuePanic(requestID, MessageSimplified(message))
 
 		service, err := buildService(requestID, readerConfig, message)
-		if service == nil {
-			kl.Warn("no service returned", fields{"message": MessageAsString(message)})
+		if err != nil {
+			kl.Error("error building service", fields{"err": err.Error()})
 			return
 		}
 
-		if err != nil {
-			kl.Error("error building service", fields{"err": err.Error()})
+		if service == nil {
+			kl.Warn("no service returned", fields{"message": MessageAsString(message)})
 			return
 		}
 
