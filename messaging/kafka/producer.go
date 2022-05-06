@@ -73,13 +73,13 @@ func writeMessage(writer *kafka.Writer, messages []kafka.Message) {
 	)
 
 	if err != nil {
-		kl.Error("Kafka Producer: Failed to write messages", fields{"err": err})
+		kl.Error("Producer - Failed to write messages", fields{"err": err})
 		return
 	}
 
-	kl.Info("Kafka Producer: wrote messages to kafka", fields{
+	kl.Info("Producer - wrote messages to kafka", fields{
 		"topic":    writer.Topic,
 		"count":    len(messages),
-		"messages": fmt.Sprintf("%+v", messages),
+		"messages": fmt.Sprintf("%+v", MessagesSimplified(messages)),
 	})
 }

@@ -56,5 +56,5 @@ func readMessages(reader *kafka.Reader, messages chan kafka.Message) {
 
 	messages <- m
 
-	kl.Printf("read message (%+v)", m)
+	kl.Printf("read message (%+v)", MessageSimplified(m))
 }

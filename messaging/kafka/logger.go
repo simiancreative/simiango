@@ -31,3 +31,7 @@ func (l logger) Fatal(pattern string, fields map[string]interface{}) {
 func (l logger) Info(pattern string, fields map[string]interface{}) {
 	ll.Info("Kafka: "+pattern, fields)
 }
+
+func (l logger) Warn(pattern string, fields map[string]interface{}) {
+	ll.Warn("Kafka: "+pattern, fields)
+}

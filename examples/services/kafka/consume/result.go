@@ -20,9 +20,10 @@ func (s *kafkaService) Result() (service.Messages, error) {
 
 		// message value
 		Value: struct {
-			field int64
+			// fields need to be exported
+			Field int64
 		}{
-			field: s.Time,
+			Field: s.Time,
 		},
 	}
 
