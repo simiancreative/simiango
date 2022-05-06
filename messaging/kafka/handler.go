@@ -49,7 +49,7 @@ func Handle(messages <-chan kafka.Message) <-chan kafka.Message {
 		}
 
 		if service == nil {
-			kl.Warn("no service returned", fields{"message": MessageAsString(message)})
+			kl.Info("no service returned", fields{"message": MessageAsString(message)})
 			return
 		}
 
