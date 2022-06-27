@@ -1,6 +1,7 @@
 package param
 
 import (
+	"github.com/sanity-io/litter"
 	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/service"
 )
@@ -15,6 +16,8 @@ func Build(
 ) {
 	c := Company{}
 	i := Item{}
+
+	litter.Dump(rawHeaders)
 
 	if err := rawParams.Assign(&i); err != nil {
 		return nil, err

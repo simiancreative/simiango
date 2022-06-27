@@ -16,10 +16,9 @@ func parseHeaders(request *http.Request) service.RawHeaders {
 	var parsedHeaders = service.RawHeaders{}
 
 	for key, values := range request.Header {
-		parsedHeaders = append(parsedHeaders, service.ParamItem{
-			Key:    key,
-			Values: values,
-		})
+		param := service.ParamItem{Key: key}
+		param.SetValues(values)
+		parsedHeaders = append(parsedHeaders, param)
 	}
 
 	return parsedHeaders

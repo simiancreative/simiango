@@ -12,6 +12,18 @@ type ParamItem struct {
 	Values []string
 }
 
+func (p ParamItem) SetValue(value string) {
+	p.Value = value
+	p.Values = []string{value}
+}
+
+func (p *ParamItem) SetValues(values []string) {
+	if len(values) > 0 {
+		p.Value = values[0]
+	}
+	p.Values = values
+}
+
 type ParamHolder interface {
 	Get(string) (ParamItem, bool)
 }
