@@ -1,7 +1,7 @@
 package param
 
 type Company struct {
-	ID string `json:"app_id" header:"X-Companyid"`
+	ID *int `json:"app_id" header:"X-Companyid"`
 }
 
 type Item struct {

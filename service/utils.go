@@ -46,23 +46,39 @@ func parseParam(tagName string, v interface{}, params ParamHolder) error {
 	return nil
 }
 
-func setVal(fv reflect.Value, val string) {
+func setVal(fv reflect.Value, val interface{}) {
 	switch fv.Kind() {
 
+	case reflect.Ptr:
+		handlePtr(fv, val)
+
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		if value, err := strconv.ParseInt(val, 10, 64); err == nil {
+		if value, err := strconv.ParseInt(val.(string), 10, 64); err == nil {
 			fv.SetInt(value)
 		}
 
 	case reflect.String:
-		fv.SetString(val)
+		fv.SetString(val.(string))
 
 	case reflect.Bool:
 		fv.SetBool(val == "true")
 
 	case reflect.Float64:
-		if value, err := strconv.ParseFloat(val, 64); err == nil {
+		if value, err := strconv.ParseFloat(val.(string), 64); err == nil {
 			fv.SetFloat(value)
 		}
 	}
+}
+
+func handlePtr(fv reflect.Value, val interface{}) {
+	if val == nil {
+		src := reflect.Zero(fv.Type())
+		fv.Set(src)
+		return
+	}
+
+	fv.Set(reflect.New(fv.Type().Elem()))
+	deref := fv.Elem()
+
+	setVal(deref, val)
 }

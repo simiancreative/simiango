@@ -34,13 +34,13 @@ func parseAssignable(tagName string, v interface{}, assigner Assigner) error {
 			continue
 		}
 
-		setVal(fv, val, field.Name)
+		SetVal(fv, val)
 	}
 
 	return nil
 }
 
-func setVal(fv reflect.Value, val interface{}, name string) {
+func SetVal(fv reflect.Value, val interface{}) {
 	switch fv.Kind() {
 
 	case reflect.Ptr:

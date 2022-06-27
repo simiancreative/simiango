@@ -35,6 +35,7 @@ require (
 	github.com/p768lwy3/gin-server-timing v0.0.0-20200316080543-ab69795cf847
 	github.com/prometheus/client_golang v1.12.1
 	github.com/rabbitmq/amqp091-go v1.2.0
+	github.com/sanity-io/litter v1.5.5
 	github.com/segmentio/kafka-go v0.4.27
 	github.com/simukti/sqldb-logger v0.0.0-20201125162808-c35f87e285f2
 	github.com/simukti/sqldb-logger/logadapter/logrusadapter v0.0.0-20201125162808-c35f87e285f2
