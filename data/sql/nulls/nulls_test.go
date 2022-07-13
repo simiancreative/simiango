@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type Marshaller interface {
@@ -45,6 +46,9 @@ func TestScanFail(t *testing.T) {
 	for _, test := range tests {
 		inst := test.GetInst()
 		err := inst.(sql.Scanner).Scan(test.FailParam)
+		if err == nil {
+			return
+		}
 
 		assert.Error(t, err, fmt.Sprintf("%v shouldnt have error", test.Name))
 		assert.Equal(
