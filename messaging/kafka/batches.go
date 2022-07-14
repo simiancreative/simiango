@@ -1,12 +1,13 @@
 package kafka
 
 import (
+	"context"
 	"time"
 
 	kafka "github.com/segmentio/kafka-go"
 )
 
-func BatchMessages(values <-chan kafka.Message, maxItems int, maxTimeout time.Duration) chan []kafka.Message {
+func BatchMessages(ctx context.Context, values <-chan kafka.Message, maxItems int, maxTimeout time.Duration) chan []kafka.Message {
 	batches := make(chan []kafka.Message)
 
 	go func() {
@@ -30,7 +31,11 @@ func BatchMessages(values <-chan kafka.Message, maxItems int, maxTimeout time.Du
 
 				case <-expire:
 					goto done
+				case <-ctx.Done():
+					kl.Printf("batch context done")
+					return
 				}
+
 			}
 
 		done:
