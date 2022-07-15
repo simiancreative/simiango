@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"os"
 	"strings"
@@ -10,6 +11,19 @@ import (
 
 	kafka "github.com/segmentio/kafka-go"
 )
+
+func varAsInt(name string) (bool, int, error) {
+	if value, present := os.LookupEnv(name); present && value != "" {
+		floatVar, _, err := big.ParseFloat(value, 10, 0, big.ToNearestEven)
+		if err != nil {
+			kl.Error(fmt.Sprintf("Error converting %s to int", name), fields{"error": err.Error()})
+			return true, 0, err
+		}
+		intVar, _ := floatVar.Uint64()
+		return true, int(intVar), nil
+	}
+	return false, 0, nil
+}
 
 func getKafkaReader(kafkaURL string) *kafka.Reader {
 	brokers := strings.Split(kafkaURL, ",")
@@ -27,41 +41,32 @@ func getKafkaReader(kafkaURL string) *kafka.Reader {
 		MaxBytes:    10e6, // 10MB
 	}
 
-	if minBytes, present := os.LookupEnv("READ_MIN_BYTES"); present {
-		floatVar, _, err := big.ParseFloat(minBytes, 10, 0, big.ToNearestEven)
+	if present, minBytes, err := varAsInt("READ_MIN_BYTES"); present {
 		if err != nil {
-			kl.Error("Error converting minBytes to int", fields{"error": err.Error()})
 			return nil
 		}
-		intVar, _ := floatVar.Uint64()
-		config.MinBytes = int(intVar)
+		config.MinBytes = minBytes
 	}
-	if maxBytes, present := os.LookupEnv("READ_MAX_BYTES"); present {
-		floatVar, _, err := big.ParseFloat(maxBytes, 10, 0, big.ToNearestEven)
+
+	if present, maxBytes, err := varAsInt("READ_MAX_BYTES"); present {
 		if err != nil {
-			kl.Error("Error converting maxBytes to int", fields{"error": err.Error()})
 			return nil
 		}
-		intVar, _ := floatVar.Uint64()
-		config.MaxBytes = int(intVar)
+		config.MaxBytes = maxBytes
 	}
-	if maxWait, present := os.LookupEnv("READ_MAX_WAIT_MILLISECONDS"); present {
-		floatVar, _, err := big.ParseFloat(maxWait, 10, 0, big.ToNearestEven)
+
+	if present, maxWait, err := varAsInt("READ_MAX_WAIT_MILLISECONDS"); present {
 		if err != nil {
-			kl.Error("Error converting maxWait to int", fields{"error": err.Error()})
 			return nil
 		}
-		intVar, _ := floatVar.Uint64()
-		config.MaxWait = time.Duration(intVar) * time.Millisecond
+		config.MaxWait = time.Duration(maxWait) * time.Millisecond
 	}
-	if commitInterval, present := os.LookupEnv("READ_COMMIT_INTERVAL"); present {
-		floatVar, _, err := big.ParseFloat(commitInterval, 10, 0, big.ToNearestEven)
+
+	if present, commitInterval, err := varAsInt("READ_COMMIT_INTERVAL_MILLISECONDS"); present {
 		if err != nil {
-			kl.Error("Error converting maxWait to int", fields{"error": err.Error()})
 			return nil
 		}
-		intVar, _ := floatVar.Uint64()
-		config.CommitInterval = time.Duration(intVar) * time.Millisecond
+		config.CommitInterval = time.Duration(commitInterval) * time.Millisecond
 	}
 
 	return kafka.NewReader(config)
