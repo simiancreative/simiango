@@ -1,7 +1,7 @@
 package redismock
 
 import (
-	"github.com/alicebob/miniredis"
+	"github.com/alicebob/miniredis/v2"
 	"github.com/elliotchance/redismock/v8"
 	r "github.com/go-redis/redis/v8"
 

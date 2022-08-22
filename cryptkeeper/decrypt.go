@@ -5,20 +5,13 @@ import (
 	"crypto/cipher"
 	"encoding/hex"
 	"fmt"
-	"os"
 )
-
-var keyName = "TOKEN_SECRET"
-
-func SetKeyName(newName string) {
-	keyName = newName
-}
 
 // Decrypt decrypts cipher text string into plain text string
 func Decrypt(hash string, salt string) (string, error) {
 	txtBytes, _ := hex.DecodeString(hash)
 	ivBytes, _ := hex.DecodeString(salt)
-	key, _ := Base64Decode([]byte(os.Getenv(keyName)))
+	key, _ := Base64Decode([]byte(keyValue))
 
 	block, err := aes.NewCipher(key)
 	if err != nil {

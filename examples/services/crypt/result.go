@@ -2,6 +2,7 @@ package crypt
 
 import (
 	"encoding/json"
+
 	"github.com/simiancreative/simiango/cryptkeeper"
 )
 
@@ -26,6 +27,10 @@ func (s *cryptService) Result() (interface{}, error) {
 	json.Unmarshal(data, &i)
 	encryptedData, _ := json.Marshal(i)
 	json.Unmarshal(encryptedData, &o)
+
+	// How to generate your key
+	// generate a base64 encoded 32 bit key and copy it to the clipboard
+	// $ openssl rand -base64 32 | cut -c1-32 | tr -d '\n' | base64 | tr -d '\n' | pbcopy
 
 	result = append(result, "original data")
 	result = append(result, string(data))

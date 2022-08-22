@@ -8,12 +8,11 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"io"
-	"os"
 )
 
 func Encrypt(unencrypted string) (EncryptableData, error) {
 	result := EncryptableData{}
-	key, _ := Base64Decode([]byte(os.Getenv(keyName)))
+	key, _ := Base64Decode([]byte(keyValue))
 	plaintext := []byte(unencrypted)
 	plaintext = PKCS5Padding(plaintext, aes.BlockSize)
 
