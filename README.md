@@ -44,3 +44,11 @@ run
 ```
 simian-go -h
 ```
+
+### How to generate your crypt-keeper key
+
+Generate a base64 encoded 32 bit key and copy it to the clipboard
+
+```
+openssl rand -base64 32 | cut -c1-32 | tr -d '\n' | base64 | tr -d '\n' | pbcopy
+```
