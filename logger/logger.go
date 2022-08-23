@@ -36,7 +36,7 @@ func Level() logrus.Level {
 		return logrus.PanicLevel
 	}
 
-	return logrus.TraceLevel
+	return logrus.DebugLevel
 }
 
 func New() *logrus.Logger {
@@ -59,7 +59,7 @@ func New() *logrus.Logger {
 func init() {
 	global = New()
 
-	Debug(
+	Trace(
 		"Logger: ready",
 		Fields{"type": Type(), "level": Level()},
 	)
