@@ -18,6 +18,10 @@ func TestRawParams(t *testing.T) {
 	assert.IsType(t, ParamItem{}, val)
 	assert.True(t, ok)
 
+	val = params.GetWithFallback("wibble", "25")
+	assert.IsType(t, ParamItem{}, val)
+	assert.IsType(t, int(0), val.AsInt())
+
 	item := struct {
 		ID int `param:"id"`
 	}{}

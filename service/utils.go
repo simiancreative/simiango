@@ -12,6 +12,11 @@ type ParamItem struct {
 	Values []string
 }
 
+func (p ParamItem) AsInt() int {
+	intVar, _ := strconv.Atoi(p.Value)
+	return intVar
+}
+
 func (p ParamItem) SetValue(value string) {
 	p.Value = value
 	p.Values = []string{value}
