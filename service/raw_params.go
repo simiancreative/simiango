@@ -20,6 +20,16 @@ func (ps RawParams) GetWithFallback(name string, fallback string) ParamItem {
 	return ParamItem{Value: fallback}
 }
 
+func (ps RawParams) AsMap() map[string]string {
+	result := map[string]string{}
+
+	for _, entry := range ps {
+		result[entry.Key] = entry.Value
+	}
+
+	return result
+}
+
 func (ps RawParams) Assign(v interface{}) error {
 	return parseParam("param", v, ps)
 }
