@@ -22,6 +22,9 @@ func TestRawParams(t *testing.T) {
 	assert.IsType(t, ParamItem{}, val)
 	assert.IsType(t, int(0), val.AsInt())
 
+	m := params.AsMap()
+	assert.IsType(t, map[string]string{}, m)
+
 	item := struct {
 		ID int `param:"id"`
 	}{}

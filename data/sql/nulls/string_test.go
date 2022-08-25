@@ -21,7 +21,21 @@ func init() {
 		Param:   "hi",
 		Matcher: "hi",
 
-		FailParam: 0,
+		FailParam:       0,
+		MarshalledParam: "hi",
+	})
+
+	registerTest(test{
+		Name: "String",
+		GetInst: func() interface{} {
+			return &String{}
+		},
+		Valid:   valid,
+		Value:   value,
+		Param:   []byte("hi"),
+		Matcher: "hi",
+
+		FailParam:       0,
 		MarshalledParam: "hi",
 	})
 }

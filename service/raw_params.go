@@ -12,12 +12,14 @@ func (ps RawParams) Get(name string) (ParamItem, bool) {
 }
 
 func (ps RawParams) GetWithFallback(name string, fallback string) ParamItem {
-	for _, entry := range ps {
-		if entry.Key == name {
-			return entry
-		}
+	item, ok := ps.Get(name)
+
+	if ok {
+		return item
 	}
-	return ParamItem{Value: fallback}
+
+	item.Value = fallback
+	return item
 }
 
 func (ps RawParams) AsMap() map[string]string {

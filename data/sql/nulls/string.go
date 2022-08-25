@@ -15,6 +15,8 @@ func (ns *String) Scan(value interface{}) error {
 	switch value.(type) {
 	case string:
 		*ns = String{value.(string), true}
+	case []uint8:
+		*ns = String{string(value.([]uint8)), true}
 	case nil:
 		*ns = String{"", false}
 	default:
