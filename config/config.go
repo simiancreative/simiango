@@ -15,16 +15,24 @@ func init() {
 	flag.StringVar(
 		&envFlag,
 		"env",
-		"dev",
+		"",
 		"environment, e.g. development or production",
 	)
 
 	flag.Parse()
 
-	appDir, _ := findAppDir(envFlag)
-	path := joinPath(*appDir, envFlag)
+	if len(envFlag) == 0 {
+		envFlag = os.Getenv("APP_ENV")
+	}
+
+	if len(envFlag) == 0 {
+		envFlag = "dev"
+	}
 
 	os.Setenv("APP_ENV", envFlag)
+
+	appDir, _ := findAppDir(envFlag)
+	path := joinPath(*appDir, envFlag)
 
 	_ = godotenv.Load(path)
 }

@@ -8,6 +8,7 @@ import (
 	// config can be loaded afterward
 	//
 	_ "github.com/simiancreative/simiango/config"
+	"github.com/simiancreative/simiango/logger"
 
 	"github.com/simiancreative/simiango/meta"
 
@@ -38,6 +39,7 @@ import (
 )
 
 func main() {
+	logger.Printf("ENV STARTING AS: %v", os.Getenv("APP_ENV"))
 	done, exit := meta.CatchSig()
 
 	prometheus.Handle()
