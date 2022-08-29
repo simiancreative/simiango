@@ -8,7 +8,6 @@ import (
 
 func TestPage(t *testing.T) {
 	p := Page{
-		Cx:         ConnXMock,
 		Attributes: "id",
 		From:       "devices",
 		Where:      "gateway_id = ?",
@@ -16,6 +15,16 @@ func TestPage(t *testing.T) {
 		Page:       1,
 		PageSize:   25,
 	}
+
+	p.SetupTest(
+		&Items{},
+		func(v interface{}, s string, s2 ...interface{}) error {
+			r, _ := v.(*Items)
+			*r = Items{{ID: "456"}, {ID: "789"}}
+			return nil
+		},
+		"1234",
+	)
 
 	v := Items{}
 

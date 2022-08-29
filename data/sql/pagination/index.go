@@ -6,6 +6,7 @@ import (
 	"text/template"
 
 	"github.com/simiancreative/simiango/data/sql"
+	m "github.com/simiancreative/simiango/mocks/data/mysql"
 	"github.com/simiancreative/simiango/service"
 )
 
@@ -81,4 +82,34 @@ func buildQuery(queryTpl string, data interface{}) string {
 	}
 
 	return tpl.String()
+}
+
+func (p *Page) SetupTest(
+	response interface{},
+	responseHandler func(interface{}, string, ...interface{}) error,
+	params ...interface{},
+) {
+	var total int
+	cx := &m.ConnX{}
+
+	count := params
+	count = append([]interface{}{p.buildCountQuery()}, count...)
+	count = append([]interface{}{&total}, count...)
+
+	cx.On("Get", count...).
+		Return(
+			func(v interface{}, s string, s2 ...interface{}) error {
+				r, _ := v.(*int)
+				*r = 10000
+				return nil
+			},
+		)
+
+	query := params
+	query = append([]interface{}{p.buildQuery()}, query...)
+	query = append([]interface{}{response}, query...)
+
+	cx.On("Select", query...).Return(responseHandler)
+
+	p.Cx = cx
 }
