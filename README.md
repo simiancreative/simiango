@@ -22,7 +22,7 @@ A multi purpose tool set for golang applications. Tools include:
   - Mysql
   - Mssql
   - Postrges
-  - Sql null types without valid checking 😅
+  - Sql null types with automatic valid checking 😅
   - Redis
   - AMQP
   - Kafka
