@@ -33,6 +33,10 @@ type ParamHolder interface {
 	Get(string) (ParamItem, bool)
 }
 
+// i would like to make pagination params optional, maybe adding a fallback
+// value to the param tag
+// `param:"page,1"`
+
 func parseParam(tagName string, v interface{}, params ParamHolder) error {
 	t := reflect.TypeOf(v).Elem()
 	rv := reflect.ValueOf(v).Elem()

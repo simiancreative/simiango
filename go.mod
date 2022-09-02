@@ -10,6 +10,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/denisenkom/go-mssqldb v0.12.2
 	github.com/dlmiddlecote/sqlstats v1.0.2
+	github.com/doug-martin/goqu/v9 v9.18.0
 	github.com/elliotchance/redismock/v8 v8.11.1
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-contrib/pprof v1.4.0
