@@ -3,7 +3,7 @@ package mssql
 import (
 	"testing"
 
-	m "github.com/simiancreative/simiango/mocks/data/mssql"
+	m "github.com/simiancreative/simiango/mocks/data/sql"
 )
 
 var ConnXMock *m.ConnX

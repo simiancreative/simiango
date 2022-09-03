@@ -3,15 +3,12 @@ package pg
 import (
 	"testing"
 
-	m "github.com/simiancreative/simiango/mocks/data/pg"
+	m "github.com/simiancreative/simiango/mocks/data/sql"
 )
 
-var ConnMock *m.Conn
 var ConnXMock *m.ConnX
 
 func init() {
-	ConnMock = &m.Conn{}
-
 	ConnXMock = &m.ConnX{}
 	Cx = ConnXMock
 }
