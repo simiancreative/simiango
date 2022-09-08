@@ -15,7 +15,7 @@ func (m *Model) PageFromReq(dest interface{}, req service.Req) (interface{}, err
 		filters,
 		order,
 		req.Params.GetWithFallback("page", "1").AsInt(),
-		req.Params.GetWithFallback("size", "5").AsInt(),
+		req.Params.GetWithFallback("size", "25").AsInt(),
 	)
 }
 
