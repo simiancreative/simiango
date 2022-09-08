@@ -24,14 +24,14 @@ func (m *Model) handleSelect(ds *goqu.SelectDataset) *goqu.SelectDataset {
 }
 
 func (m *Model) handleOrder(ds *goqu.SelectDataset, order Order) *goqu.SelectDataset {
-	for key, value := range order {
-		ordr := goqu.C(key)
+	for _, col := range order {
+		ordr := goqu.C(col.Name)
 
-		if value == "asc" {
+		if col.Direction == ASC {
 			ds = ds.OrderAppend(ordr.Asc())
 		}
 
-		if value == "dsc" {
+		if col.Direction == DSC {
 			ds = ds.OrderAppend(ordr.Desc())
 		}
 	}

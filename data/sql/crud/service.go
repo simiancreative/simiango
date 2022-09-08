@@ -43,19 +43,32 @@ func OrderFromReq(req service.Req) Order {
 	}
 
 	for _, value := range item.Values {
+		if len(value) == 0 {
+			continue
+		}
+
 		parts := strings.Split(value, ",")
 
 		if len(parts) == 0 {
 			continue
 		}
 
+		col := OrderColumn{Name: parts[0]}
+
 		if len(parts) == 1 {
-			order[value] = "asc"
+			col.Direction = ASC
 		}
 
 		if len(parts) > 1 {
-			order[parts[0]] = parts[1]
+			switch parts[1] {
+			case "asc":
+				col.Direction = ASC
+			default:
+				col.Direction = DSC
+			}
 		}
+
+		order = append(order, col)
 	}
 
 	return order
