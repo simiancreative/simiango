@@ -32,6 +32,7 @@ type ConnX interface {
 	Get(interface{}, string, ...interface{}) error
 	MustBegin() *sqlx.Tx
 	Beginx() (*sqlx.Tx, error)
+	Exec(string, ...interface{}) (sql.Result, error)
 	MustExec(string, ...interface{}) sql.Result
 	Preparex(string) (*sqlx.Stmt, error)
 	PrepareNamed(string) (*sqlx.NamedStmt, error)

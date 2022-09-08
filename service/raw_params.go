@@ -32,6 +32,16 @@ func (ps RawParams) AsMap() map[string]string {
 	return result
 }
 
+func (ps RawParams) ValuesMap() map[string][]string {
+	result := map[string][]string{}
+
+	for _, entry := range ps {
+		result[entry.Key] = entry.Values
+	}
+
+	return result
+}
+
 func (ps RawParams) Assign(v interface{}) error {
 	return parseParam("param", v, ps)
 }

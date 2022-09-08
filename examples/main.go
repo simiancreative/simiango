@@ -22,6 +22,7 @@ import (
 	"github.com/simiancreative/simiango/stats/prometheus"
 
 	_ "github.com/simiancreative/simiango/examples/services/assign"
+	_ "github.com/simiancreative/simiango/examples/services/crud"
 	_ "github.com/simiancreative/simiango/examples/services/crypt"
 	_ "github.com/simiancreative/simiango/examples/services/direct"
 	_ "github.com/simiancreative/simiango/examples/services/kafka/consume"

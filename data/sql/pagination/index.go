@@ -6,7 +6,7 @@ import (
 	"text/template"
 
 	"github.com/simiancreative/simiango/data/sql"
-	m "github.com/simiancreative/simiango/mocks/data/mysql"
+	m "github.com/simiancreative/simiango/mocks/data/sql"
 	"github.com/simiancreative/simiango/service"
 )
 
