@@ -42,28 +42,12 @@ func (m *Model) handleOrder(ds *goqu.SelectDataset, order Order) *goqu.SelectDat
 
 func (m *Model) handleFilters(ds *goqu.SelectDataset, filters Filters) *goqu.SelectDataset {
 	for key, value := range filters {
-		filter, ok := m.Filterable[key]
+		filter, ok := m.Augmentations[key]
 		if !ok {
 			continue
 		}
 
-		kind, expressions := filter(value)
-		if kind == AND {
-			ds = ds.Where(goqu.Ex(expressions.(Exp)))
-		}
-
-		if kind == OR {
-			ds = ds.Where(goqu.ExOr(expressions.(Exp)))
-		}
-
-		if kind == JOIN {
-			join := expressions.(Joinable)
-
-			ds = ds.Join(
-				goqu.T(join.Table),
-				goqu.On(goqu.Ex(join.Exp)),
-			)
-		}
+		ds = filter(ds, value)
 	}
 
 	return ds

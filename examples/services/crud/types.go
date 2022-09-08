@@ -5,6 +5,7 @@ type Product struct {
 	ProductProperties
 }
 type ProductProperties struct {
-	Name string
+	Name  string
+	Depth int
 }
 type Products []Product

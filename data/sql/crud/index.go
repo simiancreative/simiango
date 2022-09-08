@@ -10,14 +10,14 @@ type Model struct {
 	Paginate         bool
 	Table            string
 	Columns          []interface{}
-	Filterable       Filterable
-	AugmentListQuery AugmentListQuery
-	AugmentOneQuery  AugmentListQuery
+	Augmentations    Augmentations
+	AugmentListQuery AugmentableQuery
+	AugmentOneQuery  AugmentableQuery
 	cx               sql.ConnX
 	dialect          goqu.DialectWrapper
 }
 
-func (m *Model) Initialize(cx sql.ConnX, dialect string) {
+func (m *Model) Initialize(dialect string, cx sql.ConnX) {
 	m.cx = cx
 	m.dialect = goqu.Dialect(dialect)
 }

@@ -4,26 +4,24 @@ import (
 	"strconv"
 
 	"github.com/doug-martin/goqu/v9"
-	"github.com/simiancreative/simiango/data/sql/crud"
 )
 
-func asDescendants(values interface{}) (crud.Kind, interface{}) {
-	return crud.JOIN, crud.Joinable{
-		Table: "ancestors",
-		Exp: crud.Exp{
+func asDescendants(ds *goqu.SelectDataset, values interface{}) *goqu.SelectDataset {
+	return ds.Join(
+		goqu.T("ancestors"),
+		goqu.On(goqu.Ex{
 			"ancestors.product_id": goqu.T("products").Col("id"),
 			"ancestors.depth":      1,
-		},
-	}
+		}),
+	)
 }
 
-func ancestor(values interface{}) (crud.Kind, interface{}) {
+func ancestor(ds *goqu.SelectDataset, values interface{}) *goqu.SelectDataset {
 	id, _ := strconv.Atoi(values.([]string)[0])
-	return crud.AND, crud.Exp{"ancestors.ancestor_id": id}
+	return ds.Where(goqu.Ex{"ancestors.ancestor_id": id})
 }
 
-func name(values interface{}) (crud.Kind, interface{}) {
+func name(ds *goqu.SelectDataset, values interface{}) *goqu.SelectDataset {
 	name := values.([]string)[0]
-
-	return crud.OR, crud.Exp{"name": name}
+	return ds.Where(goqu.ExOr{"name": name})
 }

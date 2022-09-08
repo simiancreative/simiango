@@ -1,6 +1,7 @@
 package crud
 
 import (
+	"github.com/doug-martin/goqu/v9"
 	"github.com/simiancreative/simiango/server"
 	"github.com/simiancreative/simiango/service"
 
@@ -17,8 +18,12 @@ var Config = service.Config{
 
 var c = crud.Model{
 	Table: "products",
+	Columns: crud.Columns{
+		goqu.T("ancestors").Col("depth"),
+		goqu.T("products").Col("*"),
+	},
 
-	Filterable: crud.Filterable{
+	Augmentations: crud.Augmentations{
 		"as_descendants": asDescendants,
 		"ancestor":       ancestor,
 		"name":           name,
@@ -28,6 +33,6 @@ var c = crud.Model{
 // dont forget to import your package in your main.go for initialization
 // _ "path/to/project/direct"
 func init() {
-	c.Initialize(mysql.Cx, "mysql")
+	c.Initialize("mysql", mysql.Cx)
 	server.AddService(Config)
 }
