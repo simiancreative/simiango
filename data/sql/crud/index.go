@@ -10,7 +10,7 @@ type Model struct {
 	Paginate         bool
 	Table            string
 	Columns          []interface{}
-	Augmentations    Augmentations
+	Expressions    Expressions
 	AugmentListQuery AugmentableQuery
 	AugmentOneQuery  AugmentableQuery
 	cx               sql.ConnX

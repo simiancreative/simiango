@@ -23,7 +23,7 @@ var c = crud.Model{
 		goqu.T("products").Col("*"),
 	},
 
-	Augmentations: crud.Augmentations{
+	Expressions: crud.Expressions{
 		"as_descendants": asDescendants,
 		"ancestor":       ancestor,
 		"name":           name,

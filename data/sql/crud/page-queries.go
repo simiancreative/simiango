@@ -41,7 +41,7 @@ func (m *Model) handleOrder(ds *goqu.SelectDataset, order Order) *goqu.SelectDat
 
 func (m *Model) handleFilters(ds *goqu.SelectDataset, filters Filters) *goqu.SelectDataset {
 	for key, value := range filters {
-		filter, ok := m.Augmentations[key]
+		filter, ok := m.Expressions[key]
 		if !ok {
 			continue
 		}

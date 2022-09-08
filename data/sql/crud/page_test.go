@@ -101,7 +101,7 @@ func TestFilters(t *testing.T) {
 	page := 1
 	size := 25
 
-	m := &crud.Model{Table: "products", Augmentations: crud.Augmentations{
+	m := &crud.Model{Table: "products", Expressions: crud.Expressions{
 		"name": func(ds *goqu.SelectDataset, value interface{}) *goqu.SelectDataset {
 			return ds.Where(goqu.Ex{"products.id": value})
 		},
