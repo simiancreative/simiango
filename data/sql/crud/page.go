@@ -2,8 +2,8 @@ package crud
 
 import "github.com/simiancreative/simiango/service"
 
-func (m *Model) Page(items interface{}, filters Filters, orders Orders, page int, size int) (*service.ContentResponse, error) {
-	ds := m.query(filters, orders)
+func (m *Model) Page(items interface{}, filters Filters, order Order, page int, size int) (*service.ContentResponse, error) {
+	ds := m.query(filters, order)
 	count, content := m.pageQueries(ds, page, size)
 
 	var total int

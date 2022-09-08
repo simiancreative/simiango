@@ -1,26 +1,39 @@
 package crud
 
-import "github.com/doug-martin/goqu/v9"
+import (
+	"fmt"
 
-func (m *Model) query(filters Filters, orders Orders) *goqu.SelectDataset {
+	"github.com/doug-martin/goqu/v9"
+)
+
+func (m *Model) query(filters Filters, order Order) *goqu.SelectDataset {
 	ds := m.dialect.From(m.Table)
+	ds = m.handleSelect(ds)
 	ds = m.handleFilters(ds, filters)
-	ds = m.handleOrder(ds, orders)
+	ds = m.handleOrder(ds, order)
 	ds = m.handleAugmentList(ds)
 
 	return ds
 }
 
-func (m *Model) handleOrder(ds *goqu.SelectDataset, orders Orders) *goqu.SelectDataset {
-	for key, value := range orders {
+func (m *Model) handleSelect(ds *goqu.SelectDataset) *goqu.SelectDataset {
+	if len(m.Columns) == 0 {
+		return ds.Select(fmt.Sprintf("%v.%v", m.Table, "*"))
+	}
+
+	return ds.Select(m.Columns...)
+}
+
+func (m *Model) handleOrder(ds *goqu.SelectDataset, order Order) *goqu.SelectDataset {
+	for key, value := range order {
 		ordr := goqu.C(key)
 
 		if value == "asc" {
-			ds = ds.Order(ordr.Asc())
+			ds = ds.OrderAppend(ordr.Asc())
 		}
 
 		if value == "dsc" {
-			ds = ds.Order(ordr.Desc())
+			ds = ds.OrderAppend(ordr.Desc())
 		}
 	}
 
@@ -36,11 +49,20 @@ func (m *Model) handleFilters(ds *goqu.SelectDataset, filters Filters) *goqu.Sel
 
 		kind, expressions := filter(value)
 		if kind == AND {
-			ds = ds.Where(goqu.Ex(expressions.(Filters)))
+			ds = ds.Where(goqu.Ex(expressions.(Exp)))
 		}
 
 		if kind == OR {
-			ds = ds.Where(goqu.ExOr(expressions.(Filters)))
+			ds = ds.Where(goqu.ExOr(expressions.(Exp)))
+		}
+
+		if kind == JOIN {
+			join := expressions.(Joinable)
+
+			ds = ds.Join(
+				goqu.T(join.Table),
+				goqu.On(goqu.Ex(join.Exp)),
+			)
 		}
 	}
 

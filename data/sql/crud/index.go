@@ -9,6 +9,7 @@ type Model struct {
 	MultiTenant      bool
 	Paginate         bool
 	Table            string
+	Columns          []interface{}
 	Filterable       Filterable
 	AugmentListQuery AugmentListQuery
 	AugmentOneQuery  AugmentListQuery

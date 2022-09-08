@@ -3,7 +3,7 @@ package crud
 import "github.com/doug-martin/goqu/v9"
 
 func (m *Model) One(destination interface{}, id interface{}) error {
-	ds := m.query(Filters{}, Orders{})
+	ds := m.query(Filters{}, Order{})
 	ds = ds.Where(goqu.Ex{"id": id})
 	ds = m.handleAugmentOne(ds)
 
