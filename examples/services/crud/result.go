@@ -1,10 +1,17 @@
 package crud
 
 import (
+	"fmt"
+
 	"github.com/simiancreative/simiango/service"
 )
 
 func result(req service.Req) (interface{}, error) {
+	_, exists := req.Params.Get("as_descendants")
+	if !exists {
+		return nil, fmt.Errorf("as_descendants param is required")
+	}
+
 	items := &Products{}
 	return c.PageFromReq(items, req)
 

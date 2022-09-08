@@ -11,7 +11,6 @@ func (m *Model) query(filters Filters, order Order) *goqu.SelectDataset {
 	ds = m.handleSelect(ds)
 	ds = m.handleFilters(ds, filters)
 	ds = m.handleOrder(ds, order)
-	ds = m.handleAugmentList(ds)
 
 	return ds
 }

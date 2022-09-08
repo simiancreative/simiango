@@ -4,6 +4,8 @@ import "github.com/simiancreative/simiango/service"
 
 func (m *Model) Page(items interface{}, filters Filters, order Order, page int, size int) (*service.ContentResponse, error) {
 	ds := m.query(filters, order)
+	ds = m.handleAugmentList(ds)
+
 	count, content := m.pageQueries(ds, page, size)
 
 	var total int
