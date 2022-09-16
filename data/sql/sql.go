@@ -39,6 +39,11 @@ type ConnX interface {
 }
 
 func Connect(driver string, addrVar string, mustConnectVar string) *sqlx.DB {
+	db, _ := ConnectWithDB(driver, addrVar, mustConnectVar)
+	return db
+}
+
+func ConnectWithDB(driver string, addrVar string, mustConnectVar string) (*sqlx.DB, *sql.DB) {
 	addr := os.Getenv(addrVar)
 
 	dd, _ := sql.Open(driver, addr)
@@ -92,5 +97,5 @@ func Connect(driver string, addrVar string, mustConnectVar string) *sqlx.DB {
 		}
 	}
 
-	return db
+	return db, dd
 }
