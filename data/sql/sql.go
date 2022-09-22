@@ -45,11 +45,14 @@ func Connect(driver string, addrVar string, mustConnectVar string) *sqlx.DB {
 
 func ConnectWithDB(driver string, addrVar string, mustConnectVar string) (*sqlx.DB, *sql.DB) {
 	addr := os.Getenv(addrVar)
-
-	dd, _ := sql.Open(driver, addr)
-
 	_, mustConnect := os.LookupEnv(mustConnectVar)
+	return Create(driver, addr, mustConnect)
+}
+
+func Create(driver, addr string, mustConnect bool) (*sqlx.DB, *sql.DB) {
+	dd, _ := sql.Open(driver, addr)
 	err := dd.Ping()
+
 	if mustConnect && err != nil {
 		panic(err)
 	}
