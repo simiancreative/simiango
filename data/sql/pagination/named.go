@@ -11,17 +11,27 @@ func (p *Page) NamedSelect(items interface{}, arg interface{}) (*service.Content
 	var total int
 
 	nstmt, err := p.Cx.PrepareNamed(countQuery)
+	if nstmt != nil {
+		defer nstmt.Close()
+	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	if err := nstmt.Get(&total, arg); err != nil {
 		return nil, err
 	}
 
 	nstmt, err = p.Cx.PrepareNamed(query)
+	if nstmt != nil {
+		defer nstmt.Close()
+	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	if err := nstmt.Select(items, arg); err != nil {
 		return nil, err
 	}

@@ -2,6 +2,10 @@ package combinators
 
 func (m Model) NamedGet(dst interface{}, query string, params interface{}) error {
 	nstmt, err := m.Cx.PrepareNamed(query)
+	if nstmt != nil {
+		defer nstmt.Close()
+	}
+
 	if err != nil {
 		return err
 	}
@@ -11,6 +15,10 @@ func (m Model) NamedGet(dst interface{}, query string, params interface{}) error
 
 func (m Model) NamedSelect(dst interface{}, query string, params interface{}) error {
 	nstmt, err := m.Cx.PrepareNamed(query)
+	if nstmt != nil {
+		defer nstmt.Close()
+	}
+
 	if err != nil {
 		return err
 	}
