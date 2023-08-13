@@ -54,7 +54,7 @@ func ToContentResponse(
 		meta.Page = 1
 	}
 
-	pages := meta.Total / meta.Size
+	pages := float32(meta.Total) / float32(meta.Size)
 
 	pagesDecimal := float64(pages)
 	if pages <= 0 {

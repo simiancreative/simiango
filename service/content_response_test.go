@@ -31,3 +31,16 @@ func TestToContentResponseNotSlice(t *testing.T) {
 	assert.Equal(t, false, content.First)
 	assert.Equal(t, false, content.Last)
 }
+
+func TestToContentResponseTotalPages(t *testing.T) {
+	content := ToContentResponse([]interface{}{3, 1, 4}, ContentResponseMeta{
+		Total: 7,
+		Page:  1,
+		Size:  2,
+	})
+
+	assert.NoError(t, content.Error)
+	assert.Equal(t, 4, content.TotalPages)
+	assert.Equal(t, true, content.First)
+	assert.Equal(t, false, content.Last)
+}
