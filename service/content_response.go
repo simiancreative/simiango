@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 )
 
@@ -55,13 +56,15 @@ func ToContentResponse(
 
 	pages := meta.Total / meta.Size
 
-	totalPages := float64(pages)
+	pagesDecimal := float64(pages)
 	if pages <= 0 {
-		totalPages = 1
+		pagesDecimal = 1
 	}
 
+	totalPages := int(math.Ceil(pagesDecimal))
+
 	last := false
-	if rv.Len() == 0 || int(totalPages) == meta.Page {
+	if rv.Len() == 0 || totalPages == meta.Page {
 		last = true
 	}
 
@@ -73,7 +76,7 @@ func ToContentResponse(
 	context := ContentResponseContext{
 		First:      first,
 		Last:       last,
-		TotalPages: int(totalPages),
+		TotalPages: totalPages,
 	}
 
 	return ContentResponse{
