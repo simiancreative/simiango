@@ -12,6 +12,12 @@ func handleDirect(config service.Config, req service.Req) (interface{}, *service
 		return nil, handleError(err)
 	}
 
+	for _, handler := range config.Before {
+		if err := handler(config, req); err != nil {
+			return nil, handleError(err)
+		}
+	}
+
 	result, err := config.Direct(req)
 
 	if err == nil && result == nil {
