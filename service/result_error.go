@@ -33,3 +33,24 @@ func ToResultError(err error, message string, status int) *ResultError {
 		Reasons:    reasons,
 	}
 }
+
+type Reason map[string]interface{}
+
+func Error(
+	status int,
+	err error,
+	reasons ...Reason,
+) *ResultError {
+	maps := []map[string]interface{}{}
+
+	for _, reason := range reasons {
+		maps = append(maps, reason)
+	}
+
+	return &ResultError{
+		Status:     status,
+		ErrMessage: err.Error(),
+		Message:    err.Error(),
+		Reasons:    maps,
+	}
+}
