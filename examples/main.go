@@ -3,11 +3,7 @@ package main
 import (
 	"os"
 
-	//
-	// must be first, all env vars are loaded then others services that depend on
-	// config can be loaded afterward
-	//
-	_ "github.com/simiancreative/simiango/config"
+	"github.com/simiancreative/simiango/config"
 	"github.com/simiancreative/simiango/logger"
 
 	"github.com/simiancreative/simiango/meta"
@@ -41,6 +37,8 @@ import (
 )
 
 func main() {
+	config.Enable()
+
 	logger.Printf("ENV STARTING AS: %v", os.Getenv("APP_ENV"))
 	done, exit := meta.CatchSig()
 
