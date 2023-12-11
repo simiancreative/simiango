@@ -1,4 +1,4 @@
-package redismock
+package redismock_test
 
 import (
 	"testing"

@@ -11,7 +11,7 @@ import (
 
 var envFlag string
 
-func init() {
+func Enable() {
 	flag.StringVar(
 		&envFlag,
 		"env",

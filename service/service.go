@@ -5,7 +5,7 @@ import (
 	"io"
 
 	"github.com/gin-gonic/gin"
-	"github.com/p768lwy3/gin-server-timing"
+	servertiming "github.com/p768lwy3/gin-server-timing"
 	"github.com/simiancreative/simiango/meta"
 )
 
@@ -66,6 +66,7 @@ type Config struct {
 	BuildMessages func(meta.RequestId, RawHeaders, RawBody, RawParams) (MessageTPL, error)
 	Direct        func(req Req) (interface{}, error)
 	Auth          func(Req) error
+	Before        []func(Config, Req) error
 	After         func(Config, Req)
 }
 type Collection []Config

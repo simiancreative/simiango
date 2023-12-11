@@ -1,4 +1,4 @@
-package redis
+package redis_test
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/elliotchance/redismock/v8"
 	r "github.com/go-redis/redis/v8"
+	"github.com/simiancreative/simiango/data/redis"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -16,6 +17,8 @@ var factories = map[string]interface{}{
 }
 
 func init() {
+	redis.Connect()
+
 	mr, err := miniredis.Run()
 	if err != nil {
 		panic(err)
@@ -25,7 +28,7 @@ func init() {
 		Addr: mr.Addr(),
 	})
 
-	C = redismock.NewNiceMock(client)
+	redis.C = redismock.NewNiceMock(client)
 }
 
 type marshaller struct{}
@@ -35,23 +38,23 @@ func (m *marshaller) UnmarshalBinary(data []byte) error {
 }
 
 func TestClientGet(t *testing.T) {
-	err := Get("42", &marshaller{})
+	err := redis.Get("42", &marshaller{})
 	assert.Equal(t, err.Error(), "does_not_exist")
 }
 
 func TestClientSet(t *testing.T) {
-	err := Set("42", "42", 0)
+	err := redis.Set("42", "42", 0)
 
 	assert.NoError(t, err)
 }
 
 func TestClientExists(t *testing.T) {
-	_, err := Exists("42")
+	_, err := redis.Exists("42")
 	assert.NoError(t, err)
 }
 
 func TestClientDel(t *testing.T) {
-	err := Set("42", "42", 0)
-	err = Del("42")
+	err := redis.Set("42", "42", 0)
+	err = redis.Del("42")
 	assert.NoError(t, err)
 }

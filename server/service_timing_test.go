@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/p768lwy3/gin-server-timing"
+	servertiming "github.com/p768lwy3/gin-server-timing"
 
 	"github.com/simiancreative/simiango/service"
 	"github.com/stretchr/testify/assert"

@@ -36,6 +36,12 @@ func buildService(
 		return s, nil
 	}
 
+	for _, handler := range config.Before {
+		if err := handler(config, req); err != nil {
+			return nil, handleError(err)
+		}
+	}
+
 	return nil, handleError(err)
 }
 

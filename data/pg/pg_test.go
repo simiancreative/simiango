@@ -1,8 +1,9 @@
-package pg
+package pg_test
 
 import (
 	"testing"
 
+	pg "github.com/simiancreative/simiango/data/pg"
 	m "github.com/simiancreative/simiango/mocks/data/sql"
 )
 
@@ -10,7 +11,7 @@ var ConnXMock *m.ConnX
 
 func init() {
 	ConnXMock = &m.ConnX{}
-	Cx = ConnXMock
+	pg.Cx = ConnXMock
 }
 
 func TestQueryX(t *testing.T) {
@@ -21,7 +22,7 @@ func TestQueryX(t *testing.T) {
 		On("Queryx", query, param).
 		Return(nil, nil)
 
-	Cx.Queryx(query, param)
+	pg.Cx.Queryx(query, param)
 
 	ConnXMock.AssertExpectations(t)
 }

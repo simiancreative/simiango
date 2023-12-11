@@ -1,4 +1,4 @@
-package token
+package token_test
 
 import (
 	"os"
@@ -9,28 +9,28 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/simiancreative/simiango/timeutils"
+	"github.com/simiancreative/simiango/token"
 )
 
 func init() {
-
 	os.Setenv("TOKEN_SECRET", "wombat")
 }
 
 func TestTokenGenAndTest(t *testing.T) {
-	tokenStr := Gen(Claims{"hi": "there"}, 0)
-	token, err := Parse(tokenStr)
+	tokenStr := token.Gen(token.Claims{"hi": "there"}, 0)
+	tokenObj, err := token.Parse(tokenStr)
 
-	assert.Equal(t, true, token.Valid)
-	assert.Equal(t, "there", token.Claims.(jwt.MapClaims)["hi"].(string))
+	assert.Equal(t, true, tokenObj.Valid)
+	assert.Equal(t, "there", tokenObj.Claims.(jwt.MapClaims)["hi"].(string))
 
-	err = Test(tokenStr)
+	err = token.Test(tokenStr)
 
 	assert.NoError(t, err)
 
-	tokenStr = Gen(Claims{"hi": "there"}, 300)
-	token, _ = Parse(tokenStr)
+	tokenStr = token.Gen(token.Claims{"hi": "there"}, 300)
+	tokenObj, _ = token.Parse(tokenStr)
 
-	assert.Equal(t, true, token.Valid)
+	assert.Equal(t, true, tokenObj.Valid)
 }
 
 type tokenCarrier struct {
@@ -44,7 +44,7 @@ type tokenCarrier struct {
 func TestTokenDecode(t *testing.T) {
 	tokenStr := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbmkiOiIzMDU0MDkyMjI1IiwiYnJhbmQiOiJ0cmFjZm9uZSIsImlhdCI6MTYwODgzNjg0NSwianRpIjoiMTA0ODgzZDktYzY0Yy00YWEyLWFmYzMtODk5MDdhNTMyNzhhIiwidmVyc2lvbiI6ImVuaWdtYXRpYy13b21iYXQifQ.VOrbGkOgVEbgUpRS1gnNGQSABkdJw_wKx4vAGQC8m0w"
 	carrier := &tokenCarrier{}
-	err := Decode(tokenStr, carrier)
+	err := token.Decode(tokenStr, carrier)
 
 	assert.Equal(t, "tracfone", carrier.Brand)
 	assert.Equal(t, "enigmatic-wombat", carrier.Version)
@@ -53,41 +53,41 @@ func TestTokenDecode(t *testing.T) {
 
 	tokenStr = "1231234"
 	carrier = &tokenCarrier{}
-	err = Decode(tokenStr, carrier)
+	err = token.Decode(tokenStr, carrier)
 
 	assert.Equal(t, err.Error(), "malformed_token")
 }
 
 func TestTokenParse(t *testing.T) {
-	tokenStr := Gen(Claims{"hi": "there"}, 0)
-	token, _ := Parse(tokenStr)
+	tokenStr := token.Gen(token.Claims{"hi": "there"}, 0)
+	tokenObj, _ := token.Parse(tokenStr)
 
-	assert.Equal(t, "there", token.Claims.(jwt.MapClaims)["hi"].(string))
+	assert.Equal(t, "there", tokenObj.Claims.(jwt.MapClaims)["hi"].(string))
 
 	tokenStr = "****"
-	_, err := Parse(tokenStr)
+	_, err := token.Parse(tokenStr)
 
 	assert.Equal(t, "parse_token_failed", err.Error())
 }
 
 func TestTokenTest(t *testing.T) {
-	tokenStr := Gen(Claims{"hi": "there"}, 0)
-	err := Test(tokenStr)
+	tokenStr := token.Gen(token.Claims{"hi": "there"}, 0)
+	err := token.Test(tokenStr)
 	assert.NoError(t, err)
 
 	tokenStr = "****"
-	err = Test(tokenStr)
+	err = token.Test(tokenStr)
 	assert.Equal(t, "parse_token_failed", err.Error())
 }
 
 func TestExpiredToken(t *testing.T) {
-	tokenStr := Gen(Claims{"hi": "there"}, time.Duration(3))
+	tokenStr := token.Gen(token.Claims{"hi": "there"}, time.Duration(3))
 
 	jwt.TimeFunc = func() time.Time {
 		return time.Now().Local().Add(time.Hour * time.Duration(3))
 	}
 
-	err := Test(tokenStr)
+	err := token.Test(tokenStr)
 
 	assert.NotEqual(t, err, nil)
 	assert.Equal(t, "token_expired", err.Error())

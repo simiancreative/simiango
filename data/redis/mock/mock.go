@@ -11,6 +11,8 @@ import (
 var MockedClient *redismock.ClientMock
 
 func init() {
+	redis.Connect()
+
 	mr, err := miniredis.Run()
 	if err != nil {
 		panic(err)

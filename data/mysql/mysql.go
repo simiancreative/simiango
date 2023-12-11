@@ -11,6 +11,6 @@ import (
 
 var Cx sql.ConnX
 
-func init() {
+func Connect() {
 	Cx = sql.Connect("mysql", "MYSQL_URL", "MYSQL_REQUIRE_CONNECTION")
 }
