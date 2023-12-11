@@ -24,10 +24,18 @@ jobs:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: make test
 
+  update-release-draft:
+    runs-on: ubuntu-latest
+    if: ${{ success() && github.ref_name == 'main' }}
+    steps:
+      - uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   bump-version:
     runs-on: ubuntu-latest
+    if: ${{ success() && github.event_name == 'release' }}
     needs: [test]
-    if: ${{ success() }}
 
     steps:
       - uses: actions/checkout@v2
