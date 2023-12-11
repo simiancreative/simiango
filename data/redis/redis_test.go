@@ -17,6 +17,8 @@ var factories = map[string]interface{}{
 }
 
 func init() {
+	redis.Connect()
+
 	mr, err := miniredis.Run()
 	if err != nil {
 		panic(err)
