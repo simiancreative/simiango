@@ -8,9 +8,9 @@ import (
 
 	"github.com/simiancreative/simiango/meta"
 
-	_ "github.com/simiancreative/simiango/data/mssql"
-	_ "github.com/simiancreative/simiango/data/mysql"
-	_ "github.com/simiancreative/simiango/data/pg"
+	"github.com/simiancreative/simiango/data/mssql"
+	"github.com/simiancreative/simiango/data/mysql"
+	"github.com/simiancreative/simiango/data/pg"
 
 	"github.com/simiancreative/simiango/messaging/amqp"
 	"github.com/simiancreative/simiango/messaging/kafka"
@@ -41,6 +41,10 @@ func main() {
 
 	logger.Printf("ENV STARTING AS: %v", os.Getenv("APP_ENV"))
 	done, exit := meta.CatchSig()
+
+	mssql.Connect()
+	mysql.Connect()
+	pg.Connect()
 
 	prometheus.Handle()
 

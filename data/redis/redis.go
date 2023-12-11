@@ -70,7 +70,7 @@ func GetDefault(name string, rec encoding.BinaryUnmarshaler) error {
 	return nil
 }
 
-func init() {
+func Connect() {
 	addr, ok := os.LookupEnv("REDIS_ADDR")
 	if !ok {
 		addr = "localhost:6379"

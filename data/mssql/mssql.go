@@ -8,6 +8,6 @@ import (
 
 var Cx sql.ConnX
 
-func init() {
+func Connect() {
 	Cx = sql.Connect("mssql", "SQLSERVER_URL", "SQLSERVER_REQUIRE_CONNECTION")
 }

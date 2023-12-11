@@ -8,6 +8,6 @@ import (
 
 var Cx sql.ConnX
 
-func init() {
+func Connect() {
 	Cx = sql.Connect("pgx", "PG_URL", "PG_REQUIRE_CONNECTION")
 }
