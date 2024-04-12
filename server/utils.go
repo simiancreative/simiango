@@ -2,18 +2,17 @@ package server
 
 import (
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/simiancreative/simiango/logger"
+	"github.com/simiancreative/simiango/monitoring/sentry"
 	"github.com/simiancreative/simiango/service"
 )
 
 func parseHeaders(request *http.Request) service.RawHeaders {
-	var parsedHeaders = service.RawHeaders{}
+	parsedHeaders := service.RawHeaders{}
 
 	for key, values := range request.Header {
 		param := service.ParamItem{Key: key}
@@ -25,12 +24,12 @@ func parseHeaders(request *http.Request) service.RawHeaders {
 }
 
 func rawBody(source io.ReadCloser) []byte {
-	reqBody, _ := ioutil.ReadAll(source)
+	reqBody, _ := io.ReadAll(source)
 	return []byte(reqBody)
 }
 
 func parseParams(params gin.Params, url *url.URL) service.RawParams {
-	var parsedParams = service.RawParams{}
+	parsedParams := service.RawParams{}
 
 	for _, element := range params {
 		parsedParams = append(parsedParams, service.ParamItem{
@@ -50,15 +49,29 @@ func parseParams(params gin.Params, url *url.URL) service.RawParams {
 	return parsedParams
 }
 
+func handleErrorResp(err *service.ResultError, c *gin.Context) *service.ResultError {
+	if err == nil {
+		return nil
+	}
+
+	status := err.GetStatus()
+
+	if status < 500 {
+		return err
+	}
+
+	return sentry.HandleError(c, err)
+}
+
 func handleError(err error) *service.ResultError {
 	resultErr, ok := err.(*service.ResultError)
+
 	if !ok {
-		logger.Error("Service Build Failed", logger.Fields{"err": err})
 		resultErr = service.ToResultError(err, "service failed", 500)
 		return resultErr
 	}
 
-	return err.(*service.ResultError)
+	return resultErr
 }
 
 func handleAfter(config service.Config, req service.Req) {

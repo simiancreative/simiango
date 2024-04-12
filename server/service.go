@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	servertiming "github.com/p768lwy3/gin-server-timing"
 
-	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/service"
 )
 
@@ -41,8 +40,7 @@ func handleService(config service.Config) gin.HandlerFunc {
 
 		go handleAfter(config, req)
 
-		if err != nil {
-			logger.Error("Service Failed", logger.Fields{"err": err})
+		if handleErrorResp(err, c) != nil {
 			c.JSON(err.GetStatus(), err.GetDetails())
 			return
 		}

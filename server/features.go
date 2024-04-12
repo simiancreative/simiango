@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/getsentry/sentry-go"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
@@ -37,6 +39,23 @@ func SetCORS() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+}
+
+// AddSentryMiddleware adds the Sentry middleware to the gin router
+func AddSentryMiddleware(scopeFunc func(*gin.Context, *sentry.Scope)) {
+	router.Use(sentrygin.New(sentrygin.Options{
+		Repanic:         true,
+		WaitForDelivery: false,
+	}))
+
+	router.Use(sentrySetup(scopeFunc))
+}
+
+func sentrySetup(scopeFunc func(*gin.Context, *sentry.Scope)) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("sentryScopeFunc", scopeFunc)
+		c.Next()
+	}
 }
 
 func healthGET(c *gin.Context) {

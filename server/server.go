@@ -4,22 +4,24 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/p768lwy3/gin-server-timing"
+	servertiming "github.com/p768lwy3/gin-server-timing"
 
 	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/service"
 )
 
-var router *gin.Engine
-var services service.Collection
+var (
+	router   *gin.Engine
+	services service.Collection
+)
 
-func init() {
+func New() {
 	gin.SetMode(gin.ReleaseMode)
 	router = gin.New()
 	router.Use(
 		servertiming.Middleware(),
-		JSONLogMiddleware(),
-		gin.Recovery(),
+		JSONLogMiddleware,
+		Recovery,
 	)
 }
 
@@ -38,7 +40,12 @@ func Start() {
 		logger.Fields{"port": port},
 	)
 
-	router.Run()
+	if err := router.Run(); err != nil {
+		logger.Fatal(
+			"Server: failed to start",
+			logger.Fields{"err": err},
+		)
+	}
 }
 
 func GetRouter() *gin.Engine {

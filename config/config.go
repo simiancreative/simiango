@@ -34,7 +34,10 @@ func Enable() {
 	appDir, _ := findAppDir(envFlag)
 	path := joinPath(*appDir, envFlag)
 
-	_ = godotenv.Load(path)
+	err := godotenv.Load(path)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func findAppDir(env string) (*string, error) {

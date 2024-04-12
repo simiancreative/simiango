@@ -39,32 +39,30 @@ func getAuth(c *gin.Context) string {
 	return ""
 }
 
-func JSONLogMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// Start timer
-		start := time.Now()
+func JSONLogMiddleware(c *gin.Context) {
+	// Start timer
+	start := time.Now()
 
-		// Process Request
-		c.Next()
+	// Process Request
+	c.Next()
 
-		// Stop timer
-		duration := meta.GetDurationInMillseconds(start)
+	// Stop timer
+	duration := meta.GetDurationInMillseconds(start)
 
-		entry := logger.GetEntry(logger.Fields{
-			"client_ip":  getClientIP(c),
-			"duration":   duration,
-			"method":     c.Request.Method,
-			"path":       c.Request.RequestURI,
-			"status":     c.Writer.Status(),
-			"auth":       getAuth(c),
-			"referrer":   c.Request.Referer(),
-			"request_id": c.Writer.Header().Get("X-Request-ID"),
-		})
+	entry := logger.GetEntry(logger.Fields{
+		"client_ip":  getClientIP(c),
+		"duration":   duration,
+		"method":     c.Request.Method,
+		"path":       c.Request.RequestURI,
+		"status":     c.Writer.Status(),
+		"auth":       getAuth(c),
+		"referrer":   c.Request.Referer(),
+		"request_id": c.Writer.Header().Get("X-Request-ID"),
+	})
 
-		if c.Writer.Status() >= 500 {
-			entry.Error(c.Errors.String())
-		} else {
-			entry.Info("")
-		}
+	if c.Writer.Status() >= 500 {
+		entry.Error(c.Errors.String())
+	} else {
+		entry.Info("")
 	}
 }

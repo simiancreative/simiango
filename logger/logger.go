@@ -56,7 +56,7 @@ func New() *logrus.Logger {
 	return inst
 }
 
-func init() {
+func Enable() {
 	global = New()
 
 	Trace(
