@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -66,15 +65,23 @@ func Enable() {
 }
 
 func Debugf(message string, replacements ...interface{}) {
-	global.Debug(fmt.Sprintf(message, replacements...))
+	global.Debugf(message, replacements...)
 }
 
 func Printf(message string, replacements ...interface{}) {
-	global.Info(fmt.Sprintf(message, replacements...))
+	global.Infof(message, replacements...)
 }
 
 func Errorf(message string, replacements ...interface{}) {
-	global.Error(fmt.Sprintf(message, replacements...))
+	global.Errorf(message, replacements...)
+}
+
+func Warnf(message string, replacements ...interface{}) {
+	global.Warnf(message, replacements...)
+}
+
+func Fatalf(message string, replacements ...interface{}) {
+	global.Fatalf(message, replacements...)
 }
 
 func Trace(message string, fields Fields) {

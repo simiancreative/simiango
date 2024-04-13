@@ -15,7 +15,7 @@ import (
 func Enable() {
 	dsn, hasDsn := os.LookupEnv("SENTRY_DSN")
 	if !hasDsn {
-		logger.Warn("SENTRY_DSN not set", nil)
+		logger.Warnf("SENTRY_DSN is not set")
 		return
 	}
 
@@ -33,10 +33,7 @@ func Enable() {
 
 	err := sentry.Init(options)
 	if err != nil {
-		logger.Fatal(
-			"sentry.Init",
-			logger.Fields{"err": err},
-		)
+		logger.Warnf("Sentry initialization failed: %v", err)
 	}
 }
 
