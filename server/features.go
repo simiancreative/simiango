@@ -41,8 +41,8 @@ func SetCORS() {
 	}))
 }
 
-// AddSentryMiddleware adds the Sentry middleware to the gin router
-func AddSentryMiddleware(scopeFunc func(*gin.Context, *sentry.Scope)) {
+// AddSentry adds the Sentry middleware to the gin router
+func AddSentry(scopeFunc func(*gin.Context, *sentry.Scope)) {
 	router.Use(sentrygin.New(sentrygin.Options{
 		Repanic:         true,
 		WaitForDelivery: false,

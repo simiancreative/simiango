@@ -55,7 +55,7 @@ func main() {
 	server.EnableHealthCheck()
 	server.SetCORS()
 	server.AddPprof()
-	server.AddSentryMiddleware(lib.SentryScope)
+	server.AddSentry(lib.SentryScope)
 
 	go server.Start()
 
