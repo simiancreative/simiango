@@ -2,9 +2,15 @@ package meta
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
-	"io/ioutil"
+	"net"
+	"net/http/httputil"
+	"os"
 	"runtime"
+	"strings"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/simiancreative/simiango/logger"
 )
@@ -26,14 +32,72 @@ func RescuePanic(id RequestId, context interface{}) {
 		fmt.Sprintf("(%v) caused panic and was recovered", r),
 		logger.Fields{
 			"request_id": string(id),
-			"stack":      string(stack(3)),
+			"stack":      string(stackAsBuf()),
 			"context":    fmt.Sprintf("%+v", context),
 		},
 	)
 }
 
-func stack(skip int) []byte {
-	buf := new(bytes.Buffer) // the returned data
+func GinRecovery(buildResp func(*gin.Context, map[string]interface{})) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		defer recoverGinPanic(c, buildResp)
+		c.Next()
+	}
+}
+
+func recoverGinPanic(c *gin.Context, buildResp func(*gin.Context, map[string]interface{})) {
+	if err := recover(); err != nil {
+		// Check for a broken connection, as it is not really a
+		// condition that warrants a panic stack trace.
+		var brokenPipe bool
+		if ne, ok := err.(*net.OpError); ok {
+			var se *os.SyscallError
+			if errors.As(ne, &se) {
+				seStr := strings.ToLower(se.Error())
+				if strings.Contains(seStr, "broken pipe") ||
+					strings.Contains(seStr, "connection reset by peer") {
+					brokenPipe = true
+				}
+			}
+		}
+
+		id, _ := c.Get("request_id")
+		stack := stack()
+		httpRequest, _ := httputil.DumpRequest(c.Request, false)
+		headers := strings.Split(string(httpRequest), "\r\n")
+		for idx, header := range headers {
+			current := strings.Split(header, ":")
+			if current[0] == "Authorization" {
+				headers[idx] = current[0] + ": *"
+			}
+		}
+		logger.Error(
+			err.(error).Error(),
+			logger.Fields{
+				"request_id": id,
+				"request":    headers,
+				"stack":      stack,
+			},
+		)
+
+		if brokenPipe {
+			// If the connection is dead, we can't write a status to it.
+			c.Error(err.(error)) //nolint: errcheck
+			c.Abort()
+			return
+		}
+
+		buildResp(c, map[string]interface{}{
+			"request_id": id,
+			"headers":    headers,
+			"stack":      stack,
+		})
+	}
+}
+
+func stack() []string {
+	skip := 3
+	result := []string{}
 	// As we loop, we open files and read them. These variables record the currently
 	// loaded file.
 	var lines [][]byte
@@ -44,17 +108,32 @@ func stack(skip int) []byte {
 			break
 		}
 		// Print this much at least.  If we can't find the source, it won't show.
-		fmt.Fprintf(buf, "%s:%d (0x%x)\n", file, line, pc)
+		result = append(result, fmt.Sprintf("%s:%d (0x%x)", file, line, pc))
 		if file != lastFile {
-			data, err := ioutil.ReadFile(file)
+			data, err := os.ReadFile(file)
 			if err != nil {
 				continue
 			}
 			lines = bytes.Split(data, []byte{'\n'})
 			lastFile = file
 		}
-		fmt.Fprintf(buf, "\t%s: %s\n", function(pc), source(lines, line))
+		result = append(
+			result,
+			fmt.Sprintf("%s: %s", function(pc), source(lines, line)),
+		)
 	}
+
+	return result
+}
+
+func stackAsBuf() []byte {
+	buf := new(bytes.Buffer) // the returned data
+	lines := stack()
+
+	for _, line := range lines {
+		fmt.Fprint(buf, line)
+	}
+
 	return buf.Bytes()
 }
 

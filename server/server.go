@@ -1,12 +1,14 @@
 package server
 
 import (
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	servertiming "github.com/p768lwy3/gin-server-timing"
 
 	"github.com/simiancreative/simiango/logger"
+	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/service"
 )
 
@@ -21,8 +23,18 @@ func New() {
 	router.Use(
 		servertiming.Middleware(),
 		JSONLogMiddleware,
-		Recovery,
+		meta.GinRecovery(recoveryHandler),
 	)
+}
+
+func recoveryHandler(c *gin.Context, context map[string]interface{}) {
+	c.JSON(http.StatusInternalServerError, service.ResultError{
+		Status:  http.StatusInternalServerError,
+		Message: "Internal Server Error",
+		Reasons: []map[string]interface{}{context},
+	})
+
+	c.AbortWithStatus(http.StatusInternalServerError)
 }
 
 func Start() {

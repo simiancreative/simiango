@@ -37,9 +37,9 @@ import (
 
 func main() {
 	config.Enable()
+	logger.Enable()
 
 	sentry.Enable()
-	logger.Enable()
 
 	logger.Printf("ENV STARTING AS: %v", os.Getenv("APP_ENV"))
 	done, exit := meta.CatchSig()

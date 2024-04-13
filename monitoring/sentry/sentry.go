@@ -13,12 +13,18 @@ import (
 )
 
 func Enable() {
+	dsn, hasDsn := os.LookupEnv("SENTRY_DSN")
+	if !hasDsn {
+		logger.Warn("SENTRY_DSN not set", nil)
+		return
+	}
+
 	_, debug := os.LookupEnv("SENTRY_DEBUG")
 
 	options := sentry.ClientOptions{
 		Debug:            debug,
 		Release:          os.Getenv("APP_VERSION"),
-		Dsn:              os.Getenv("SENTRY_DSN"),
+		Dsn:              dsn,
 		Environment:      os.Getenv("APP_ENV"),
 		TracesSampleRate: 0.1,
 		EnableTracing:    true,
