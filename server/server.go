@@ -1,7 +1,6 @@
 package server
 
 import (
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -17,24 +16,16 @@ var (
 	services service.Collection
 )
 
-func New() {
+func Init() {
 	gin.SetMode(gin.ReleaseMode)
+
 	router = gin.New()
+
 	router.Use(
 		servertiming.Middleware(),
 		JSONLogMiddleware,
-		meta.GinRecovery(recoveryHandler),
+		meta.GinRecovery(handleRecovery),
 	)
-}
-
-func recoveryHandler(c *gin.Context, context map[string]interface{}) {
-	c.JSON(http.StatusInternalServerError, service.ResultError{
-		Status:  http.StatusInternalServerError,
-		Message: "Internal Server Error",
-		Reasons: []map[string]interface{}{context},
-	})
-
-	c.AbortWithStatus(http.StatusInternalServerError)
 }
 
 func Start() {

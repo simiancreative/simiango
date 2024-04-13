@@ -48,7 +48,7 @@ func main() {
 	mysql.Connect()
 	pg.Connect()
 
-	server.New()
+	server.Init()
 
 	prometheus.Handle()
 

@@ -81,3 +81,13 @@ func handleAfter(config service.Config, req service.Req) {
 
 	config.After(config, req)
 }
+
+func handleRecovery(c *gin.Context, context map[string]interface{}) {
+	c.JSON(http.StatusInternalServerError, service.ResultError{
+		Status:  http.StatusInternalServerError,
+		Message: "Internal Server Error",
+		Reasons: []map[string]interface{}{context},
+	})
+
+	c.AbortWithStatus(http.StatusInternalServerError)
+}
