@@ -60,7 +60,7 @@ func handleErrorResp(err *service.ResultError, c *gin.Context) *service.ResultEr
 		return err
 	}
 
-	return sentry.HandleError(c, err)
+	return sentry.GinCaptureError(c, err)
 }
 
 func handleError(err error) *service.ResultError {

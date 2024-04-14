@@ -46,7 +46,8 @@ func RecoverAndThrow() {
 	}
 }
 
-func HandleError(c *gin.Context, err *service.ResultError) *service.ResultError {
+// CaptureError is a helper function to capture an error and return it so the caller can handle it
+func GinCaptureError(c *gin.Context, err *service.ResultError) *service.ResultError {
 	hub := sentrygin.GetHubFromContext(c)
 
 	if hub == nil {
@@ -55,10 +56,16 @@ func HandleError(c *gin.Context, err *service.ResultError) *service.ResultError 
 
 	hub.WithScope(func(scope *sentry.Scope) {
 		scopeFunc, ok := c.Get("sentryScopeFunc")
-		if ok {
-			scopeFunc.(func(*gin.Context, *sentry.Scope))(c, scope)
+		if !ok {
+			return
 		}
 
+		scopeFunction, ok := scopeFunc.(func(*gin.Context, *sentry.Scope))
+		if !ok {
+			return
+		}
+
+		scopeFunction(c, scope)
 		hub.CaptureException(err)
 	})
 
