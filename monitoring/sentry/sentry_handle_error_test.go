@@ -57,7 +57,7 @@ func TestHandleError(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Call the function under test
-			result := sentry.HandleError(tt.setupFunc(), tt.err)
+			result := sentry.GinCaptureError(tt.setupFunc(), tt.err)
 
 			// Assert that the result is the same as the input error
 			assert.Equal(t, tt.err, result)
