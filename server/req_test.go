@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
@@ -19,6 +20,9 @@ func TestParseRequest(t *testing.T) {
 
 	// Set the "Timing-Context" key in the context
 	c.Set("Timing-Context", "some value") // replace "some value" with the appropriate value
+
+	hub := sentry.CurrentHub().Clone()
+	c.Set("sentry", hub)
 
 	// Initialize the request object in the context
 	body := strings.NewReader("request body") // replace "request body" with the appropriate body
