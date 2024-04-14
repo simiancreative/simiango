@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/http"
 	"net/http/httputil"
 	"os"
 	"runtime"
@@ -83,7 +84,7 @@ func recoverGinPanic(c *gin.Context, buildResp func(*gin.Context, map[string]int
 		if brokenPipe {
 			// If the connection is dead, we can't write a status to it.
 			c.Error(err.(error)) //nolint: errcheck
-			c.Abort()
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 
