@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/monitoring/sentry"
 	"github.com/simiancreative/simiango/service"
 )
@@ -83,11 +84,15 @@ func handleAfter(config service.Config, req service.Req) {
 }
 
 func handleRecovery(c *gin.Context, context map[string]interface{}) {
-	c.JSON(http.StatusInternalServerError, service.ResultError{
-		Status:  http.StatusInternalServerError,
-		Message: "Internal Server Error",
-		Reasons: []map[string]interface{}{context},
-	})
+	logLevel := logger.Level()
+
+	if logLevel > logger.Levels[4] {
+		c.JSON(http.StatusInternalServerError, service.ResultError{
+			Status:  http.StatusInternalServerError,
+			Message: "Internal Server Error",
+			Reasons: []map[string]interface{}{context},
+		})
+	}
 
 	c.AbortWithStatus(http.StatusInternalServerError)
 }

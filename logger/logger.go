@@ -15,6 +15,8 @@ func Type() string {
 	return logType
 }
 
+var Levels = logrus.AllLevels
+
 func Level() logrus.Level {
 	logLevel, _ := os.LookupEnv("LOG_LEVEL")
 
