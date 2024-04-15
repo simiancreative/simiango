@@ -20,24 +20,12 @@ var Levels = logrus.AllLevels
 func Level() logrus.Level {
 	logLevel, _ := os.LookupEnv("LOG_LEVEL")
 
-	switch logLevel {
-	case "trace":
-		return logrus.TraceLevel
-	case "debug":
+	l, err := logrus.ParseLevel(logLevel)
+	if err != nil {
 		return logrus.DebugLevel
-	case "info":
-		return logrus.InfoLevel
-	case "warn":
-		return logrus.WarnLevel
-	case "error":
-		return logrus.ErrorLevel
-	case "fatal":
-		return logrus.FatalLevel
-	case "panic":
-		return logrus.PanicLevel
 	}
 
-	return logrus.DebugLevel
+	return l
 }
 
 func New() *logrus.Logger {
