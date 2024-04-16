@@ -12,11 +12,12 @@ import (
 
 	"github.com/dlmiddlecote/sqlstats"
 	"github.com/jmoiron/sqlx"
-	"github.com/simiancreative/simiango/logger"
-	"github.com/simiancreative/simiango/stats/prometheus"
 	sqlLogger "github.com/simukti/sqldb-logger"
 	"github.com/simukti/sqldb-logger/logadapter/logrusadapter"
 	"github.com/sirupsen/logrus"
+
+	"github.com/simiancreative/simiango/logger"
+	"github.com/simiancreative/simiango/stats/prometheus"
 )
 
 type ConnX interface {

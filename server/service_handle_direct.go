@@ -3,7 +3,6 @@ package server
 import (
 	"fmt"
 
-	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/service"
 )
 
@@ -45,7 +44,6 @@ func handleDirectAuth(
 
 	if err != nil {
 		err = fmt.Errorf("Authentication Failed: %v", err.Error())
-		logger.Error("Authentication Failed", logger.Fields{"err": err})
 		resultErr := service.ToResultError(err, "service auth failed", 401)
 		return resultErr
 	}

@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -16,27 +15,17 @@ func Type() string {
 	return logType
 }
 
+var Levels = logrus.AllLevels
+
 func Level() logrus.Level {
 	logLevel, _ := os.LookupEnv("LOG_LEVEL")
 
-	switch logLevel {
-	case "trace":
-		return logrus.TraceLevel
-	case "debug":
+	l, err := logrus.ParseLevel(logLevel)
+	if err != nil {
 		return logrus.DebugLevel
-	case "info":
-		return logrus.InfoLevel
-	case "warn":
-		return logrus.WarnLevel
-	case "error":
-		return logrus.ErrorLevel
-	case "fatal":
-		return logrus.FatalLevel
-	case "panic":
-		return logrus.PanicLevel
 	}
 
-	return logrus.DebugLevel
+	return l
 }
 
 func New() *logrus.Logger {
@@ -56,7 +45,7 @@ func New() *logrus.Logger {
 	return inst
 }
 
-func init() {
+func Enable() {
 	global = New()
 
 	Trace(
@@ -66,15 +55,23 @@ func init() {
 }
 
 func Debugf(message string, replacements ...interface{}) {
-	global.Debug(fmt.Sprintf(message, replacements...))
+	global.Debugf(message, replacements...)
 }
 
 func Printf(message string, replacements ...interface{}) {
-	global.Info(fmt.Sprintf(message, replacements...))
+	global.Infof(message, replacements...)
 }
 
 func Errorf(message string, replacements ...interface{}) {
-	global.Error(fmt.Sprintf(message, replacements...))
+	global.Errorf(message, replacements...)
+}
+
+func Warnf(message string, replacements ...interface{}) {
+	global.Warnf(message, replacements...)
+}
+
+func Fatalf(message string, replacements ...interface{}) {
+	global.Fatalf(message, replacements...)
 }
 
 func Trace(message string, fields Fields) {
