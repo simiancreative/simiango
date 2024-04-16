@@ -72,6 +72,7 @@ func recoverGinPanic(c *gin.Context, buildResp func(*gin.Context, map[string]int
 				headers[idx] = current[0] + ": *"
 			}
 		}
+
 		logger.Error(
 			err.(error).Error(),
 			logger.Fields{
@@ -90,6 +91,7 @@ func recoverGinPanic(c *gin.Context, buildResp func(*gin.Context, map[string]int
 
 		buildResp(c, map[string]interface{}{
 			"request_id": id,
+			"error":      err.(error).Error(),
 			"headers":    headers,
 			"stack":      stack,
 		})
