@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	servertiming "github.com/p768lwy3/gin-server-timing"
+
 	"github.com/simiancreative/simiango/meta"
 )
 
@@ -40,12 +41,13 @@ type MessageTPL interface {
 }
 
 type Req struct {
-	ID      meta.RequestId
-	Headers RawHeaders
-	Body    RawBody
-	Params  RawParams
-	Timer   *servertiming.Header
-	Context *gin.Context
+	ID       meta.RequestId
+	Headers  RawHeaders
+	Body     RawBody
+	Params   RawParams
+	Receiver interface{}
+	Timer    *servertiming.Header
+	Context  *gin.Context
 }
 
 type Kind int
@@ -56,19 +58,21 @@ const (
 )
 
 type Config struct {
-	Kind          Kind
-	IsStream      bool
-	IsPrivate     bool
-	Key           string
-	Path          string
-	Method        string
-	Build         func(meta.RequestId, RawHeaders, RawBody, RawParams) (TPL, error)
-	BuildMessages func(meta.RequestId, RawHeaders, RawBody, RawParams) (MessageTPL, error)
-	Direct        func(req Req) (interface{}, error)
-	Auth          func(Req) error
-	Before        []func(Config, Req) error
-	After         func(Config, Req)
+	Kind            Kind
+	IsStream        bool
+	IsPrivate       bool
+	Key             string
+	Path            string
+	Method          string
+	RequestReceiver func() interface{}
+	Build           func(meta.RequestId, RawHeaders, RawBody, RawParams) (TPL, error)
+	BuildMessages   func(meta.RequestId, RawHeaders, RawBody, RawParams) (MessageTPL, error)
+	Direct          func(req Req) (interface{}, error)
+	Auth            func(Req) error
+	Before          []func(Config, Req) error
+	After           func(Config, Req)
 }
+
 type Collection []Config
 
 type RawBody []byte

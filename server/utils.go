@@ -29,6 +29,23 @@ func rawBody(source io.ReadCloser) []byte {
 	return []byte(reqBody)
 }
 
+func parseBody(config service.Config, req *service.Req) error {
+	if config.RequestReceiver == nil {
+		return nil
+	}
+
+	receiver := config.RequestReceiver()
+
+	err := service.ParseBody(req.Body, receiver)
+	if err != nil {
+		return err
+	}
+
+	req.Receiver = receiver
+
+	return nil
+}
+
 func parseParams(params gin.Params, url *url.URL) service.RawParams {
 	parsedParams := service.RawParams{}
 

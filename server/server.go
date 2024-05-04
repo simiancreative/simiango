@@ -25,6 +25,7 @@ func Init() {
 		servertiming.Middleware(),
 		JSONLogMiddleware,
 		meta.GinRecovery(handleRecovery),
+		errorMiddleware,
 	)
 }
 

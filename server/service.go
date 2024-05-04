@@ -26,13 +26,13 @@ func handleService(config service.Config) gin.HandlerFunc {
 		var result interface{}
 		var err *service.ResultError
 
-		value, ok := kinds[config.Kind]
+		handler, ok := kinds[config.Kind]
 		if !ok {
 			result, err = handleDefault(config, req)
 		}
 
 		if ok {
-			result, err = value(config, req)
+			result, err = handler(config, req)
 		}
 
 		timer.Stop()
