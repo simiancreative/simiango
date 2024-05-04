@@ -30,11 +30,11 @@ func rawBody(source io.ReadCloser) []byte {
 }
 
 func parseBody(config service.Config, req *service.Req) error {
-	if config.RequestReceiver == nil {
+	if config.Input == nil {
 		return nil
 	}
 
-	receiver := config.RequestReceiver()
+	receiver := config.Input()
 
 	err := service.ParseBody(req.Body, receiver)
 	if err != nil {

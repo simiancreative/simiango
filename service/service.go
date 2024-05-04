@@ -58,19 +58,19 @@ const (
 )
 
 type Config struct {
-	Kind            Kind
-	IsStream        bool
-	IsPrivate       bool
-	Key             string
-	Path            string
-	Method          string
-	RequestReceiver func() interface{}
-	Build           func(meta.RequestId, RawHeaders, RawBody, RawParams) (TPL, error)
-	BuildMessages   func(meta.RequestId, RawHeaders, RawBody, RawParams) (MessageTPL, error)
-	Direct          func(req Req) (interface{}, error)
-	Auth            func(Req) error
-	Before          []func(Config, Req) error
-	After           func(Config, Req)
+	Kind          Kind
+	IsStream      bool
+	IsPrivate     bool
+	Key           string
+	Path          string
+	Method        string
+	Input         func() interface{}
+	Build         func(meta.RequestId, RawHeaders, RawBody, RawParams) (TPL, error)
+	BuildMessages func(meta.RequestId, RawHeaders, RawBody, RawParams) (MessageTPL, error)
+	Direct        func(req Req) (interface{}, error)
+	Auth          func(Req) error
+	Before        []func(Config, Req) error
+	After         func(Config, Req)
 }
 
 type Collection []Config
