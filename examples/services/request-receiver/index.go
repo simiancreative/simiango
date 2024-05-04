@@ -19,7 +19,7 @@ type Product struct {
 }
 
 func direct(req service.Req) (interface{}, error) {
-	return req.Receiver, nil
+	return req.Input, nil
 }
 
 func input() interface{} {

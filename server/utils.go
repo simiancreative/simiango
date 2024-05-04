@@ -34,14 +34,14 @@ func parseBody(config service.Config, req *service.Req) error {
 		return nil
 	}
 
-	receiver := config.Input()
+	input := config.Input()
 
-	err := service.ParseBody(req.Body, receiver)
+	err := service.ParseBody(req.Body, input)
 	if err != nil {
 		return err
 	}
 
-	req.Receiver = receiver
+	req.Input = input
 
 	return nil
 }

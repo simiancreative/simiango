@@ -41,13 +41,13 @@ type MessageTPL interface {
 }
 
 type Req struct {
-	ID       meta.RequestId
-	Headers  RawHeaders
-	Body     RawBody
-	Params   RawParams
-	Receiver interface{}
-	Timer    *servertiming.Header
-	Context  *gin.Context
+	ID      meta.RequestId
+	Headers RawHeaders
+	Body    RawBody
+	Params  RawParams
+	Input   interface{}
+	Timer   *servertiming.Header
+	Context *gin.Context
 }
 
 type Kind int
