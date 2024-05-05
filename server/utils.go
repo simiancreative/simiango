@@ -78,7 +78,7 @@ func handleErrorResp(err *service.ResultError, c *gin.Context) *service.ResultEr
 		return err
 	}
 
-	return sentry.GinCaptureError(c, err)
+	return sentry.GinCaptureError(c, err).(*service.ResultError)
 }
 
 func handleError(err error) *service.ResultError {

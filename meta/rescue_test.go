@@ -85,7 +85,7 @@ func TestRecoverGinPanic_BrokenPipe(t *testing.T) {
 }
 
 func TestStack(t *testing.T) {
-	stack := stack()
+	stack := Stack()
 	if len(stack) == 0 {
 		t.Fatalf("Expected stack trace, got empty")
 	}
