@@ -29,6 +29,23 @@ func rawBody(source io.ReadCloser) []byte {
 	return []byte(reqBody)
 }
 
+func parseBody(config service.Config, req *service.Req) error {
+	if config.Input == nil {
+		return nil
+	}
+
+	input := config.Input()
+
+	err := service.ParseBody(req.Body, input)
+	if err != nil {
+		return err
+	}
+
+	req.Input = input
+
+	return nil
+}
+
 func parseParams(params gin.Params, url *url.URL) service.RawParams {
 	parsedParams := service.RawParams{}
 
@@ -61,7 +78,7 @@ func handleErrorResp(err *service.ResultError, c *gin.Context) *service.ResultEr
 		return err
 	}
 
-	return sentry.GinCaptureError(c, err)
+	return sentry.GinCaptureError(c, err).(*service.ResultError)
 }
 
 func handleError(err error) *service.ResultError {

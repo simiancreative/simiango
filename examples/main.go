@@ -23,6 +23,7 @@ import (
 	_ "github.com/simiancreative/simiango/examples/services/param"
 	_ "github.com/simiancreative/simiango/examples/services/pg"
 	_ "github.com/simiancreative/simiango/examples/services/rabbit"
+	_ "github.com/simiancreative/simiango/examples/services/request-receiver"
 	_ "github.com/simiancreative/simiango/examples/services/sample"
 	_ "github.com/simiancreative/simiango/examples/services/stream"
 	_ "github.com/simiancreative/simiango/examples/services/unsafe"

@@ -17,6 +17,10 @@ func handleDirect(config service.Config, req service.Req) (interface{}, *service
 		}
 	}
 
+	if err := parseBody(config, &req); err != nil {
+		return nil, handleError(err)
+	}
+
 	result, err := config.Direct(req)
 
 	if err == nil && result == nil {
@@ -41,7 +45,6 @@ func handleDirectAuth(
 	}
 
 	err = config.Auth(req)
-
 	if err != nil {
 		err = fmt.Errorf("Authentication Failed: %v", err.Error())
 		resultErr := service.ToResultError(err, "service auth failed", 401)

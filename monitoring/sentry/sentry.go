@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/simiancreative/simiango/logger"
-	"github.com/simiancreative/simiango/service"
 )
 
 func Enable() {
@@ -47,7 +46,7 @@ func RecoverAndThrow() {
 }
 
 // CaptureError is a helper function to capture an error and return it so the caller can handle it
-func GinCaptureError(c *gin.Context, err *service.ResultError) *service.ResultError {
+func GinCaptureError(c *gin.Context, err error) error {
 	hub := sentrygin.GetHubFromContext(c)
 
 	if hub == nil {

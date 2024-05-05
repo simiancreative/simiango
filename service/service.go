@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	servertiming "github.com/p768lwy3/gin-server-timing"
+
 	"github.com/simiancreative/simiango/meta"
 )
 
@@ -44,6 +45,7 @@ type Req struct {
 	Headers RawHeaders
 	Body    RawBody
 	Params  RawParams
+	Input   interface{}
 	Timer   *servertiming.Header
 	Context *gin.Context
 }
@@ -62,6 +64,7 @@ type Config struct {
 	Key           string
 	Path          string
 	Method        string
+	Input         func() interface{}
 	Build         func(meta.RequestId, RawHeaders, RawBody, RawParams) (TPL, error)
 	BuildMessages func(meta.RequestId, RawHeaders, RawBody, RawParams) (MessageTPL, error)
 	Direct        func(req Req) (interface{}, error)
@@ -69,6 +72,7 @@ type Config struct {
 	Before        []func(Config, Req) error
 	After         func(Config, Req)
 }
+
 type Collection []Config
 
 type RawBody []byte

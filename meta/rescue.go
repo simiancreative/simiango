@@ -63,7 +63,7 @@ func recoverGinPanic(c *gin.Context, buildResp func(*gin.Context, map[string]int
 		}
 
 		id, _ := c.Get("request_id")
-		stack := stack()
+		stack := Stack()
 		httpRequest, _ := httputil.DumpRequest(c.Request, false)
 		headers := strings.Split(string(httpRequest), "\r\n")
 		for idx, header := range headers {
@@ -98,7 +98,7 @@ func recoverGinPanic(c *gin.Context, buildResp func(*gin.Context, map[string]int
 	}
 }
 
-func stack() []string {
+func Stack() []string {
 	skip := 3
 	result := []string{}
 	// As we loop, we open files and read them. These variables record the currently
@@ -131,7 +131,7 @@ func stack() []string {
 
 func stackAsBuf() []byte {
 	buf := new(bytes.Buffer) // the returned data
-	lines := stack()
+	lines := Stack()
 
 	for _, line := range lines {
 		fmt.Fprint(buf, line)
