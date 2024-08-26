@@ -37,7 +37,7 @@ import (
 )
 
 func main() {
-	config.Enable()
+	config.WithFlag()
 	logger.Enable()
 
 	sentry.Enable()

@@ -7,64 +7,109 @@ import (
 	"path/filepath"
 
 	"github.com/joho/godotenv"
+	"github.com/simiancreative/simiango/logger"
 )
 
-var envFlag string
+// WithFlag is a helper function to load the environment from a flag
+//
+// Usage: go run main.go --dot-env=development
+//
+// This will load the .env.development file or .env.development.local file in
+// the nearest confg directory
+func WithFlag() {
+	var envFlag string
 
-func Enable() {
 	flag.StringVar(
 		&envFlag,
-		"env",
+		"dot-env",
 		"",
 		"environment, e.g. development or production",
 	)
 
 	flag.Parse()
 
-	if len(envFlag) == 0 {
-		envFlag = os.Getenv("APP_ENV")
+	if envFlag == "" {
+		logger.New().Error("No environment specified")
+		return
 	}
 
-	if len(envFlag) == 0 {
-		envFlag = "dev"
+	os.Setenv("DOT_ENV", envFlag)
+
+	Enable()
+}
+
+// Enable loads the environment from the DOT_ENV environment variable
+//
+// This will load the .env.development file or .env.development.local file in
+// the nearest confg directory
+func Enable() {
+	env := os.Getenv("DOT_ENV")
+	if env == "" {
+		return
 	}
 
-	os.Setenv("APP_ENV", envFlag)
-
-	appDir, _ := findAppDir(envFlag)
-	path := joinPath(*appDir, envFlag)
-
-	err := godotenv.Load(path)
+	path, err := findConfigWithFallback(env)
 	if err != nil {
-		panic(err)
+		logger.New().Errorf("Failed to load config (%v) - %v", err, env)
+		return
+	}
+
+	err = godotenv.Load(path)
+	if err != nil {
+		logger.New().Errorf("Failed to load godotenv (%v) - %v", err, path)
 	}
 }
 
-func findAppDir(env string) (*string, error) {
-	appDir, err := filepath.Abs("")
+func findConfigWithFallback(env string) (string, error) {
+	var path string
+
+	baseFilePath := "config/.env." + env
+	err := findConfig(baseFilePath, &path)
 	if err != nil {
-		return nil, err
+		logger.New().Errorf("Base path not found (%v) - %v", err, baseFilePath)
 	}
 
-	saved := appDir
+	if err == nil {
+		return path, nil
+	}
 
-	for i := 0; i < 10; i++ {
-		cfgPath := joinPath(appDir, env)
-		_, err := os.Stat(cfgPath)
-		if err == nil {
-			return &appDir, nil
+	localFilePath := "config/.env." + env + ".local"
+	err = findConfig(localFilePath, &path)
+	if err != nil {
+		logger.New().Errorf("Local path not found (%v) - %v", err, localFilePath)
+	}
+
+	return path, err
+}
+
+func findConfig(fileName string, dest *string) error {
+	// Get the current directory
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	// Start from the current directory and move upwards to find the top-level config directory
+	for {
+		configFilePath := filepath.Join(currentDir, fileName)
+
+		// Check if the file exists
+		if _, err := os.Stat(configFilePath); err == nil {
+			*dest = configFilePath
+			return nil // Found the file, return its path
 		}
 
-		if appDir == "." {
+		// Move up one directory level
+		parentDir := filepath.Dir(currentDir)
+
+		// Check if we've reached the root directory
+		if parentDir == currentDir {
 			break
 		}
 
-		appDir = filepath.Dir(appDir)
+		currentDir = parentDir // Move up to the parent directory
 	}
 
-	return &saved, nil
-}
-
-func joinPath(appDir, env string) string {
-	return filepath.Join(appDir, "config", fmt.Sprintf(".env.%s.local", env))
+	// File not found in any parent directory
+	return fmt.Errorf("not found in any parent directory")
 }
