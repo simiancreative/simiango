@@ -1,6 +1,6 @@
 module github.com/simiancreative/simiango
 
-go 1.20
+go 1.21.7
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.5
