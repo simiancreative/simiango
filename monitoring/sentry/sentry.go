@@ -70,3 +70,9 @@ func GinCaptureError(c *gin.Context, err error) error {
 
 	return err
 }
+
+func SetContext(key string, value map[string]interface{}) {
+	sentry.ConfigureScope(func(scope *sentry.Scope) {
+		scope.SetContext(key, value)
+	})
+}
