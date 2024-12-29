@@ -30,9 +30,9 @@ import (
 	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/messaging/amqp"
 	"github.com/simiancreative/simiango/messaging/kafka"
-	"github.com/simiancreative/simiango/meta"
 	"github.com/simiancreative/simiango/monitoring/sentry"
 	"github.com/simiancreative/simiango/server"
+	"github.com/simiancreative/simiango/sig"
 	"github.com/simiancreative/simiango/stats/prometheus"
 )
 
@@ -43,7 +43,7 @@ func main() {
 	sentry.Enable()
 
 	logger.Printf("ENV STARTING AS: %v", os.Getenv("APP_ENV"))
-	done, exit := meta.CatchSig()
+	sigHandler := sig.New()
 
 	mssql.Connect()
 	mysql.Connect()
@@ -67,8 +67,11 @@ func main() {
 
 	_, startKafka := os.LookupEnv("KAFKA")
 	if startKafka {
-		go kafka.Start(done)
+		kafkaClose := kafka.Start()
+		sigHandler.AddCleanup(kafkaClose)
 	}
+
+	_, exit := sigHandler.Catch()
 
 	// keep main process open
 	<-exit.Done()
