@@ -1,4 +1,4 @@
-package cryptkeeper
+package aes
 
 import (
 	"crypto/aes"
@@ -8,10 +8,10 @@ import (
 )
 
 // Decrypt decrypts cipher text string into plain text string
-func Decrypt(hash string, salt string) (string, error) {
+func decrypt(keyValue, hash, salt string) (string, error) {
 	txtBytes, _ := hex.DecodeString(hash)
 	ivBytes, _ := hex.DecodeString(salt)
-	key, _ := Base64Decode([]byte(keyValue))
+	key, _ := base64Decode([]byte(keyValue))
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -24,12 +24,12 @@ func Decrypt(hash string, salt string) (string, error) {
 
 	mode := cipher.NewCBCDecrypter(block, ivBytes)
 	mode.CryptBlocks(txtBytes, txtBytes)
-	txtBytes = PKCS5UnPadding(txtBytes)
+	txtBytes = pKCS5UnPadding(txtBytes)
 
 	return string(txtBytes), nil
 }
 
-func PKCS5UnPadding(src []byte) []byte {
+func pKCS5UnPadding(src []byte) []byte {
 	length := len(src)
 	unpadding := int(src[length-1])
 	return src[:(length - unpadding)]

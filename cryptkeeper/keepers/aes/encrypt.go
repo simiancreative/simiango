@@ -1,4 +1,4 @@
-package cryptkeeper
+package aes
 
 import (
 	"bytes"
@@ -10,11 +10,11 @@ import (
 	"io"
 )
 
-func Encrypt(unencrypted string) (EncryptableData, error) {
-	result := EncryptableData{}
-	key, _ := Base64Decode([]byte(keyValue))
+func encrypt(keyValue, unencrypted string) (Data, error) {
+	result := Data{}
+	key, _ := base64Decode([]byte(keyValue))
 	plaintext := []byte(unencrypted)
-	plaintext = PKCS5Padding(plaintext, aes.BlockSize)
+	plaintext = pKCS5Padding(plaintext, aes.BlockSize)
 
 	if len(plaintext)%aes.BlockSize != 0 {
 		panic("plaintext is not a multiple of the block size")
@@ -45,7 +45,7 @@ func Encrypt(unencrypted string) (EncryptableData, error) {
 	return result, nil
 }
 
-func Base64Decode(message []byte) (b []byte, err error) {
+func base64Decode(message []byte) (b []byte, err error) {
 	var l int
 	b = make([]byte, base64.StdEncoding.DecodedLen(len(message)))
 	l, err = base64.StdEncoding.Decode(b, message)
@@ -55,7 +55,7 @@ func Base64Decode(message []byte) (b []byte, err error) {
 	return b[:l], nil
 }
 
-func PKCS5Padding(src []byte, blockSize int) []byte {
+func pKCS5Padding(src []byte, blockSize int) []byte {
 	padding := blockSize - len(src)%blockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(src, padtext...)

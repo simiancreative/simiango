@@ -5,6 +5,7 @@ go 1.21.7
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.5
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/ProtonMail/gopenpgp/v2 v2.8.1
 	github.com/alicebob/miniredis/v2 v2.23.0
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/charmbracelet/lipgloss v0.5.0
@@ -41,11 +42,14 @@ require (
 )
 
 require (
+	github.com/ProtonMail/go-crypto v1.1.3 // indirect
+	github.com/ProtonMail/go-mime v0.0.0-20230322103455-7d82a3887f2f // indirect
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/cloudflare/circl v1.3.7 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
