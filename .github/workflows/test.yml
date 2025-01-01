@@ -24,3 +24,10 @@ jobs:
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: make test
+
+      - name: Post Coverage
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        uses: codecov/codecov-action@v4.2.0
+        with:
+          file: coverage.out
+          fail_ci_if_error: true
