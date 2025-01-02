@@ -8,6 +8,9 @@ on:
 
   workflow_dispatch:
 
+env:
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -21,8 +24,6 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Run a one-line script
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: make test
 
       - name: Post Coverage
