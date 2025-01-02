@@ -2,11 +2,14 @@ package encrypt
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/simiancreative/simiango/cryptkeeper"
+	"github.com/simiancreative/simiango/cryptkeeper/keepers/aes"
 	cryptkeepercli "github.com/simiancreative/simiango/simian-go/app/cryptkeeper"
 )
 
@@ -22,15 +25,23 @@ var cmd = &cobra.Command{
 }
 
 func init() {
-	cmd.Flags().StringVarP(&secret, "token", "t", "TOKEN_SECRET", "the encrypted strings secret token")
+	cmd.Flags().
+		StringVarP(&secret, "token", "t", "TOKEN_SECRET", "the encrypted strings secret token")
 	cmd.Flags().StringVarP(&str, "encrypted-string", "e", "", "the encrypted string")
 
 	cryptkeepercli.Cmd.AddCommand(cmd)
 }
 
 func run() error {
-	cryptkeeper.SetKey(secret)
-	res, err := cryptkeeper.Encrypt(str)
+	keeper, err := cryptkeeper.New(cryptkeeper.AES)
+	if err != nil {
+		return err
+	}
+
+	os.Setenv("AES_TOKEN", secret)
+	res, err := keeper.
+		Setup("AES_TOKEN").
+		Encrypt(strings.NewReader(str))
 
 	var style = lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#FFF")).
@@ -40,10 +51,12 @@ func run() error {
 		PaddingLeft(4).
 		PaddingRight(4)
 
+	data, _ := res.(aes.Data)
+
 	fmt.Println(style.Render(fmt.Sprintf(`
 hash: %v
 salt: %v
-`, res.Hash, res.Salt)))
+`, data.Hash, data.Salt)))
 
 	return err
 }

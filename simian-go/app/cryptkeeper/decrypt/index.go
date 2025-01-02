@@ -2,11 +2,13 @@ package decrypt
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 
 	"github.com/simiancreative/simiango/cryptkeeper"
+	"github.com/simiancreative/simiango/cryptkeeper/keepers/aes"
 	cryptkeepercli "github.com/simiancreative/simiango/simian-go/app/cryptkeeper"
 )
 
@@ -23,7 +25,8 @@ var cmd = &cobra.Command{
 }
 
 func init() {
-	cmd.Flags().StringVarP(&secret, "token", "t", "TOKEN_SECRET", "the encrypted strings secret token")
+	cmd.Flags().
+		StringVarP(&secret, "token", "t", "TOKEN_SECRET", "the encrypted strings secret token")
 	cmd.Flags().StringVarP(&hash, "hash", "a", "", "the hash")
 	cmd.Flags().StringVarP(&salt, "salt", "s", "", "the salt")
 
@@ -31,8 +34,15 @@ func init() {
 }
 
 func run() error {
-	cryptkeeper.SetKey(secret)
-	res, err := cryptkeeper.Decrypt(hash, salt)
+	keeper, err := cryptkeeper.New(cryptkeeper.AES)
+	if err != nil {
+		return err
+	}
+
+	data := aes.Data{Hash: hash, Salt: salt}
+	os.Setenv("AES_TOKEN", secret)
+
+	res, err := keeper.Setup("AES_TOKEN").Decrypt(data)
 
 	var style = lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#FFF")).
