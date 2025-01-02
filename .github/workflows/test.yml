@@ -22,7 +22,7 @@ jobs:
 
       - name: Run a one-line script
         env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: make test
 
       - name: Post Coverage
