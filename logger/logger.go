@@ -46,6 +46,10 @@ func New() *logrus.Logger {
 }
 
 func Enable() {
+	if global != nil {
+		return
+	}
+
 	global = New()
 
 	Trace(

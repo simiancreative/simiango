@@ -4,11 +4,11 @@ import (
 	"context"
 	"os"
 	"sync"
-
-	"github.com/simiancreative/simiango/meta"
 )
 
-func Start(done context.Context) {
+func Start() (close func()) {
+	done, doneCancel := context.WithCancel(context.Background())
+
 	for _, service := range services {
 		kl.Printf("starting service: %s", service.Key)
 	}
@@ -23,12 +23,13 @@ func Start(done context.Context) {
 	messages := NewConsumer(done, sendCtx, url, &wg)
 	results := Handle(done, sendCtx, cancelSend, messages, &wg)
 
-	meta.AddCleanup(func() {
+	NewProducer(done, cancelSend, url, results, &wg)
+
+	return func() {
+		doneCancel()
 		// wait for the channels to close.
 		wg.Wait()
 
 		kl.Printf("cleanup complete")
-	})
-
-	NewProducer(done, cancelSend, url, results, &wg)
+	}
 }
