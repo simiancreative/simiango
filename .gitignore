@@ -1,4 +1,6 @@
 coverage.out
+coverage-report.txt
+report.xml
 /tmp/*
 /examples/tmp/*
 /bin/serve/docker/prometheus/data
