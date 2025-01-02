@@ -4,10 +4,11 @@ set -e
 
 export GOEXPERIMENT=nocoverageredesign
 
+go install github.com/jstemmer/go-junit-report/v2@latest
+
 list=`go list ./... | grep -v mocks | grep -v docs | grep -v errors | grep -v examples`
 
-go test -coverpkg=./... -race -covermode=atomic -coverprofile=coverage.out $list
-go tool cover -func coverage.out > coverage-report.txt
+go test -v -coverpkg=./... -race -covermode=atomic -coverprofile=coverage.out 2>&1 $list | go-junit-report -set-exit-code > junit.xml
 
 coverage=$(go tool cover -func coverage.out | grep total | awk '{print $3}')
 
