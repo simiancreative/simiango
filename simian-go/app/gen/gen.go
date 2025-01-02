@@ -28,7 +28,7 @@ func init() {
 	GenCmd.Flags().StringVarP(&kind, "kind", "k", "service", "the generator")
 	GenCmd.Flags().StringVarP(&path, "path", "p", ".", "the generator's working directory")
 
-	app.RootCmd.AddCommand(GenCmd)
+	app.Root.Cmd.AddCommand(GenCmd)
 }
 
 func runGen() error {
