@@ -4,6 +4,8 @@ set -e
 
 export GOEXPERIMENT=nocoverageredesign
 
+go install github.com/jstemmer/go-junit-report/v2@latest
+
 list=`go list ./... | grep -v mocks | grep -v docs | grep -v errors | grep -v examples`
 
 go test -v -coverpkg=./... -race -covermode=atomic -coverprofile=coverage.out 2>&1 $list | go-junit-report -set-exit-code > report.xml
