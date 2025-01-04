@@ -12,25 +12,35 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//go:embed support/Reguard_mock_contracts.csv.pgp
-var encStr string
+//go:embed support/Reguard_mock_contracts.csv
+var str string
 
 //go:embed support/Reguard_mock_private.asc
 var secretKeyring string
 
+//go:embed support/Reguard_mock_public.asc
+var publicKeyring string
+
 var passphrase = "reguard-mock-key"
 
 func TestPGP(t *testing.T) {
+	os.Setenv("PREFIX_PUBLIC_KEY", publicKeyring)
 	os.Setenv("PREFIX_PRIVATE_KEY", secretKeyring)
 	os.Setenv("PREFIX_PASSPHRASE", passphrase)
 
-	keeper := pgp.Keeper{}
+	keeper := pgp.New()
 
-	config := keeper.Setup("prefix")
+	keeper.Setup("prefix")
+
+	encrypted, err := keeper.Encrypt(
+		strings.NewReader(str),
+	)
+
+	assert.NotEqual(t, encrypted, strings.NewReader(str))
+	assert.NoError(t, err)
 
 	content, err := keeper.Decrypt(
-		config,
-		strings.NewReader(encStr),
+		encrypted,
 	)
 
 	assert.NoError(t, err)
@@ -39,6 +49,7 @@ func TestPGP(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, len(readContent), 1860)
+	assert.Equal(t, string(readContent), str)
 }
 
 func TestPGPErr(t *testing.T) {

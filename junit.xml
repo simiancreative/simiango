@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="130">
+	<testsuite name="github.com/simiancreative/simiango/data/sql" tests="0" failures="0" errors="0" id="0" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:10-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/data/sql/combinators" tests="0" failures="0" errors="0" id="1" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:10-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/messaging/amqp" tests="0" failures="0" errors="0" id="2" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:13-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/messaging/kafka" tests="0" failures="0" errors="0" id="3" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:13-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/backoff" tests="3" failures="0" errors="0" id="4" hostname="Rosss-MacBook-Pro.local" time="5.442" timestamp="2025-01-03T23:28:13-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="4.70"></property>
+		</properties>
+		<testcase name="TestRetry" classname="github.com/simiancreative/simiango/backoff" time="4.010"></testcase>
+		<testcase name="TestRetry/successful_retry" classname="github.com/simiancreative/simiango/backoff" time="2.000">
+			<system-out><![CDATA[{"level":"debug","msg":"RETRYING: attempt 1","time":"2025-01-03T23:28:08-06:00"}
+{"level":"debug","msg":"RETRYING: attempt 2","time":"2025-01-03T23:28:09-06:00"}]]></system-out>
+		</testcase>
+		<testcase name="TestRetry/max_retries_exceeded" classname="github.com/simiancreative/simiango/backoff" time="2.000">
+			<system-out><![CDATA[{"level":"debug","msg":"RETRYING: attempt 1","time":"2025-01-03T23:28:10-06:00"}
+{"level":"debug","msg":"RETRYING: attempt 2","time":"2025-01-03T23:28:11-06:00"}]]></system-out>
+		</testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/cli" tests="3" failures="0" errors="0" id="5" hostname="Rosss-MacBook-Pro.local" time="2.879" timestamp="2025-01-03T23:28:13-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="6.00"></property>
+		</properties>
+		<testcase name="TestRecoverAndThrow" classname="github.com/simiancreative/simiango/cli" time="0.040"></testcase>
+		<testcase name="TestRecoverAndThrow/as_string" classname="github.com/simiancreative/simiango/cli" time="0.030">
+			<system-out><![CDATA[{"level":"error","msg":"\n\n=============== LOGGING STACK TRACE =====================\n\nError: 57377a28-1e1e-47ee-8560-822fcb291339\nrecovered\ngithub.com/simiancreative/simiango/cli.Recover\n\t/Users/ross/code/simian/simiango/cli/cli.go:58\nruntime.gopanic\n\t/Users/ross/.asdf/installs/golang/1.21.7/go/src/runtime/panic.go:920\ngithub.com/simiancreative/simiango/cli_test.TestRecoverAndThrow.func1.1\n\t/Users/ross/code/simian/simiango/cli/cli_test.go:54\nruntime.goexit\n\t/Users/ross/.asdf/installs/golang/1.21.7/go/src/runtime/asm_arm64.s:1197\n\n=============== END LOGGING STACK TRACE =================\n\n\t\t","time":"2025-01-03T23:28:10-06:00"}
+{"event_id":"737a03cacc5a4e3588d2114da1e0271a","sent_at":"2025-01-03T23:28:10.397928-06:00","dsn":"http://publicKey@127.0.0.1:52428/1","sdk":{"name":"sentry.go","version":"0.27.0"}}
+{"type":"event","length":1859}
+{"contexts":{"device":{"arch":"arm64","num_cpu":12},"os":{"name":"darwin"},"runtime":{"go_maxprocs":12,"go_numcgocalls":1,"go_numroutines":9,"name":"go","version":"go1.21.7 X:nocoverageredesign"}},"event_id":"737a03cacc5a4e3588d2114da1e0271a","level":"fatal","platform":"go","release":"db8b3c8-dirty","sdk":{"name":"sentry.go","version":"0.27.0","integrations":["ContextifyFrames","Environment","GlobalTags","IgnoreErrors","IgnoreTransactions","Modules"],"packages":[{"name":"sentry-go","version":"0.27.0"}]},"server_name":"Rosss-MacBook-Pro.local","user":{},"modules":{"":""},"exception":[{"type":"*errors.errorString","value":"57377a28-1e1e-47ee-8560-822fcb291339"},{"type":"*errors.withMessage","value":"recovered: 57377a28-1e1e-47ee-8560-822fcb291339"},{"type":"*errors.withStack","value":"recovered: 57377a28-1e1e-47ee-8560-822fcb291339","stacktrace":{"frames":[{"function":"TestRecoverAndThrow.func1.1","module":"github.com/simiancreative/simiango/cli_test","abs_path":"/Users/ross/code/simian/simiango/cli/cli_test.go","lineno":54,"pre_context":["\t\t\t// Set up the Sentry client","\t\t\tsentry.Enable()","","\t\t\tgo func() {","\t\t\t\tdefer cli.Recover()"],"context_line":"\t\t\t\tpanic(tt.param)","post_context":["\t\t\t}()","","\t\t\tselect {","\t\t\tcase request := \u003c-handledRequests:","\t\t\t\tassert.Equal(t, \"/api/1/envelope/\", request.R.URL.Path)"],"in_app":true},{"function":"Recover","module":"github.com/simiancreative/simiango/cli","abs_path":"/Users/ross/code/simian/simiango/cli/cli.go","lineno":58,"pre_context":["\tif ok {","\t\terr = errors.Wrap(err, \"recovered\")","\t}","","\tif !ok {"],"context_line":"\t\terr = errors.Wrap(fmt.Errorf(\"%v\", val), \"recovered\")","post_context":["\t}","","\tprintStackTrace(err)","","\tsentry.CurrentHub().Recover(err)"],"in_app":true}]}}],"timestamp":"2025-01-03T23:28:10.396671-06:00"}
+]]></system-out>
+		</testcase>
+		<testcase name="TestRecoverAndThrow/as_error" classname="github.com/simiancreative/simiango/cli" time="0.020">
+			<system-out><![CDATA[{"level":"error","msg":"\n\n=============== LOGGING STACK TRACE =====================\n\nError: error: 57377a28-1e1e-47ee-8560-822fcb291339\nrecovered\ngithub.com/simiancreative/simiango/cli.Recover\n\t/Users/ross/code/simian/simiango/cli/cli.go:54\nruntime.gopanic\n\t/Users/ross/.asdf/installs/golang/1.21.7/go/src/runtime/panic.go:920\ngithub.com/simiancreative/simiango/cli_test.TestRecoverAndThrow.func1.1\n\t/Users/ross/code/simian/simiango/cli/cli_test.go:54\nruntime.goexit\n\t/Users/ross/.asdf/installs/golang/1.21.7/go/src/runtime/asm_arm64.s:1197\n\n=============== END LOGGING STACK TRACE =================\n\n\t\t","time":"2025-01-03T23:28:10-06:00"}
+{"event_id":"2bac2b709784494d99d56bb58b0b46cb","sent_at":"2025-01-03T23:28:10.415723-06:00","dsn":"http://publicKey@127.0.0.1:52430/1","sdk":{"name":"sentry.go","version":"0.27.0"}}
+{"type":"event","length":1862}
+{"contexts":{"device":{"arch":"arm64","num_cpu":12},"os":{"name":"darwin"},"runtime":{"go_maxprocs":12,"go_numcgocalls":1,"go_numroutines":14,"name":"go","version":"go1.21.7 X:nocoverageredesign"}},"event_id":"2bac2b709784494d99d56bb58b0b46cb","level":"fatal","platform":"go","release":"db8b3c8-dirty","sdk":{"name":"sentry.go","version":"0.27.0","integrations":["ContextifyFrames","Environment","GlobalTags","IgnoreErrors","IgnoreTransactions","Modules"],"packages":[{"name":"sentry-go","version":"0.27.0"}]},"server_name":"Rosss-MacBook-Pro.local","user":{},"modules":{"":""},"exception":[{"type":"*errors.errorString","value":"error: 57377a28-1e1e-47ee-8560-822fcb291339"},{"type":"*errors.withMessage","value":"recovered: error: 57377a28-1e1e-47ee-8560-822fcb291339"},{"type":"*errors.withStack","value":"recovered: error: 57377a28-1e1e-47ee-8560-822fcb291339","stacktrace":{"frames":[{"function":"TestRecoverAndThrow.func1.1","module":"github.com/simiancreative/simiango/cli_test","abs_path":"/Users/ross/code/simian/simiango/cli/cli_test.go","lineno":54,"pre_context":["\t\t\t// Set up the Sentry client","\t\t\tsentry.Enable()","","\t\t\tgo func() {","\t\t\t\tdefer cli.Recover()"],"context_line":"\t\t\t\tpanic(tt.param)","post_context":["\t\t\t}()","","\t\t\tselect {","\t\t\tcase request := \u003c-handledRequests:","\t\t\t\tassert.Equal(t, \"/api/1/envelope/\", request.R.URL.Path)"],"in_app":true},{"function":"Recover","module":"github.com/simiancreative/simiango/cli","abs_path":"/Users/ross/code/simian/simiango/cli/cli.go","lineno":54,"pre_context":["\t\treturn","\t}","","\terr, ok := val.(error)","\tif ok {"],"context_line":"\t\terr = errors.Wrap(err, \"recovered\")","post_context":["\t}","","\tif !ok {","\t\terr = errors.Wrap(fmt.Errorf(\"%v\", val), \"recovered\")","\t}"],"in_app":true}]}}],"timestamp":"2025-01-03T23:28:10.415359-06:00"}
+]]></system-out>
+		</testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/config" tests="4" failures="0" errors="0" id="6" hostname="Rosss-MacBook-Pro.local" time="2.124" timestamp="2025-01-03T23:28:13-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="4.30"></property>
+		</properties>
+		<testcase name="TestWithFlag" classname="github.com/simiancreative/simiango/config" time="0.000"></testcase>
+		<testcase name="TestWithFlagNoEnv" classname="github.com/simiancreative/simiango/config" time="0.000">
+			<system-out><![CDATA[{"level":"error","msg":"No environment specified","time":"2025-01-03T23:28:09-06:00"}]]></system-out>
+		</testcase>
+		<testcase name="TestEnable" classname="github.com/simiancreative/simiango/config" time="0.000"></testcase>
+		<testcase name="TestEnableNoEnv" classname="github.com/simiancreative/simiango/config" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/cryptkeeper" tests="1" failures="0" errors="0" id="7" hostname="Rosss-MacBook-Pro.local" time="1.780" timestamp="2025-01-03T23:28:13-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="2.90"></property>
+		</properties>
+		<testcase name="TestNew" classname="github.com/simiancreative/simiango/cryptkeeper" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/cryptkeeper/keepers" tests="7" failures="0" errors="0" id="8" hostname="Rosss-MacBook-Pro.local" time="2.474" timestamp="2025-01-03T23:28:13-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="3.00"></property>
+		</properties>
+		<testcase name="TestKeeper_SetConfigurator" classname="github.com/simiancreative/simiango/cryptkeeper/keepers" time="0.000"></testcase>
+		<testcase name="TestKeeper_SetEncrypter" classname="github.com/simiancreative/simiango/cryptkeeper/keepers" time="0.000"></testcase>
+		<testcase name="TestKeeper_SetHasher" classname="github.com/simiancreative/simiango/cryptkeeper/keepers" time="0.000"></testcase>
+		<testcase name="TestKeeper_Encrypt" classname="github.com/simiancreative/simiango/cryptkeeper/keepers" time="0.000"></testcase>
+		<testcase name="TestKeeper_Decrypt" classname="github.com/simiancreative/simiango/cryptkeeper/keepers" time="0.000"></testcase>
+		<testcase name="TestKeeper_Hash" classname="github.com/simiancreative/simiango/cryptkeeper/keepers" time="0.000"></testcase>
+		<testcase name="TestKeeper_Verify" classname="github.com/simiancreative/simiango/cryptkeeper/keepers" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/cryptkeeper/keepers/aes" tests="3" failures="0" errors="0" id="9" hostname="Rosss-MacBook-Pro.local" time="3.109" timestamp="2025-01-03T23:28:13-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="5.50"></property>
+		</properties>
+		<testcase name="TestSetup" classname="github.com/simiancreative/simiango/cryptkeeper/keepers/aes" time="0.000"></testcase>
+		<testcase name="TestEncrypt" classname="github.com/simiancreative/simiango/cryptkeeper/keepers/aes" time="0.000"></testcase>
+		<testcase name="TestDecrypt" classname="github.com/simiancreative/simiango/cryptkeeper/keepers/aes" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go" tests="0" failures="0" errors="0" id="10" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app" tests="0" failures="0" errors="0" id="11" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app/cryptkeeper" tests="0" failures="0" errors="0" id="12" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app/cryptkeeper/decrypt" tests="0" failures="0" errors="0" id="13" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app/cryptkeeper/encrypt" tests="0" failures="0" errors="0" id="14" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app/gen" tests="0" failures="0" errors="0" id="15" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app/gen/service" tests="0" failures="0" errors="0" id="16" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app/meta" tests="0" failures="0" errors="0" id="17" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app/meta/uuid" tests="0" failures="0" errors="0" id="18" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app/token" tests="0" failures="0" errors="0" id="19" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app/token/decode" tests="0" failures="0" errors="0" id="20" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app/token/generate" tests="0" failures="0" errors="0" id="21" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/simian-go/app/token/test" tests="0" failures="0" errors="0" id="22" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/stats/prometheus" tests="0" failures="0" errors="0" id="23" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/timeutils" tests="0" failures="0" errors="0" id="24" hostname="Rosss-MacBook-Pro.local" time="0.000" timestamp="2025-01-03T23:28:15-06:00"></testsuite>
+	<testsuite name="github.com/simiancreative/simiango/cryptkeeper/keepers/bcrypt" tests="2" failures="0" errors="0" id="25" hostname="Rosss-MacBook-Pro.local" time="7.287" timestamp="2025-01-03T23:28:15-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="2.50"></property>
+		</properties>
+		<testcase name="TestHash" classname="github.com/simiancreative/simiango/cryptkeeper/keepers/bcrypt" time="0.600"></testcase>
+		<testcase name="TestVerify" classname="github.com/simiancreative/simiango/cryptkeeper/keepers/bcrypt" time="1.790"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/cryptkeeper/keepers/pgp" tests="2" failures="0" errors="0" id="26" hostname="Rosss-MacBook-Pro.local" time="6.161" timestamp="2025-01-03T23:28:15-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="4.10"></property>
+		</properties>
+		<testcase name="TestPGP" classname="github.com/simiancreative/simiango/cryptkeeper/keepers/pgp" time="1.620"></testcase>
+		<testcase name="TestPGPErr" classname="github.com/simiancreative/simiango/cryptkeeper/keepers/pgp" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/data/mssql" tests="1" failures="0" errors="0" id="27" hostname="Rosss-MacBook-Pro.local" time="3.807" timestamp="2025-01-03T23:28:15-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="2.80"></property>
+		</properties>
+		<testcase name="TestQueryX" classname="github.com/simiancreative/simiango/data/mssql" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/data/mysql" tests="1" failures="0" errors="0" id="28" hostname="Rosss-MacBook-Pro.local" time="5.268" timestamp="2025-01-03T23:28:15-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="2.80"></property>
+		</properties>
+		<testcase name="TestQueryX" classname="github.com/simiancreative/simiango/data/mysql" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/data/pg" tests="1" failures="0" errors="0" id="29" hostname="Rosss-MacBook-Pro.local" time="4.175" timestamp="2025-01-03T23:28:15-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="2.80"></property>
+		</properties>
+		<testcase name="TestQueryX" classname="github.com/simiancreative/simiango/data/pg" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/data/redis" tests="4" failures="0" errors="0" id="30" hostname="Rosss-MacBook-Pro.local" time="5.551" timestamp="2025-01-03T23:28:15-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="2.90"></property>
+		</properties>
+		<testcase name="TestClientGet" classname="github.com/simiancreative/simiango/data/redis" time="0.000"></testcase>
+		<testcase name="TestClientSet" classname="github.com/simiancreative/simiango/data/redis" time="0.000"></testcase>
+		<testcase name="TestClientExists" classname="github.com/simiancreative/simiango/data/redis" time="0.000"></testcase>
+		<testcase name="TestClientDel" classname="github.com/simiancreative/simiango/data/redis" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/data/redis/mock" tests="1" failures="0" errors="0" id="31" hostname="Rosss-MacBook-Pro.local" time="3.671" timestamp="2025-01-03T23:28:15-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="2.40"></property>
+		</properties>
+		<testcase name="TestRegister" classname="github.com/simiancreative/simiango/data/redis/mock" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/data/sql/crud" tests="12" failures="0" errors="0" id="32" hostname="Rosss-MacBook-Pro.local" time="3.403" timestamp="2025-01-03T23:28:15-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="11.80"></property>
+		</properties>
+		<testcase name="TestCreate" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000">
+			<system-out><![CDATA["SELECT `products`.* FROM `products` WHERE (`id` = 456)"]]></system-out>
+		</testcase>
+		<testcase name="TestDelete" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000"></testcase>
+		<testcase name="TestOne" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000"></testcase>
+		<testcase name="TestAugmentOne" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000"></testcase>
+		<testcase name="TestPage" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000"></testcase>
+		<testcase name="TestColumns" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000"></testcase>
+		<testcase name="TestOrder" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000"></testcase>
+		<testcase name="TestFilters" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000"></testcase>
+		<testcase name="TestAugmentListQuery" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000"></testcase>
+		<testcase name="TestPageFromReq" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000"></testcase>
+		<testcase name="TestPageFromReqNoOrder" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000"></testcase>
+		<testcase name="TestUpdate" classname="github.com/simiancreative/simiango/data/sql/crud" time="0.000">
+			<system-out><![CDATA["SELECT `products`.* FROM `products` WHERE (`id` = 456)"]]></system-out>
+		</testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/data/sql/nulls" tests="4" failures="0" errors="0" id="33" hostname="Rosss-MacBook-Pro.local" time="3.660" timestamp="2025-01-03T23:28:15-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="7.50"></property>
+		</properties>
+		<testcase name="TestScan" classname="github.com/simiancreative/simiango/data/sql/nulls" time="0.000"></testcase>
+		<testcase name="TestScanFail" classname="github.com/simiancreative/simiango/data/sql/nulls" time="0.000"></testcase>
+		<testcase name="TestMarshall" classname="github.com/simiancreative/simiango/data/sql/nulls" time="0.000"></testcase>
+		<testcase name="TestUnMarshall" classname="github.com/simiancreative/simiango/data/sql/nulls" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/data/sql/pagination" tests="1" failures="0" errors="0" id="34" hostname="Rosss-MacBook-Pro.local" time="3.630" timestamp="2025-01-03T23:28:15-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="5.30"></property>
+		</properties>
+		<testcase name="TestPage" classname="github.com/simiancreative/simiango/data/sql/pagination" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/data/sql/unsafe" tests="7" failures="0" errors="0" id="35" hostname="Rosss-MacBook-Pro.local" time="3.694" timestamp="2025-01-03T23:28:16-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="4.80"></property>
+		</properties>
+		<testcase name="TestUnsafeSelect" classname="github.com/simiancreative/simiango/data/sql/unsafe" time="0.000"></testcase>
+		<testcase name="TestUnsafeGet" classname="github.com/simiancreative/simiango/data/sql/unsafe" time="0.000"></testcase>
+		<testcase name="TestUnsafeResultaddItem" classname="github.com/simiancreative/simiango/data/sql/unsafe" time="0.000"></testcase>
+		<testcase name="TestUnsafeCoerceBIGINT" classname="github.com/simiancreative/simiango/data/sql/unsafe" time="0.000"></testcase>
+		<testcase name="TestUnsafeCoerceDECIMAL" classname="github.com/simiancreative/simiango/data/sql/unsafe" time="0.000"></testcase>
+		<testcase name="TestUnsafeCoerceVARCHAR" classname="github.com/simiancreative/simiango/data/sql/unsafe" time="0.000"></testcase>
+		<testcase name="TestUnsafeCoerceUNKNOWN" classname="github.com/simiancreative/simiango/data/sql/unsafe" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/logger" tests="1" failures="0" errors="0" id="36" hostname="Rosss-MacBook-Pro.local" time="3.390" timestamp="2025-01-03T23:28:16-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="2.60"></property>
+		</properties>
+		<testcase name="TestMock" classname="github.com/simiancreative/simiango/logger" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/meta" tests="10" failures="0" errors="0" id="37" hostname="Rosss-MacBook-Pro.local" time="3.057" timestamp="2025-01-03T23:28:16-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="6.40"></property>
+		</properties>
+		<testcase name="TestID" classname="github.com/simiancreative/simiango/meta" time="0.000"></testcase>
+		<testcase name="TestGetDurationMilliseconds" classname="github.com/simiancreative/simiango/meta" time="0.000"></testcase>
+		<testcase name="TestRescuePanic" classname="github.com/simiancreative/simiango/meta" time="0.000">
+			<system-out><![CDATA[{"context":"test_context","level":"error","msg":"(Test panic) caused panic and was recovered","request_id":"test_id","stack":"/Users/ross/.asdf/installs/golang/1.21.7/go/src/runtime/panic.go:920 (0x102473e4b)gopanic: d.fn()/Users/ross/code/simian/simiango/meta/rescue_test.go:20 (0x102c361ab)TestRescuePanic: panic(\"Test panic\")/Users/ross/.asdf/installs/golang/1.21.7/go/src/testing/testing.go:1595 (0x1025b3fd3)tRunner: fn(t)/Users/ross/.asdf/installs/golang/1.21.7/go/src/runtime/asm_arm64.s:1197 (0x1024adc33)goexit: MOVD\tR0, R0\t// NOP","time":"2025-01-03T23:28:15-06:00"}]]></system-out>
+		</testcase>
+		<testcase name="TestGinRecovery" classname="github.com/simiancreative/simiango/meta" time="0.000">
+			<system-out><![CDATA[[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /test                     --> github.com/simiancreative/simiango/meta.TestGinRecovery.func2 (4 handlers)
+[GIN] 2025/01/03 - 23:28:15 | 200 |      26.875µs |                 | GET      "/test"]]></system-out>
+		</testcase>
+		<testcase name="TestRecoverGinPanic" classname="github.com/simiancreative/simiango/meta" time="0.000">
+			<system-out><![CDATA[[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /test                     --> github.com/simiancreative/simiango/meta.TestRecoverGinPanic.func2 (4 handlers)
+{"level":"error","msg":"Test error","request":["GET /test HTTP/1.1","",""],"request_id":null,"stack":["/Users/ross/code/simian/simiango/meta/rescue_test.go:49 (0x102c373db)","TestRecoverGinPanic.func1: panic(errors.New(\"Test error\"))","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174 (0x102c008cb)","(*Context).Next: c.handlers[c.index](c)","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/recovery.go:102 (0x102c0085c)","CustomRecoveryWithWriter.func1: c.Next()","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174 (0x102bff823)","(*Context).Next: c.handlers[c.index](c)","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/logger.go:240 (0x102bff7b0)","LoggerWithConfig.func1: c.Next()","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174 (0x102bfe13f)","(*Context).Next: c.handlers[c.index](c)","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/gin.go:620 (0x102bfde54)","(*Engine).handleHTTPRequest: c.Next()","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/gin.go:576 (0x102bfd5b7)","(*Engine).ServeHTTP: engine.handleHTTPRequest(c)","/Users/ross/code/simian/simiango/meta/rescue_test.go:57 (0x102c3671f)","TestRecoverGinPanic: r.ServeHTTP(w, req)","/Users/ross/.asdf/installs/golang/1.21.7/go/src/testing/testing.go:1595 (0x1025b3fd3)","tRunner: fn(t)","/Users/ross/.asdf/installs/golang/1.21.7/go/src/runtime/asm_arm64.s:1197 (0x1024adc33)","goexit: MOVD\tR0, R0\t// NOP"],"time":"2025-01-03T23:28:15-06:00"}
+[GIN] 2025/01/03 - 23:28:15 | 200 |    1.281041ms |                 | GET      "/test"]]></system-out>
+		</testcase>
+		<testcase name="TestRecoverGinPanic_BrokenPipe" classname="github.com/simiancreative/simiango/meta" time="0.000">
+			<system-out><![CDATA[[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /test                     --> github.com/simiancreative/simiango/meta.TestRecoverGinPanic_BrokenPipe.func2 (4 handlers)
+{"level":"error","msg":": : broken pipe","request":["GET /test HTTP/1.1","",""],"request_id":null,"stack":["/Users/ross/code/simian/simiango/meta/rescue_test.go:72 (0x102c370ab)","TestRecoverGinPanic_BrokenPipe.func1: panic(\u0026net.OpError{Err: \u0026os.SyscallError{Err: errors.New(\"broken pipe\")}})","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174 (0x102c008cb)","(*Context).Next: c.handlers[c.index](c)","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/recovery.go:102 (0x102c0085c)","CustomRecoveryWithWriter.func1: c.Next()","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174 (0x102bff823)","(*Context).Next: c.handlers[c.index](c)","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/logger.go:240 (0x102bff7b0)","LoggerWithConfig.func1: c.Next()","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/context.go:174 (0x102bfe13f)","(*Context).Next: c.handlers[c.index](c)","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/gin.go:620 (0x102bfde54)","(*Engine).handleHTTPRequest: c.Next()","/Users/ross/.asdf/installs/golang/1.21.7/packages/pkg/mod/github.com/gin-gonic/gin@v1.9.1/gin.go:576 (0x102bfd5b7)","(*Engine).ServeHTTP: engine.handleHTTPRequest(c)","/Users/ross/code/simian/simiango/meta/rescue_test.go:80 (0x102c369cf)","TestRecoverGinPanic_BrokenPipe: r.ServeHTTP(w, req)","/Users/ross/.asdf/installs/golang/1.21.7/go/src/testing/testing.go:1595 (0x1025b3fd3)","tRunner: fn(t)","/Users/ross/.asdf/installs/golang/1.21.7/go/src/runtime/asm_arm64.s:1197 (0x1024adc33)","goexit: MOVD\tR0, R0\t// NOP"],"time":"2025-01-03T23:28:15-06:00"}
+[GIN] 2025/01/03 - 23:28:15 | 500 |     961.709µs |                 | GET      "/test"
+Error #01: : : broken pipe]]></system-out>
+		</testcase>
+		<testcase name="TestStack" classname="github.com/simiancreative/simiango/meta" time="0.000"></testcase>
+		<testcase name="TestStackAsBuf" classname="github.com/simiancreative/simiango/meta" time="0.000"></testcase>
+		<testcase name="TestSource" classname="github.com/simiancreative/simiango/meta" time="0.000"></testcase>
+		<testcase name="TestFunction" classname="github.com/simiancreative/simiango/meta" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/meta/assign" tests="1" failures="0" errors="0" id="38" hostname="Rosss-MacBook-Pro.local" time="2.646" timestamp="2025-01-03T23:28:17-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="3.10"></property>
+		</properties>
+		<testcase name="TestAssignable" classname="github.com/simiancreative/simiango/meta/assign" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/monitoring/sentry" tests="12" failures="0" errors="0" id="39" hostname="Rosss-MacBook-Pro.local" time="3.137" timestamp="2025-01-03T23:28:17-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="4.50"></property>
+		</properties>
+		<testcase name="TestHandleError" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.000"></testcase>
+		<testcase name="TestHandleError/With_nil_hub" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.000"></testcase>
+		<testcase name="TestHandleError/With_scopeFunc" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.000"></testcase>
+		<testcase name="TestGinCaptureError" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.000"></testcase>
+		<testcase name="TestGinCaptureError/sentryScopeFunc_is_not_ok" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.000"></testcase>
+		<testcase name="TestScopeFunctionError" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.000"></testcase>
+		<testcase name="TestScopeFunctionError/scopeFunction_is_not_ok" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.000"></testcase>
+		<testcase name="TestEnable" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.020"></testcase>
+		<testcase name="TestEnable/Missing_DSN" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.000">
+			<system-out><![CDATA[{"level":"warning","msg":"SENTRY_DSN is not set","time":"2025-01-03T23:28:16-06:00"}]]></system-out>
+		</testcase>
+		<testcase name="TestEnable/Init_error" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.020">
+			<system-out><![CDATA[{"level":"warning","msg":"Sentry initialization failed: [Sentry] DsnParseError: invalid scheme","time":"2025-01-03T23:28:16-06:00"}]]></system-out>
+		</testcase>
+		<testcase name="TestEnable/Valid_case" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.000"></testcase>
+		<testcase name="TestRecoverAndThrow" classname="github.com/simiancreative/simiango/monitoring/sentry" time="0.220"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/server" tests="21" failures="0" errors="0" id="40" hostname="Rosss-MacBook-Pro.local" time="2.984" timestamp="2025-01-03T23:28:17-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="6.20"></property>
+		</properties>
+		<testcase name="TestErrorMiddleware" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestErrorMiddleware/no_errors" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestErrorMiddleware/with_errors" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestParseRequest" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestServiceResult" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestServiceResultNilPointer" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestDirectService" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestParseBody" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestParseBody/when_config.Input_is_nil" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestParseBody/when_config.Input_is_not_nil_and_body_parsing_is_successful" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestParseBody/when_config.Input_is_not_nil_and_body_parsing_fails" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestUtilsHeaders" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestUtilsParams" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestHandleError" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestHandleErrorOK" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestHandleAfterPass" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestHandleAfterCall" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestHandleRecovery" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestHandleErrorResp" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestHandleErrorRespNil" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+		<testcase name="TestHandleErrorRespStatusLessThan500" classname="github.com/simiancreative/simiango/server" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/service" tests="6" failures="0" errors="0" id="41" hostname="Rosss-MacBook-Pro.local" time="2.971" timestamp="2025-01-03T23:28:18-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="5.10"></property>
+		</properties>
+		<testcase name="TestToContentResponse" classname="github.com/simiancreative/simiango/service" time="0.000"></testcase>
+		<testcase name="TestToContentResponseNotSlice" classname="github.com/simiancreative/simiango/service" time="0.000"></testcase>
+		<testcase name="TestToContentResponseTotalPages" classname="github.com/simiancreative/simiango/service" time="0.000"></testcase>
+		<testcase name="TestHeaders" classname="github.com/simiancreative/simiango/service" time="0.000"></testcase>
+		<testcase name="TestRawParams" classname="github.com/simiancreative/simiango/service" time="0.000"></testcase>
+		<testcase name="TestToResultError" classname="github.com/simiancreative/simiango/service" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/sig" tests="1" failures="0" errors="0" id="42" hostname="Rosss-MacBook-Pro.local" time="4.236" timestamp="2025-01-03T23:28:19-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="4.20"></property>
+		</properties>
+		<testcase name="TestCatchSig" classname="github.com/simiancreative/simiango/sig" time="1.000">
+			<system-out><![CDATA[{"level":"info","msg":"Sig: begin shutdown (interrupt)","time":"2025-01-03T23:28:18-06:00"}
+{"level":"info","msg":"Sig: shutdown complete","time":"2025-01-03T23:28:18-06:00"}]]></system-out>
+		</testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/token" tests="5" failures="0" errors="0" id="43" hostname="Rosss-MacBook-Pro.local" time="2.923" timestamp="2025-01-03T23:28:19-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="4.30"></property>
+		</properties>
+		<testcase name="TestTokenGenAndTest" classname="github.com/simiancreative/simiango/token" time="0.000"></testcase>
+		<testcase name="TestTokenDecode" classname="github.com/simiancreative/simiango/token" time="0.000"></testcase>
+		<testcase name="TestTokenParse" classname="github.com/simiancreative/simiango/token" time="0.000"></testcase>
+		<testcase name="TestTokenTest" classname="github.com/simiancreative/simiango/token" time="0.000"></testcase>
+		<testcase name="TestExpiredToken" classname="github.com/simiancreative/simiango/token" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/validate" tests="6" failures="0" errors="0" id="44" hostname="Rosss-MacBook-Pro.local" time="3.271" timestamp="2025-01-03T23:28:19-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="3.00"></property>
+		</properties>
+		<testcase name="TestValidateSuccess" classname="github.com/simiancreative/simiango/validate" time="0.000"></testcase>
+		<testcase name="TestValidateFailed" classname="github.com/simiancreative/simiango/validate" time="0.000"></testcase>
+		<testcase name="TestValidateResultError" classname="github.com/simiancreative/simiango/validate" time="0.000"></testcase>
+		<testcase name="TestValidateError" classname="github.com/simiancreative/simiango/validate" time="0.000"></testcase>
+		<testcase name="TestValid" classname="github.com/simiancreative/simiango/validate" time="0.000"></testcase>
+		<testcase name="TestAddValidation" classname="github.com/simiancreative/simiango/validate" time="0.000"></testcase>
+	</testsuite>
+	<testsuite name="github.com/simiancreative/simiango/workflow" tests="10" failures="0" errors="0" id="45" hostname="Rosss-MacBook-Pro.local" time="3.343" timestamp="2025-01-03T23:28:19-06:00">
+		<properties>
+			<property name="coverage.statements.pct" value="5.10"></property>
+		</properties>
+		<testcase name="TestExec" classname="github.com/simiancreative/simiango/workflow" time="0.000"></testcase>
+		<testcase name="TestValidFlags" classname="github.com/simiancreative/simiango/workflow" time="0.000"></testcase>
+		<testcase name="TestFailedArgs" classname="github.com/simiancreative/simiango/workflow" time="0.000">
+			<system-out><![CDATA[Error: failed to check args: Args/Flags not found for (invalid-args-tester:invalid-args) required args are:
+ 
+❌ test : test Description
+
+Usage:
+  workflows invalid-args-tester invalid-args [flags]
+
+Flags:
+  -h, --help          help for invalid-args
+      --test string   test Description
+]]></system-out>
+		</testcase>
+		<testcase name="TestSomeValidArgs" classname="github.com/simiancreative/simiango/workflow" time="0.000">
+			<system-out><![CDATA[Error: failed to check args: Args/Flags not found for (some-valid-args:runner) required args are:
+ 
+✅ test : test Description
+❌ test-two : test Description
+
+Usage:
+  workflows some-valid-args runner [flags]
+
+Flags:
+  -h, --help              help for runner
+      --test string       test Description
+      --test-two string   test Description
+]]></system-out>
+		</testcase>
+		<testcase name="TestHandleError" classname="github.com/simiancreative/simiango/workflow" time="0.000">
+			<system-out><![CDATA[Error: failed to run action: test error]]></system-out>
+		</testcase>
+		<testcase name="TestMixOfFlagsAndPositional" classname="github.com/simiancreative/simiango/workflow" time="0.000"></testcase>
+		<testcase name="TestItemFromJSON" classname="github.com/simiancreative/simiango/workflow" time="0.000"></testcase>
+		<testcase name="TestItemFromJSONWithInvalidKey" classname="github.com/simiancreative/simiango/workflow" time="0.000"></testcase>
+		<testcase name="TestUnmarshalKey" classname="github.com/simiancreative/simiango/workflow" time="0.000"></testcase>
+		<testcase name="TestUnmarshalKeyWithInvalidKey" classname="github.com/simiancreative/simiango/workflow" time="0.000"></testcase>
+	</testsuite>
+</testsuites>
