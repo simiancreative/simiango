@@ -19,7 +19,7 @@ var GenListCmd = &cobra.Command{
 }
 
 func init() {
-	app.RootCmd.AddCommand(GenListCmd)
+	app.Root.Cmd.AddCommand(GenListCmd)
 }
 
 func runGenList() error {

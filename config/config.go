@@ -60,6 +60,20 @@ func Enable() {
 	}
 }
 
+func SetupTest() {
+	path, err := findConfigWithFallback("test")
+	if err != nil {
+		panic(err)
+	}
+
+	err = godotenv.Load(path)
+	if err != nil {
+		panic(err)
+	}
+
+	logger.Enable()
+}
+
 func findConfigWithFallback(env string) (string, error) {
 	var path string
 
