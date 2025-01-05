@@ -2,7 +2,6 @@ package pgp
 
 import (
 	"encoding/base64"
-	"errors"
 	"io"
 	"os"
 	"strings"
@@ -56,7 +55,22 @@ func (p Keeper) Decrypt(config keepers.Config, file io.Reader) (io.Reader, error
 }
 
 func (p Keeper) Encrypt(config keepers.Config, reader io.Reader) (io.Reader, error) {
-	return nil, errors.New("not implemented")
+	content, err := io.ReadAll(reader)
+	if err != nil {
+		return reader, err
+	}
+
+	publicKey, _ := base64.StdEncoding.DecodeString(config.Get("publicKey"))
+	privateKey, _ := base64.StdEncoding.DecodeString(config.Get("privateKey"))
+
+	encrypted, err := helper.EncryptSignMessageArmored(
+		string(publicKey),
+		string(privateKey),
+		[]byte(config.Get("passphrase")),
+		string(content),
+	)
+
+	return strings.NewReader(encrypted), err
 }
 
 func New() *keepers.Keeper {
