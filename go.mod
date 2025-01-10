@@ -1,6 +1,8 @@
 module github.com/simiancreative/simiango
 
-go 1.21.7
+go 1.22
+
+toolchain go1.22.10
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.5
@@ -28,6 +30,8 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/kr/pretty v0.3.0
 	github.com/mandrigin/gin-spa v0.0.0-20200212133200-790d0c0c7335
+	github.com/nats-io/nats-server/v2 v2.10.24
+	github.com/nats-io/nats.go v1.38.0
 	github.com/p768lwy3/gin-server-timing v0.0.0-20200316080543-ab69795cf847
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.13.0
@@ -72,7 +76,7 @@ require (
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/klauspost/compress v1.16.0 // indirect
+	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
@@ -82,10 +86,14 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
+	github.com/minio/highwayhash v1.0.3 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/muesli/reflow v0.2.1-0.20210115123740-9e1d0d53df68 // indirect
 	github.com/muesli/termenv v0.11.1-0.20220204035834-5ac8409525e0 // indirect
+	github.com/nats-io/jwt/v2 v2.7.3 // indirect
+	github.com/nats-io/nkeys v0.4.9 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/onsi/gomega v1.27.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
@@ -103,6 +111,7 @@ require (
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/term v0.27.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/time v0.8.0 // indirect
 	google.golang.org/protobuf v1.34.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
