@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/simiancreative/simiango/errors"
-	"github.com/simiancreative/simiango/mocks/temporal"
 	mock "github.com/simiancreative/simiango/mocks/temporal"
+	"github.com/simiancreative/simiango/temporal"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
