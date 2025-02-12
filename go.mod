@@ -48,7 +48,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.10.0
 	github.com/tj/assert v0.0.3
-	go.temporal.io/api v1.43.1
+	go.temporal.io/api v1.44.1
 	go.temporal.io/sdk v1.31.0
 	golang.org/x/crypto v0.31.0
 	gopkg.in/validator.v2 v2.0.1
