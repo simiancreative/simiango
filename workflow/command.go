@@ -88,8 +88,8 @@ func checkArgs(
 	)
 }
 
-func buildArgs(flags *pflag.FlagSet, args []string, actionArgs ArgsList) map[string]string {
-	mapped := map[string]string{}
+func buildArgs(flags *pflag.FlagSet, args []string, actionArgs ArgsList) Args {
+	mapped := Args{}
 
 	for i, val := range actionArgs {
 		if flags.Changed(val[0]) {
