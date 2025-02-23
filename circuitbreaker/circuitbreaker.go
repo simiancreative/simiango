@@ -186,11 +186,14 @@ func (cb *CircuitBreaker) recordFailure() {
 		"threshold": cb.config.FailureThreshold,
 	})
 
-	if cb.state == StateClosed && cb.failures >= cb.config.FailureThreshold {
-		cb.openCircuit()
-	} else if cb.state == StateHalfOpen {
-		cb.openCircuit()
+	shouldOpen := cb.state == StateHalfOpen ||
+		(cb.state == StateClosed && cb.failures >= cb.config.FailureThreshold)
+
+	if !shouldOpen {
+		return
 	}
+
+	cb.openCircuit()
 }
 
 func (cb *CircuitBreaker) openCircuit() {
