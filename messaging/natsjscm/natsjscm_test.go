@@ -10,6 +10,7 @@ import (
 	"time"
 
 	natsserver "github.com/nats-io/nats-server/v2/test"
+	"github.com/nats-io/nats.go/jetstream"
 
 	"github.com/nats-io/nats.go"
 	"github.com/simiancreative/simiango/messaging/natsjscm"
@@ -246,30 +247,30 @@ func TestEnsureStream(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		config      nats.StreamConfig
+		config      jetstream.StreamConfig
 		expectError bool
 	}{
 		{
 			name: "Create new stream",
-			config: nats.StreamConfig{
+			config: jetstream.StreamConfig{
 				Name:     "test-stream-1",
 				Subjects: []string{"test.subject.1"},
-				Storage:  nats.MemoryStorage,
+				Storage:  jetstream.MemoryStorage,
 			},
 			expectError: false,
 		},
 		{
 			name: "Get existing stream",
-			config: nats.StreamConfig{
+			config: jetstream.StreamConfig{
 				Name:     "test-stream-1", // Same as previous test
 				Subjects: []string{"test.subject.1"},
-				Storage:  nats.MemoryStorage,
+				Storage:  jetstream.MemoryStorage,
 			},
 			expectError: false,
 		},
 		{
 			name: "Create stream with invalid config",
-			config: nats.StreamConfig{
+			config: jetstream.StreamConfig{
 				Name:     "", // Invalid - empty name
 				Subjects: []string{"test.subject.2"},
 			},
@@ -288,10 +289,10 @@ func TestEnsureStream(t *testing.T) {
 				require.NotNil(t, js)
 
 				// Verify the stream exists
-				streamInfo, err := js.StreamInfo(tc.config.Name)
+				streamInfo, err := js.Stream(ctx, tc.config.Name)
 				require.NoError(t, err)
 				require.NotNil(t, streamInfo)
-				assert.Equal(t, tc.config.Name, streamInfo.Config.Name)
+				assert.Equal(t, tc.config.Name, streamInfo.CachedInfo().Config.Name)
 			}
 		})
 	}

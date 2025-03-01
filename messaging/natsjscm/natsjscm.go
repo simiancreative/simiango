@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 	"github.com/sanity-io/litter"
 	"github.com/simiancreative/simiango/logger"
 )
@@ -29,7 +30,7 @@ type ConnectionConfig struct {
 type ConnectionManager struct {
 	config ConnectionConfig
 	nc     *nats.Conn
-	js     nats.JetStreamContext
+	js     jetstream.JetStream
 	mu     sync.RWMutex
 	refs   int
 	log    Logger
@@ -90,16 +91,9 @@ func (cm *ConnectionManager) handleReconnect() {
 }
 
 // createJetStreamContext creates a new JetStream context with the current configuration
-func (cm *ConnectionManager) createJetStreamContext(nc *nats.Conn) (nats.JetStreamContext, error) {
-	opts := []nats.JSOpt{}
-
-	// Add domain if specified
-	if cm.config.JetStreamDomain != "" {
-		opts = append(opts, nats.Domain(cm.config.JetStreamDomain))
-	}
-
+func (cm *ConnectionManager) createJetStreamContext(nc *nats.Conn) (jetstream.JetStream, error) {
 	// Create JetStream context
-	return nc.JetStream(opts...)
+	return jetstream.New(nc)
 }
 
 // retryConnection attempts to reconnect to NATS periodically
@@ -179,7 +173,7 @@ func (cm *ConnectionManager) GetConnection() *nats.Conn {
 }
 
 // GetJetStream returns the JetStream context
-func (cm *ConnectionManager) GetJetStream() nats.JetStreamContext {
+func (cm *ConnectionManager) GetJetStream() jetstream.JetStream {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	return cm.js
@@ -188,8 +182,8 @@ func (cm *ConnectionManager) GetJetStream() nats.JetStreamContext {
 // EnsureStream creates a stream if it doesn't exist
 func (cm *ConnectionManager) EnsureStream(
 	ctx context.Context,
-	config nats.StreamConfig,
-) (nats.JetStreamContext, error) {
+	config jetstream.StreamConfig,
+) (jetstream.JetStream, error) {
 	cm.mu.RLock()
 	js := cm.js
 	cm.mu.RUnlock()
@@ -199,7 +193,7 @@ func (cm *ConnectionManager) EnsureStream(
 	}
 
 	// Try to get the stream first
-	_, err := js.StreamInfo(config.Name)
+	_, err := js.Stream(ctx, config.Name)
 
 	// If stream exists, return it
 	if err == nil {
@@ -207,8 +201,8 @@ func (cm *ConnectionManager) EnsureStream(
 	}
 
 	// If stream doesn't exist, create it
-	if err == nats.ErrStreamNotFound {
-		_, err := js.AddStream(&config)
+	if err == jetstream.ErrStreamNotFound {
+		_, err := js.CreateStream(ctx, config)
 		if err != nil {
 			return nil, err
 		}
