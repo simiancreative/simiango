@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 export GOEXPERIMENT=nocoverageredesign
 
 go install github.com/jstemmer/go-junit-report/v2@latest
