@@ -8,7 +8,6 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
-	"github.com/sanity-io/litter"
 	"github.com/simiancreative/simiango/logger"
 )
 
@@ -151,8 +150,6 @@ func (cm *ConnectionManager) Connect() error {
 		cm.refs++
 		return nil
 	}
-
-	litter.Dump(cm.config)
 
 	// Connect to NATS
 	nc, err := nats.Connect(cm.config.URL, cm.config.Options...)

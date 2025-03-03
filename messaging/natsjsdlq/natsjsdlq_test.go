@@ -1,282 +1,438 @@
 package natsjsdlq_test
 
 import (
+	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 	"github.com/simiancreative/simiango/messaging/natsjsdlq"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/tj/assert"
 )
 
-// MockJetStreamContext is a test double for nats.JetStreamContext
-type MockJetStreamContext struct {
-	AddStreamFunc  func(*nats.StreamConfig, ...nats.JSOpt) (*nats.StreamInfo, error)
-	PublishMsgFunc func(*nats.Msg, ...nats.PubOpt) (*nats.PubAck, error)
-	publishCalls   []*nats.Msg
+// Mock implementations
+type MockConnectionManager struct {
+	mock.Mock
 }
 
-func (m *MockJetStreamContext) AddStream(
-	cfg *nats.StreamConfig,
-	opts ...nats.JSOpt,
-) (*nats.StreamInfo, error) {
-	if m.AddStreamFunc != nil {
-		return m.AddStreamFunc(cfg, opts...)
+func (m *MockConnectionManager) Connect() error {
+	args := m.Called()
+	return args.Error(0)
+}
+
+func (m *MockConnectionManager) GetConnection() *nats.Conn {
+	args := m.Called()
+	return args.Get(0).(*nats.Conn)
+}
+
+func (m *MockConnectionManager) GetJetStream() jetstream.JetStream {
+	args := m.Called()
+	return args.Get(0).(jetstream.JetStream)
+}
+
+func (m *MockConnectionManager) EnsureStream(
+	ctx context.Context,
+	config jetstream.StreamConfig,
+) (jetstream.JetStream, error) {
+	args := m.Called(ctx, config)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
 	}
-	return &nats.StreamInfo{Config: *cfg}, nil
+	return args.Get(0).(jetstream.JetStream), args.Error(1)
 }
 
-func (m *MockJetStreamContext) PublishMsg(
-	msg *nats.Msg,
-	opts ...nats.PubOpt,
-) (*nats.PubAck, error) {
-	m.publishCalls = append(m.publishCalls, msg)
-	if m.PublishMsgFunc != nil {
-		return m.PublishMsgFunc(msg, opts...)
+func (m *MockConnectionManager) Disconnect() error {
+	args := m.Called()
+	return args.Error(0)
+}
+
+func (m *MockConnectionManager) IsConnected() bool {
+	args := m.Called()
+	return args.Bool(0)
+}
+
+type MockPublisher struct {
+	mock.Mock
+}
+
+func (m *MockPublisher) Publish(ctx context.Context, msg *nats.Msg) (*jetstream.PubAck, error) {
+	args := m.Called(ctx, msg)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
 	}
-	return &nats.PubAck{}, nil
+	return args.Get(0).(*jetstream.PubAck), args.Error(1)
 }
 
-func TestNewHandler(t *testing.T) {
-	tests := []struct {
-		name    string
-		deps    natsjsdlq.Dependencies
-		config  natsjsdlq.Config
-		wantErr bool
-		errMsg  string
+type MockMsg struct {
+	mock.Mock
+}
+
+func (m *MockMsg) Metadata() (*nats.MsgMetadata, error) {
+	args := m.Called()
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*nats.MsgMetadata), args.Error(1)
+}
+
+// Test Suite
+type DLQHandlerTestSuite struct {
+	mockCM  *MockConnectionManager
+	mockPub *MockPublisher
+	ctx     context.Context
+}
+
+func (suite *DLQHandlerTestSuite) SetupTest() {
+	suite.mockCM = new(MockConnectionManager)
+	suite.mockPub = new(MockPublisher)
+	suite.ctx = context.Background()
+}
+
+func TestNewHandlerValidation(t *testing.T) {
+	suite := new(DLQHandlerTestSuite)
+	suite.SetupTest()
+
+	testCases := []struct {
+		name        string
+		deps        natsjsdlq.Dependencies
+		config      natsjsdlq.Config
+		expectedErr string
 	}{
 		{
-			name: "valid configuration",
+			name: "Valid configuration",
 			deps: natsjsdlq.Dependencies{
-				JetStream: &MockJetStreamContext{},
+				ConnectionManager: suite.mockCM,
+				Publisher:         suite.mockPub,
 			},
 			config: natsjsdlq.Config{
-				StreamName:    "test_dlq",
+				StreamName:    "test-dlq",
 				Subject:       "test.dlq",
 				MaxDeliveries: 3,
-				Storage:       nats.FileStorage,
+				Storage:       jetstream.FileStorage,
+				Context:       suite.ctx,
 			},
-			wantErr: false,
+			expectedErr: "",
 		},
 		{
-			name: "missing jetstream",
+			name: "Missing connection manager",
 			deps: natsjsdlq.Dependencies{
-				JetStream: nil,
+				ConnectionManager: nil,
+				Publisher:         suite.mockPub,
 			},
 			config: natsjsdlq.Config{
-				StreamName: "test_dlq",
-				Subject:    "test.dlq",
+				StreamName:    "test-dlq",
+				Subject:       "test.dlq",
+				MaxDeliveries: 3,
 			},
-			wantErr: true,
-			errMsg:  "JetStream context is required",
+			expectedErr: "invalid DLQ configuration: connection manager is required",
 		},
 		{
-			name: "missing required config",
+			name: "Missing publisher",
 			deps: natsjsdlq.Dependencies{
-				JetStream: &MockJetStreamContext{},
+				ConnectionManager: suite.mockCM,
+				Publisher:         nil,
 			},
-			config:  natsjsdlq.Config{},
-			wantErr: true,
-			errMsg:  "stream name is required",
+			config: natsjsdlq.Config{
+				StreamName:    "test-dlq",
+				Subject:       "test.dlq",
+				MaxDeliveries: 3,
+			},
+			expectedErr: "invalid DLQ configuration: publisher is required",
+		},
+		{
+			name: "Empty stream name",
+			deps: natsjsdlq.Dependencies{
+				ConnectionManager: suite.mockCM,
+				Publisher:         suite.mockPub,
+			},
+			config: natsjsdlq.Config{
+				StreamName:    "",
+				Subject:       "test.dlq",
+				MaxDeliveries: 3,
+			},
+			expectedErr: "invalid DLQ configuration: stream name is required",
+		},
+		{
+			name: "Empty subject",
+			deps: natsjsdlq.Dependencies{
+				ConnectionManager: suite.mockCM,
+				Publisher:         suite.mockPub,
+			},
+			config: natsjsdlq.Config{
+				StreamName:    "test-dlq",
+				Subject:       "",
+				MaxDeliveries: 3,
+			},
+			expectedErr: "invalid DLQ configuration: subject is required",
+		},
+		{
+			name: "Invalid max deliveries",
+			deps: natsjsdlq.Dependencies{
+				ConnectionManager: suite.mockCM,
+				Publisher:         suite.mockPub,
+			},
+			config: natsjsdlq.Config{
+				StreamName:    "test-dlq",
+				Subject:       "test.dlq",
+				MaxDeliveries: 0,
+			},
+			expectedErr: "invalid DLQ configuration: max deliveries must be greater than 0",
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			handler, err := natsjsdlq.NewHandler(tt.deps, tt.config)
-			if tt.wantErr {
-				assert.Error(t, err)
-				assert.Contains(t, err.Error(), tt.errMsg)
+	for _, tc := range testCases {
+
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.expectedErr == "" {
+				// Mock successful stream creation
+				streamConfig := jetstream.StreamConfig{
+					Name:      tc.config.StreamName,
+					Subjects:  []string{tc.config.Subject},
+					Storage:   tc.config.Storage,
+					Retention: jetstream.WorkQueuePolicy,
+				}
+				suite.mockCM.On("EnsureStream", mock.Anything, streamConfig).Return(nil, nil).Once()
+			}
+
+			handler, err := natsjsdlq.NewHandler(tc.deps, tc.config)
+
+			if tc.expectedErr != "" {
+				assert.EqualError(t, err, tc.expectedErr)
 				assert.Nil(t, handler)
 			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, handler)
+				suite.mockCM.AssertExpectations(t)
 			}
 		})
 	}
 }
 
-func TestHandlerPublishMessage(t *testing.T) {
-	tests := []struct {
+func TestShouldDLQ(t *testing.T) {
+	suite := new(DLQHandlerTestSuite)
+	suite.SetupTest()
+
+	testCases := []struct {
 		name           string
-		msg            *nats.Msg
-		reason         string
-		publishErr     error
-		wantErr        bool
-		validateHeader func(*testing.T, nats.Header)
+		maxDeliveries  int
+		numDelivered   uint64
+		metadataErr    error
+		expectedResult bool
 	}{
 		{
-			name: "successful publish",
-			msg: &nats.Msg{
-				Subject: "original.subject",
-				Data:    []byte("test data"),
-				Header:  nats.Header{"Original-Key": []string{"value"}},
-			},
-			reason: "test failure",
-			validateHeader: func(t *testing.T, h nats.Header) {
-				assert.Equal(t, "test failure", h.Get("DLQ-Reason"))
-				assert.Equal(t, "original.subject", h.Get("Original-Subject"))
-				assert.Equal(t, "value", h.Get("Original-Key"))
-				assert.NotEmpty(t, h.Get("DLQ-Timestamp"))
-			},
+			name:           "Should send to DLQ - equal to max",
+			maxDeliveries:  3,
+			numDelivered:   3,
+			metadataErr:    nil,
+			expectedResult: true,
 		},
 		{
-			name: "publish with no headers",
-			msg: &nats.Msg{
-				Subject: "original.subject",
-				Data:    []byte("test data"),
-			},
-			reason: "test failure",
-			validateHeader: func(t *testing.T, h nats.Header) {
-				assert.Equal(t, "test failure", h.Get("DLQ-Reason"))
-				assert.Equal(t, "original.subject", h.Get("Original-Subject"))
-			},
+			name:           "Should send to DLQ - greater than max",
+			maxDeliveries:  3,
+			numDelivered:   5,
+			metadataErr:    nil,
+			expectedResult: true,
 		},
 		{
-			name: "publish error",
-			msg: &nats.Msg{
-				Subject: "original.subject",
-				Data:    []byte("test data"),
-			},
-			reason:     "test failure",
-			publishErr: errors.New("publish failed"),
-			wantErr:    true,
+			name:           "Should not send to DLQ - less than max",
+			maxDeliveries:  3,
+			numDelivered:   2,
+			metadataErr:    nil,
+			expectedResult: false,
+		},
+		{
+			name:           "Metadata error",
+			maxDeliveries:  3,
+			numDelivered:   0,
+			metadataErr:    errors.New("metadata error"),
+			expectedResult: false,
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mock := &MockJetStreamContext{
-				PublishMsgFunc: func(msg *nats.Msg, opts ...nats.PubOpt) (*nats.PubAck, error) {
-					if tt.publishErr != nil {
-						return nil, tt.publishErr
-					}
-					return &nats.PubAck{}, nil
-				},
+	// Setup for all test cases
+	validConfig := natsjsdlq.Config{
+		StreamName:    "test-dlq",
+		Subject:       "test.dlq",
+		MaxDeliveries: 3,
+		Context:       context.Background(),
+	}
+
+	deps := natsjsdlq.Dependencies{
+		ConnectionManager: suite.mockCM,
+		Publisher:         suite.mockPub,
+	}
+
+	// Mock stream creation once for all test cases
+	streamConfig := jetstream.StreamConfig{
+		Name:      validConfig.StreamName,
+		Subjects:  []string{validConfig.Subject},
+		Storage:   jetstream.FileStorage,
+		Retention: jetstream.WorkQueuePolicy,
+	}
+	suite.mockCM.On("EnsureStream", mock.Anything, streamConfig).Return(nil, nil).Once()
+
+	handler, err := natsjsdlq.NewHandler(deps, validConfig)
+	assert.NoError(t, err)
+	assert.NotNil(t, handler)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Create a mock message with the configured metadata
+			mockMsg := new(MockMsg)
+			metadata := &nats.MsgMetadata{
+				NumDelivered: tc.numDelivered,
 			}
 
-			var errorCaught error
-			handler, err := natsjsdlq.NewHandler(
-				natsjsdlq.Dependencies{JetStream: mock},
-				natsjsdlq.Config{
-					StreamName:    "test_dlq",
-					Subject:       "test.dlq",
-					MaxDeliveries: 3,
-					ErrorHandler: func(err error) {
-						errorCaught = err
-					},
-				},
-			)
-			assert.NoError(t, err)
+			mockMsg.On("Metadata").Return(metadata, tc.metadataErr).Once()
 
-			err = handler.PublishMessage(tt.msg, tt.reason)
-			if tt.wantErr {
+			// Test the ShouldDLQ method
+			result := handler.ShouldDLQ(mockMsg)
+			assert.Equal(t, tc.expectedResult, result)
+			mockMsg.AssertExpectations(t)
+		})
+	}
+}
+
+func TestPublishMessage(t *testing.T) {
+	suite := new(DLQHandlerTestSuite)
+	suite.SetupTest()
+
+	testCases := []struct {
+		name               string
+		originalMsg        *nats.Msg
+		reason             string
+		publishError       error
+		expectedDLQSubject string
+		expectHeaders      map[string]string
+	}{
+		{
+			name: "Successful DLQ publish with headers",
+			originalMsg: &nats.Msg{
+				Subject: "original.subject",
+				Data:    []byte("test data"),
+				Header: nats.Header{
+					"Nats-Msg-Id": []string{"msg-123"},
+					"Custom":      []string{"value"},
+				},
+			},
+			reason:             "processing failed",
+			publishError:       nil,
+			expectedDLQSubject: "test.dlq",
+			expectHeaders: map[string]string{
+				"DLQ-Reason":          "processing failed",
+				"Original-Subject":    "original.subject",
+				"Original-Message-ID": "msg-123",
+				"Custom":              "value",
+			},
+		},
+		{
+			name: "Successful DLQ publish without headers",
+			originalMsg: &nats.Msg{
+				Subject: "original.subject",
+				Data:    []byte("test data"),
+			},
+			reason:             "processing failed",
+			publishError:       nil,
+			expectedDLQSubject: "test.dlq",
+			expectHeaders: map[string]string{
+				"DLQ-Reason":       "processing failed",
+				"Original-Subject": "original.subject",
+			},
+		},
+		{
+			name: "Failed DLQ publish",
+			originalMsg: &nats.Msg{
+				Subject: "original.subject",
+				Data:    []byte("test data"),
+			},
+			reason:             "processing failed",
+			publishError:       errors.New("publish error"),
+			expectedDLQSubject: "test.dlq",
+			expectHeaders: map[string]string{
+				"DLQ-Reason":       "processing failed",
+				"Original-Subject": "original.subject",
+			},
+		},
+	}
+
+	// Setup for all test cases
+	validConfig := natsjsdlq.Config{
+		StreamName:    "test-dlq",
+		Subject:       "test.dlq",
+		MaxDeliveries: 3,
+		Context:       context.Background(),
+		ErrorHandler:  func(err error) {}, // No-op error handler
+	}
+
+	deps := natsjsdlq.Dependencies{
+		ConnectionManager: suite.mockCM,
+		Publisher:         suite.mockPub,
+	}
+
+	// Mock stream creation once for all test cases
+	streamConfig := jetstream.StreamConfig{
+		Name:      validConfig.StreamName,
+		Subjects:  []string{validConfig.Subject},
+		Storage:   jetstream.FileStorage,
+		Retention: jetstream.WorkQueuePolicy,
+	}
+	suite.mockCM.On("EnsureStream", mock.Anything, streamConfig).Return(nil, nil).Once()
+
+	handler, err := natsjsdlq.NewHandler(deps, validConfig)
+	assert.NoError(t, err)
+	assert.NotNil(t, handler)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Setup the publisher mock
+			suite.mockPub.On("Publish", mock.Anything, mock.MatchedBy(func(msg *nats.Msg) bool {
+				// Verify the DLQ message properties
+				if msg.Subject != tc.expectedDLQSubject {
+					return false
+				}
+
+				if len(msg.Data) != len(tc.originalMsg.Data) {
+					return false
+				}
+
+				// Verify headers
+				for key, expectedValue := range tc.expectHeaders {
+					if msg.Header.Get(key) == "" {
+						return false
+					}
+
+					if key == "DLQ-Timestamp" { // Skip timestamp check as it's dynamic
+						continue
+					}
+
+					if expectedValue != msg.Header.Get(key) {
+						return false
+					}
+				}
+
+				// Verify timestamp header exists and is valid
+				timestampStr := msg.Header.Get("DLQ-Timestamp")
+				if timestampStr == "" {
+					return false
+				}
+				_, err := time.Parse(time.RFC3339, timestampStr)
+				return err == nil
+			})).Return(nil, tc.publishError).Once()
+
+			// Test the PublishMessage method
+			err := handler.PublishMessage(tc.originalMsg, tc.reason)
+
+			if tc.publishError != nil {
 				assert.Error(t, err)
-				assert.NotNil(t, errorCaught)
+				assert.Equal(t, tc.publishError, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Nil(t, errorCaught)
-				assert.Len(t, mock.publishCalls, 1)
-				if tt.validateHeader != nil {
-					tt.validateHeader(t, mock.publishCalls[0].Header)
-				}
 			}
-		})
-	}
-}
 
-type MockMsg struct {
-	*nats.Msg
-	metadata      *nats.MsgMetadata
-	metadataError error
-}
-
-func (m *MockMsg) Metadata() (*nats.MsgMetadata, error) {
-	if m.metadataError != nil {
-		return nil, m.metadataError
-	}
-	return m.metadata, nil
-}
-
-func TestHandlerShouldDLQ(t *testing.T) {
-	tests := []struct {
-		name          string
-		msg           func() *MockMsg
-		maxDeliveries int
-		want          bool
-		wantErr       bool
-	}{
-		{
-			name: "should dlq when deliveries exceeded",
-			msg: func() *MockMsg {
-				return &MockMsg{
-					Msg: &nats.Msg{
-						Subject: "test.subject",
-						Data:    []byte("test data"),
-					},
-					metadata: &nats.MsgMetadata{
-						NumDelivered: 4,
-					},
-				}
-			},
-			maxDeliveries: 3,
-			want:          true,
-		},
-		{
-			name: "should not dlq when under max deliveries",
-			msg: func() *MockMsg {
-				return &MockMsg{
-					Msg: &nats.Msg{
-						Subject: "test.subject",
-						Data:    []byte("test data"),
-					},
-					metadata: &nats.MsgMetadata{
-						NumDelivered: 2,
-					},
-				}
-			},
-			maxDeliveries: 3,
-			want:          false,
-		},
-		{
-			name: "should not dlq on metadata error",
-			msg: func() *MockMsg {
-				return &MockMsg{
-					Msg: &nats.Msg{
-						Subject: "test.subject",
-						Data:    []byte("test data"),
-					},
-					metadataError: errors.New("metadata error"),
-				}
-			},
-			maxDeliveries: 3,
-			want:          false,
-			wantErr:       true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Create a message with mock metadata function
-			msg := tt.msg()
-
-			var errorCaught error
-			handler, err := natsjsdlq.NewHandler(natsjsdlq.Dependencies{
-				JetStream: &MockJetStreamContext{},
-			}, natsjsdlq.Config{
-				StreamName:    "test_dlq",
-				Subject:       "test.dlq",
-				MaxDeliveries: tt.maxDeliveries,
-				ErrorHandler: func(err error) {
-					errorCaught = err
-				},
-			})
-			assert.NoError(t, err)
-
-			got := handler.ShouldDLQ(msg)
-			assert.Equal(t, tt.want, got)
-
-			assert.Equal(t, tt.wantErr, errorCaught != nil)
+			suite.mockPub.AssertExpectations(t)
 		})
 	}
 }
