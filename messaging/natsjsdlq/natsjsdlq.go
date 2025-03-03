@@ -1,16 +1,15 @@
 package natsjsdlq
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
+	"github.com/simiancreative/simiango/messaging/natsjscm"
+	"github.com/simiancreative/simiango/messaging/natsjspub"
 )
-
-type JetStreamContext interface {
-	AddStream(cfg *nats.StreamConfig, opts ...nats.JSOpt) (*nats.StreamInfo, error)
-	PublishMsg(msg *nats.Msg, opts ...nats.PubOpt) (*nats.PubAck, error)
-}
 
 type Msg interface {
 	Metadata() (*nats.MsgMetadata, error)
@@ -28,20 +27,26 @@ type Config struct {
 	MaxDeliveries int
 
 	// Storage type for the DLQ stream
-	Storage nats.StorageType
+	Storage jetstream.StorageType
 
 	// Optional handler for DLQ errors
 	ErrorHandler func(error)
+
+	// Context for the DLQ handler
+	Context context.Context
 }
 
 type Dependencies struct {
-	JetStream JetStreamContext
+	ConnectionManager natsjscm.Connector
+	Publisher         natsjspub.Publisher
 }
 
 // Handler manages dead letter queue operations
 type Handler struct {
 	config Config
-	js     JetStreamContext
+	cm     natsjscm.Connector
+	p      natsjspub.Publisher
+	ctx    context.Context
 }
 
 // NewHandler creates a new DLQ handler
@@ -52,7 +57,9 @@ func NewHandler(deps Dependencies, config Config) (*Handler, error) {
 
 	handler := &Handler{
 		config: config,
-		js:     deps.JetStream,
+		ctx:    config.Context,
+		cm:     deps.ConnectionManager,
+		p:      deps.Publisher,
 	}
 
 	if err := handler.setup(); err != nil {
@@ -63,8 +70,12 @@ func NewHandler(deps Dependencies, config Config) (*Handler, error) {
 }
 
 func validateConfig(deps Dependencies, config Config) error {
-	if deps.JetStream == nil {
-		return fmt.Errorf("JetStream context is required")
+	if deps.ConnectionManager == nil {
+		return fmt.Errorf("connection manager is required")
+	}
+
+	if deps.Publisher == nil {
+		return fmt.Errorf("publisher is required")
 	}
 
 	if config.StreamName == "" {
@@ -80,7 +91,11 @@ func validateConfig(deps Dependencies, config Config) error {
 	}
 
 	if config.Storage == 0 {
-		config.Storage = nats.FileStorage
+		config.Storage = jetstream.FileStorage
+	}
+
+	if config.Context == nil {
+		config.Context = context.Background()
 	}
 
 	return nil
@@ -88,14 +103,14 @@ func validateConfig(deps Dependencies, config Config) error {
 
 // setup ensures the DLQ stream exists
 func (h *Handler) setup() error {
-	streamConfig := &nats.StreamConfig{
+	streamConfig := jetstream.StreamConfig{
 		Name:      h.config.StreamName,
 		Subjects:  []string{h.config.Subject},
 		Storage:   h.config.Storage,
-		Retention: nats.WorkQueuePolicy,
+		Retention: jetstream.WorkQueuePolicy,
 	}
 
-	_, err := h.js.AddStream(streamConfig)
+	_, err := h.cm.EnsureStream(h.ctx, streamConfig)
 	if err != nil && err != nats.ErrStreamNameAlreadyInUse {
 		return fmt.Errorf("failed to create DLQ stream: %w", err)
 	}
@@ -126,7 +141,7 @@ func (h *Handler) PublishMessage(msg *nats.Msg, reason string) error {
 	dlqMsg.Data = msg.Data
 
 	// Publish to DLQ
-	_, err := h.js.PublishMsg(dlqMsg)
+	_, err := h.p.Publish(h.ctx, dlqMsg)
 	if err != nil && h.config.ErrorHandler != nil {
 		h.config.ErrorHandler(fmt.Errorf("failed to publish to DLQ: %w", err))
 	}
