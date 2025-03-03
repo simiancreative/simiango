@@ -17,6 +17,15 @@ type Logger interface {
 	Errorf(format string, args ...interface{})
 }
 
+type Connector interface {
+	Connect() error
+	Disconnect() error
+	IsConnected() bool
+	GetConnection() *nats.Conn
+	GetJetStream() jetstream.JetStream
+	EnsureStream(ctx context.Context, config jetstream.StreamConfig) (jetstream.JetStream, error)
+}
+
 // ConnectionConfig holds the configuration for NATS connection
 type ConnectionConfig struct {
 	URL             string
