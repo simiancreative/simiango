@@ -2,6 +2,7 @@ coverage.out
 coverage-report.txt
 report.xml
 junit.xml
+test.log
 /tmp/*
 /examples/tmp/*
 /bin/serve/docker/prometheus/data

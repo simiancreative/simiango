@@ -21,8 +21,14 @@ type Connector interface {
 	Disconnect() error
 	IsConnected() bool
 	GetConnection() *nats.Conn
-	GetJetStream() jetstream.JetStream
-	EnsureStream(ctx context.Context, config jetstream.StreamConfig) (jetstream.JetStream, error)
+	GetJetStream() JetStream
+	EnsureStream(ctx context.Context, config jetstream.StreamConfig) (JetStream, error)
+}
+
+type JetStream interface {
+	Stream(ctx context.Context, name string) (jetstream.Stream, error)
+	CreateStream(ctx context.Context, config jetstream.StreamConfig) (jetstream.Stream, error)
+	PublishMsg(context.Context, *nats.Msg, ...jetstream.PublishOpt) (*jetstream.PubAck, error)
 }
 
 // ConnectionConfig holds the configuration for NATS connection
@@ -45,7 +51,7 @@ type ConnectionManager struct {
 }
 
 // NewConnectionManager creates a new connection manager
-func NewConnectionManager(config ConnectionConfig) (*ConnectionManager, error) {
+func NewConnectionManager(config ConnectionConfig) (Connector, error) {
 	if config.URL == "" {
 		return nil, fmt.Errorf("NATS URL is required")
 	}
@@ -179,7 +185,7 @@ func (cm *ConnectionManager) GetConnection() *nats.Conn {
 }
 
 // GetJetStream returns the JetStream context
-func (cm *ConnectionManager) GetJetStream() jetstream.JetStream {
+func (cm *ConnectionManager) GetJetStream() JetStream {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	return cm.js
@@ -189,7 +195,7 @@ func (cm *ConnectionManager) GetJetStream() jetstream.JetStream {
 func (cm *ConnectionManager) EnsureStream(
 	ctx context.Context,
 	config jetstream.StreamConfig,
-) (jetstream.JetStream, error) {
+) (JetStream, error) {
 	cm.mu.RLock()
 	js := cm.js
 	cm.mu.RUnlock()
