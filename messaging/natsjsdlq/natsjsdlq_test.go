@@ -8,6 +8,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
+	"github.com/simiancreative/simiango/messaging/natsjscm"
 	"github.com/simiancreative/simiango/messaging/natsjsdlq"
 	"github.com/stretchr/testify/mock"
 	"github.com/tj/assert"
@@ -28,7 +29,7 @@ func (m *MockConnectionManager) GetConnection() *nats.Conn {
 	return args.Get(0).(*nats.Conn)
 }
 
-func (m *MockConnectionManager) GetJetStream() jetstream.JetStream {
+func (m *MockConnectionManager) GetJetStream() natsjscm.JetStream {
 	args := m.Called()
 	return args.Get(0).(jetstream.JetStream)
 }
@@ -36,7 +37,7 @@ func (m *MockConnectionManager) GetJetStream() jetstream.JetStream {
 func (m *MockConnectionManager) EnsureStream(
 	ctx context.Context,
 	config jetstream.StreamConfig,
-) (jetstream.JetStream, error) {
+) (natsjscm.JetStream, error) {
 	args := m.Called(ctx, config)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)

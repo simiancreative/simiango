@@ -29,6 +29,11 @@ type JsonPublisher interface {
 	) (*jetstream.PubAck, error)
 }
 
+type PublishMulti interface {
+	JsonPublisher
+	Publisher
+}
+
 // Config holds publisher configuration
 type Config struct {
 	// Stream name to publish to
@@ -36,9 +41,6 @@ type Config struct {
 
 	// Subject to publish on
 	Subject string
-
-	// CircuitBreaker configuration (optional)
-	CircuitBreaker *circuitbreaker.Config
 
 	// Publish timeout (default 5s)
 	Timeout time.Duration
@@ -50,22 +52,28 @@ type Config struct {
 // Dependencies for the publisher
 type Dependencies struct {
 	// ConnectionManager for NATS
-	ConnectionManager *natsjscm.ConnectionManager
+	Connector natsjscm.Connector
+	Breaker   circuitbreaker.Breaker
+	Logger    Logger
 }
 
 // Publisher is a JetStream publisher with circuit breaker capabilities
 type PublishManager struct {
 	config Config
-	cm     *natsjscm.ConnectionManager
-	cb     *circuitbreaker.CircuitBreaker
+	cm     natsjscm.Connector
+	cb     circuitbreaker.Breaker
 	log    Logger
 }
 
 // NewPublisher creates a new JetStream publisher
-func NewPublisher(deps Dependencies, config Config) (*PublishManager, error) {
+func NewPublisher(deps Dependencies, config Config) (PublishMulti, error) {
 	// Validation
-	if deps.ConnectionManager == nil {
+	if deps.Connector == nil {
 		return nil, fmt.Errorf("connection manager is required")
+	}
+
+	if deps.Breaker == nil {
+		deps.Breaker, _ = circuitbreaker.NewDefault()
 	}
 
 	if config.StreamName == "" {
@@ -80,19 +88,15 @@ func NewPublisher(deps Dependencies, config Config) (*PublishManager, error) {
 		config.Timeout = 5 * time.Second
 	}
 
-	pub := &PublishManager{
-		config: config,
-		cm:     deps.ConnectionManager,
-		log:    logger.New(),
+	if deps.Logger == nil {
+		deps.Logger = logger.New()
 	}
 
-	// Initialize circuit breaker if configured
-	if config.CircuitBreaker != nil {
-		cb, err := circuitbreaker.New(*config.CircuitBreaker)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create circuit breaker: %w", err)
-		}
-		pub.cb = cb
+	pub := &PublishManager{
+		config: config,
+		cm:     deps.Connector,
+		cb:     deps.Breaker,
+		log:    deps.Logger,
 	}
 
 	// Ensure the stream exists
@@ -106,8 +110,11 @@ func NewPublisher(deps Dependencies, config Config) (*PublishManager, error) {
 
 // ensureStream makes sure the configured stream exists
 func (p *PublishManager) ensureStream(ctx context.Context) error {
+	p.log.Debugf("ensuring stream is connected")
+
 	// Get JetStream connection
 	if !p.cm.IsConnected() {
+		p.log.Debugf("connecting to NATS")
 		if err := p.cm.Connect(); err != nil {
 			return fmt.Errorf("failed to connect to NATS: %w", err)
 		}
@@ -127,6 +134,7 @@ func (p *PublishManager) ensureStream(ctx context.Context) error {
 	}
 
 	// Ensure stream exists
+	p.log.Debugf("ensuring stream %s exists", p.config.StreamName)
 	_, err := p.cm.EnsureStream(ctx, streamConfig)
 	return err
 }

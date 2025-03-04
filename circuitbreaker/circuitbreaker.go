@@ -29,11 +29,24 @@ func (s State) String() string {
 	}
 }
 
+type Logger interface {
+	Debug(...interface{})
+}
+
 type Config struct {
 	FailureThreshold int
 	OpenTimeout      time.Duration
 	HalfOpenMaxCalls int
 	OnStateChange    func(from, to State)
+	Logger           Logger
+}
+
+type Breaker interface {
+	Allow() bool
+	GetState() State
+	RecordStart() bool
+	RecordResult(success bool)
+	Reset()
 }
 
 type CircuitBreaker struct {
@@ -46,21 +59,31 @@ type CircuitBreaker struct {
 	timer     *time.Timer
 }
 
+func NewDefault() (*CircuitBreaker, error) {
+	return New(Config{
+		FailureThreshold: 5,
+		OpenTimeout:      5 * time.Second,
+		HalfOpenMaxCalls: 5,
+	})
+}
+
 func New(config Config) (*CircuitBreaker, error) {
-	if err := validateConfig(config); err != nil {
+	if err := validateConfig(&config); err != nil {
 		return nil, err
 	}
 
-	logger.Debug("creating new circuit breaker", logger.Fields{
+	breaker := &CircuitBreaker{
+		config: config,
+		state:  StateClosed,
+	}
+
+	breaker.config.Logger.Debug("creating new circuit breaker", logger.Fields{
 		"failure_threshold":   config.FailureThreshold,
 		"open_timeout":        config.OpenTimeout.String(),
 		"half_open_max_calls": config.HalfOpenMaxCalls,
 	})
 
-	return &CircuitBreaker{
-		config: config,
-		state:  StateClosed,
-	}, nil
+	return breaker, nil
 }
 
 func (cb *CircuitBreaker) Allow() bool {
@@ -115,7 +138,7 @@ func (cb *CircuitBreaker) RecordStart() bool {
 	}
 
 	cb.attempts++
-	logger.Debug("attempt started", logger.Fields{
+	cb.config.Logger.Debug("attempt started", logger.Fields{
 		"state":    cb.state.String(),
 		"attempts": cb.attempts,
 	})
@@ -127,7 +150,7 @@ func (cb *CircuitBreaker) RecordResult(success bool) {
 	cb.mutex.Lock()
 	defer cb.mutex.Unlock()
 
-	logger.Debug("recording attempt result", logger.Fields{
+	cb.config.Logger.Debug("recording attempt result", logger.Fields{
 		"success":   success,
 		"state":     cb.state.String(),
 		"attempts":  cb.attempts,
@@ -143,7 +166,7 @@ func (cb *CircuitBreaker) RecordResult(success bool) {
 	switch cb.state {
 	case StateHalfOpen:
 		cb.successes++
-		logger.Debug("recorded success in half-open state", logger.Fields{
+		cb.config.Logger.Debug("recorded success in half-open state", logger.Fields{
 			"attempts":  cb.attempts,
 			"successes": cb.successes,
 			"max_calls": cb.config.HalfOpenMaxCalls,
@@ -153,7 +176,7 @@ func (cb *CircuitBreaker) RecordResult(success bool) {
 		}
 	case StateClosed:
 		cb.failures = 0
-		logger.Debug("recorded success in closed state", logger.Fields{
+		cb.config.Logger.Debug("recorded success in closed state", logger.Fields{
 			"failures": cb.failures,
 		})
 	}
@@ -163,7 +186,7 @@ func (cb *CircuitBreaker) Reset() {
 	cb.mutex.Lock()
 	defer cb.mutex.Unlock()
 
-	logger.Debug("resetting circuit breaker", logger.Fields{
+	cb.config.Logger.Debug("resetting circuit breaker", logger.Fields{
 		"from_state": cb.state.String(),
 	})
 
@@ -180,7 +203,7 @@ func (cb *CircuitBreaker) Reset() {
 func (cb *CircuitBreaker) recordFailure() {
 	cb.failures++
 
-	logger.Debug("recorded failure", logger.Fields{
+	cb.config.Logger.Debug("recorded failure", logger.Fields{
 		"state":     cb.state.String(),
 		"failures":  cb.failures,
 		"threshold": cb.config.FailureThreshold,
@@ -197,7 +220,7 @@ func (cb *CircuitBreaker) recordFailure() {
 }
 
 func (cb *CircuitBreaker) openCircuit() {
-	logger.Debug("opening circuit", logger.Fields{
+	cb.config.Logger.Debug("opening circuit", logger.Fields{
 		"from_state":   cb.state.String(),
 		"open_timeout": cb.config.OpenTimeout.String(),
 	})
@@ -212,7 +235,7 @@ func (cb *CircuitBreaker) openCircuit() {
 		cb.mutex.Lock()
 		defer cb.mutex.Unlock()
 
-		logger.Debug("open timeout elapsed", logger.Fields{
+		cb.config.Logger.Debug("open timeout elapsed", logger.Fields{
 			"current_state": cb.state.String(),
 		})
 
@@ -232,7 +255,7 @@ func (cb *CircuitBreaker) transitionTo(newState State) {
 	cb.attempts = 0
 	cb.successes = 0
 
-	logger.Debug("state transition", logger.Fields{
+	cb.config.Logger.Debug("state transition", logger.Fields{
 		"from_state": oldState.String(),
 		"to_state":   newState.String(),
 		"attempts":   cb.attempts,
@@ -244,15 +267,22 @@ func (cb *CircuitBreaker) transitionTo(newState State) {
 	}
 }
 
-func validateConfig(config Config) error {
+func validateConfig(config *Config) error {
 	if config.FailureThreshold <= 0 {
 		return fmt.Errorf("failure threshold must be greater than 0")
 	}
+
 	if config.OpenTimeout <= 0 {
 		return fmt.Errorf("open timeout must be greater than 0")
 	}
+
 	if config.HalfOpenMaxCalls <= 0 {
 		return fmt.Errorf("half-open max calls must be greater than 0")
 	}
+
+	if config.Logger == nil {
+		config.Logger = logger.New()
+	}
+
 	return nil
 }
