@@ -1,4 +1,4 @@
-package natsjspub_test
+package natsjscm
 
 import (
 	"context"

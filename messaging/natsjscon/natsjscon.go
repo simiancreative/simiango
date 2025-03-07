@@ -56,9 +56,6 @@ type ConsumerConfig struct {
 	// ProcessTimeout is the timeout for processing a message/batch
 	ProcessTimeout time.Duration
 
-	// EnableDLQ determines if messages should be sent to a DLQ after max retries
-	EnableDLQ bool
-
 	// WorkerCount is the number of concurrent workers
 	WorkerCount int
 }
@@ -154,53 +151,13 @@ func (c *Consumer) SetProcessor(processor Processor) *Consumer {
 	return c
 }
 
-// Setup prepares the consumer for consumption
-func (c *Consumer) Setup(processor Processor) *Consumer {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.logger == nil {
-		c.SetLogger(logger.New())
-	}
-
-	// Set defaults
-	if c.config.MaxRetries <= 0 {
-		c.debug("setting default max retries to 3")
-		c.config.MaxRetries = 3
-	}
-
-	if c.config.ProcessTimeout <= 0 {
-		c.debug("setting default process timeout to 30s")
-		c.config.ProcessTimeout = 30 * time.Second
-	}
-
-	if c.config.WorkerCount <= 0 {
-		c.debug("setting default worker count to 1")
-		c.config.WorkerCount = 1
-	}
-
-	// Ensure connection to NATS
-	if err := c.cm.Connect(); err != nil {
-		c.debug("connection failed ", err)
-	}
-
-	return c
-}
-
-// IsRunning returns whether the consumer is currently running
-func (c *Consumer) IsRunning() bool {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	return c.running
-}
-
 // Stop stops the consumer
-func (c *Consumer) Stop() error {
+func (c *Consumer) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	if !c.running {
-		return nil
+		return
 	}
 
 	c.logger.Debug("stopping consumer", logger.Fields{
@@ -211,14 +168,10 @@ func (c *Consumer) Stop() error {
 	c.cancel()
 	c.running = false
 	c.wg.Wait()
-	return nil
 }
 
 // validate checks if the consumer is properly configured
 func (c *Consumer) validate() error {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
 	if c.processor == nil {
 		return errors.New("processor is required")
 	}
@@ -244,4 +197,34 @@ func (c *Consumer) validate() error {
 	}
 
 	return nil
+}
+
+func (c *Consumer) setup() error {
+	c.debug("starting consumer setup")
+
+	if c.logger == nil {
+		c.debug("setting logger")
+		c.SetLogger(logger.New())
+	}
+
+	// Set defaults
+	if c.config.MaxRetries <= 0 {
+		c.debug("setting default max retries to 3")
+		c.config.MaxRetries = 3
+	}
+
+	if c.config.ProcessTimeout <= 0 {
+		c.debug("setting default process timeout to 30s")
+		c.config.ProcessTimeout = 30 * time.Second
+	}
+
+	if c.config.WorkerCount <= 0 {
+		c.debug("setting default worker count to 1")
+		c.config.WorkerCount = 1
+	}
+
+	c.debug("consumer setup complete, connecting to NATS")
+
+	// Ensure connection to NATS
+	return c.cm.Connect()
 }

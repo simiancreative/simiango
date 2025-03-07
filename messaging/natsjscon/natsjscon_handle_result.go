@@ -81,7 +81,7 @@ func handleMaxRetries(msg jetstream.Msg, metadata *jetstream.MsgMetadata, c *Con
 		})
 	}
 
-	if !c.config.EnableDLQ || c.dlqHandler == nil {
+	if c.dlqHandler == nil {
 		return true
 	}
 
@@ -100,7 +100,7 @@ func handleTerminalError(msg jetstream.Msg, c *Consumer) {
 	}
 
 	// Send to DLQ if enabled
-	if !c.config.EnableDLQ || c.dlqHandler == nil {
+	if c.dlqHandler == nil {
 		return
 	}
 

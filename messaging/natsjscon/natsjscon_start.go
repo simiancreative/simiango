@@ -13,15 +13,23 @@ func (c *Consumer) Start(ctx context.Context) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
+	c.debug("setting up consumer")
+	if err := c.setup(); err != nil {
+		return fmt.Errorf("failed to setup consumer: %w", err)
+	}
+
+	c.debug("validating consumer configuration")
 	if err := c.validate(); err != nil {
 		return fmt.Errorf("invalid consumer configuration: %w", err)
 	}
 
+	c.debug("is consumer already running?")
 	if c.running {
 		return errors.New("consumer is already running")
 	}
 
 	// Set up the strategy
+	c.debug("setting up consumption strategy")
 	if err := c.strategy.Setup(ctx); err != nil {
 		return fmt.Errorf("failed to setup consumption strategy: %w", err)
 	}
@@ -30,6 +38,7 @@ func (c *Consumer) Start(ctx context.Context) error {
 	c.running = true
 
 	// Start worker pool
+	c.debug("starting worker pool")
 	for i := 0; i < c.config.WorkerCount; i++ {
 		c.wg.Add(1)
 		go c.worker(i)
