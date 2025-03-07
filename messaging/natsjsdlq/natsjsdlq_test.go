@@ -8,87 +8,27 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
-	"github.com/simiancreative/simiango/messaging/natsjscm"
 	"github.com/simiancreative/simiango/messaging/natsjsdlq"
+	"github.com/simiancreative/simiango/mocks/messaging/natsjscm"
+	"github.com/simiancreative/simiango/mocks/messaging/natsjspub"
 	"github.com/stretchr/testify/mock"
 	"github.com/tj/assert"
 )
 
-// Mock implementations
-type MockConnectionManager struct {
-	mock.Mock
-}
-
-func (m *MockConnectionManager) Connect() error {
-	args := m.Called()
-	return args.Error(0)
-}
-
-func (m *MockConnectionManager) GetConnection() *nats.Conn {
-	args := m.Called()
-	return args.Get(0).(*nats.Conn)
-}
-
-func (m *MockConnectionManager) GetJetStream() natsjscm.JetStream {
-	args := m.Called()
-	return args.Get(0).(jetstream.JetStream)
-}
-
-func (m *MockConnectionManager) EnsureStream(
-	ctx context.Context,
-	config jetstream.StreamConfig,
-) (natsjscm.JetStream, error) {
-	args := m.Called(ctx, config)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(jetstream.JetStream), args.Error(1)
-}
-
-func (m *MockConnectionManager) Disconnect() error {
-	args := m.Called()
-	return args.Error(0)
-}
-
-func (m *MockConnectionManager) IsConnected() bool {
-	args := m.Called()
-	return args.Bool(0)
-}
-
-type MockPublisher struct {
-	mock.Mock
-}
-
-func (m *MockPublisher) Publish(ctx context.Context, msg *nats.Msg) (*jetstream.PubAck, error) {
-	args := m.Called(ctx, msg)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(*jetstream.PubAck), args.Error(1)
-}
-
-type MockMsg struct {
-	mock.Mock
-}
-
-func (m *MockMsg) Metadata() (*nats.MsgMetadata, error) {
-	args := m.Called()
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(*nats.MsgMetadata), args.Error(1)
-}
-
 // Test Suite
 type DLQHandlerTestSuite struct {
-	mockCM  *MockConnectionManager
-	mockPub *MockPublisher
+	mockCM  *natsjscm.MockConnectionManager
+	mockPub *natsjspub.MockPublisher
+	mockJS  *natsjscm.MockJetStream
 	ctx     context.Context
 }
 
 func (suite *DLQHandlerTestSuite) SetupTest() {
-	suite.mockCM = new(MockConnectionManager)
-	suite.mockPub = new(MockPublisher)
+	suite.mockCM = new(natsjscm.MockConnectionManager)
+	suite.mockPub = new(natsjspub.MockPublisher)
+	suite.mockJS = new(natsjscm.MockJetStream)
+
+	suite.mockCM.SetJetStream(suite.mockJS)
 	suite.ctx = context.Background()
 }
 
@@ -112,7 +52,7 @@ func TestNewHandlerValidation(t *testing.T) {
 				StreamName:    "test-dlq",
 				Subject:       "test.dlq",
 				MaxDeliveries: 3,
-				Storage:       jetstream.FileStorage,
+				Storage:       jetstream.MemoryStorage,
 				Context:       suite.ctx,
 			},
 			expectedErr: "",
@@ -195,7 +135,11 @@ func TestNewHandlerValidation(t *testing.T) {
 					Storage:   tc.config.Storage,
 					Retention: jetstream.WorkQueuePolicy,
 				}
-				suite.mockCM.On("EnsureStream", mock.Anything, streamConfig).Return(nil, nil).Once()
+
+				suite.mockCM.
+					On("EnsureStream", mock.Anything, streamConfig).
+					Return(suite.mockJS, nil).
+					Once()
 			}
 
 			handler, err := natsjsdlq.NewHandler(tc.deps, tc.config)
@@ -273,7 +217,10 @@ func TestShouldDLQ(t *testing.T) {
 		Storage:   jetstream.FileStorage,
 		Retention: jetstream.WorkQueuePolicy,
 	}
-	suite.mockCM.On("EnsureStream", mock.Anything, streamConfig).Return(nil, nil).Once()
+	suite.mockCM.
+		On("EnsureStream", mock.Anything, streamConfig).
+		Return(suite.mockJS, nil).
+		Once()
 
 	handler, err := natsjsdlq.NewHandler(deps, validConfig)
 	assert.NoError(t, err)
@@ -282,7 +229,7 @@ func TestShouldDLQ(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create a mock message with the configured metadata
-			mockMsg := new(MockMsg)
+			mockMsg := new(natsjspub.MockMsg)
 			metadata := &nats.MsgMetadata{
 				NumDelivered: tc.numDelivered,
 			}
@@ -380,7 +327,10 @@ func TestPublishMessage(t *testing.T) {
 		Storage:   jetstream.FileStorage,
 		Retention: jetstream.WorkQueuePolicy,
 	}
-	suite.mockCM.On("EnsureStream", mock.Anything, streamConfig).Return(nil, nil).Once()
+	suite.mockCM.
+		On("EnsureStream", mock.Anything, streamConfig).
+		Return(suite.mockJS, nil).
+		Once()
 
 	handler, err := natsjsdlq.NewHandler(deps, validConfig)
 	assert.NoError(t, err)

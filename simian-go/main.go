@@ -13,6 +13,7 @@ import (
 	_ "github.com/simiancreative/simiango/simian-go/app/token/decode"
 	_ "github.com/simiancreative/simiango/simian-go/app/token/generate"
 	_ "github.com/simiancreative/simiango/simian-go/app/token/test"
+	_ "github.com/simiancreative/simiango/simian-go/app/tryitout/consumer"
 
 	"github.com/simiancreative/simiango/simian-go/app"
 )

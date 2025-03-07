@@ -148,21 +148,26 @@ func (cm *ConnectionManager) retryConnection() {
 
 // Connect establishes a connection to NATS if not already connected
 func (cm *ConnectionManager) Connect() error {
+	cm.log.Debugf("Starting Connect")
+
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
+	cm.log.Debugf("Checking NATS connection")
 	// If already connected, increment reference count
 	if cm.nc != nil && cm.nc.IsConnected() {
 		cm.refs++
 		return nil
 	}
 
+	cm.log.Debugf("Connecting to NATS")
 	// Connect to NATS
 	nc, err := nats.Connect(cm.config.URL, cm.config.Options...)
 	if err != nil {
 		return fmt.Errorf("failed to connect to NATS: %w", err)
 	}
 
+	cm.log.Debugf("Getting JetStream context")
 	// Create JetStream context
 	js, err := cm.createJetStreamContext(nc)
 	if err != nil {
@@ -173,6 +178,8 @@ func (cm *ConnectionManager) Connect() error {
 	cm.nc = nc
 	cm.js = js
 	cm.refs = 1
+
+	cm.log.Debugf("Connected to NATS")
 
 	return nil
 }
