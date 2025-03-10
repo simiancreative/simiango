@@ -50,6 +50,7 @@ type Config struct {
 type PullStrategy struct {
 	config   Config
 	cm       natsjscm.Connector
+	cb       circuitbreaker.Breaker
 	consumer jetstream.Consumer
 
 	streamName string
@@ -95,6 +96,7 @@ func (p *PullStrategy) Setup(ctx context.Context) error {
 	p.subject = ctx.Value(natsjscon.CtxKey("subject")).(string)
 	p.logger = ctx.Value(natsjscon.CtxKey("logger")).(Logger)
 	p.cm = ctx.Value(natsjscon.CtxKey("connection-manager")).(natsjscm.Connector)
+	p.cb = p.config.Breaker
 
 	err := p.ensureStream(ctx)
 	if err != nil {
@@ -167,14 +169,15 @@ func (p *PullStrategy) ensureStream(ctx context.Context) error {
 
 // Consume pulls a batch of messages and converts them to our Message type
 func (p *PullStrategy) Consume(ctx context.Context, workerID int) ([]jetstream.Msg, error) {
-	if p.consumer == nil {
-		return nil, errors.New("consumer not initialized")
+	// Check if we need to reconnect/reinitialize
+	if err := p.ensureConsumerActive(ctx); err != nil {
+		return nil, fmt.Errorf("failed to ensure consumer: %w", err)
 	}
 
-	if p.breaker() != nil && !p.breaker().Allow() {
+	if p.cb != nil && !p.cb.Allow() {
 		p.logger.Debug("circuit breaker open", logger.Fields{
 			"worker_id": workerID,
-			"state":     p.breaker().GetState(),
+			"state":     p.cb.GetState(),
 		})
 		return nil, errors.New("circuit breaker open")
 	}
@@ -187,8 +190,8 @@ func (p *PullStrategy) Consume(ctx context.Context, workerID int) ([]jetstream.M
 
 	// Record attempt start if circuit breaker is configured
 	var cbRecorded bool
-	if p.breaker() != nil {
-		cbRecorded = p.breaker().RecordStart()
+	if p.cb != nil {
+		cbRecorded = p.cb.RecordStart()
 		if !cbRecorded {
 			return nil, fmt.Errorf("circuit breaker rejected request")
 		}
@@ -201,8 +204,8 @@ func (p *PullStrategy) Consume(ctx context.Context, workerID int) ([]jetstream.M
 	)
 
 	// Record result in circuit breaker
-	if p.breaker() != nil && cbRecorded {
-		p.breaker().RecordResult(err == nil)
+	if p.cb != nil && cbRecorded {
+		p.cb.RecordResult(err == nil)
 	}
 
 	if err != nil {
@@ -222,6 +225,54 @@ func (p *PullStrategy) Consume(ctx context.Context, workerID int) ([]jetstream.M
 	return messages, nil
 }
 
-func (p *PullStrategy) breaker() circuitbreaker.Breaker {
-	return p.config.Breaker
+// ensureConsumerActive checks the connection status and reinitializes the consumer if needed
+func (p *PullStrategy) ensureConsumerActive(ctx context.Context) error {
+	if p.consumer != nil && p.cm.IsConnected() {
+		// Check if the JS context in the connection manager has changed
+		currentJS := p.cm.GetJetStream()
+		if currentJS != nil {
+			return nil // All good, connection is active
+		}
+	}
+
+	p.logger.Debug("reconnecting consumer")
+	
+	// Ensure connection and stream
+	if err := p.ensureStream(ctx); err != nil {
+		return fmt.Errorf("failed to ensure stream: %w", err)
+	}
+
+	// Get current JetStream instance
+	js := p.cm.GetJetStream()
+	if js == nil {
+		return errors.New("JetStream connection not available")
+	}
+
+	// Get stream
+	stream, err := js.Stream(ctx, p.streamName)
+	if err != nil {
+		return fmt.Errorf("failed to get stream: %w", err)
+	}
+
+	// Configure durable pull consumer
+	consumerConfig := jetstream.ConsumerConfig{
+		Name:          p.config.ConsumerName,
+		Durable:       p.config.ConsumerName,
+		AckPolicy:     jetstream.AckExplicitPolicy,
+		AckWait:       p.config.AckWait,
+		MaxAckPending: p.config.MaxAckPending,
+		FilterSubject: p.subject,
+		DeliverPolicy: jetstream.DeliverAllPolicy,
+		MaxDeliver:    p.config.MaxRetries + 1, // Include first delivery
+	}
+
+	// Create or update the consumer
+	consumer, err := stream.CreateOrUpdateConsumer(ctx, consumerConfig)
+	if err != nil {
+		return fmt.Errorf("failed to create/update consumer: %w", err)
+	}
+
+	p.consumer = consumer
+	p.logger.Debug("consumer reconnected successfully")
+	return nil
 }
