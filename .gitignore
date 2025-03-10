@@ -6,3 +6,4 @@ test.log
 /tmp/*
 /examples/tmp/*
 /bin/serve/docker/prometheus/data
+/bin/serve/docker/nats/certs/*.pem

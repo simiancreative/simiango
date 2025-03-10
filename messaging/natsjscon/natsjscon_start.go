@@ -8,10 +8,14 @@ import (
 	"github.com/simiancreative/simiango/logger"
 )
 
+type CtxKey string
+
 // Start begins consuming messages
 func (c *Consumer) Start(ctx context.Context) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
+	ctx = c.setupCtx(ctx)
 
 	c.debug("setting up consumer")
 	if err := c.setup(); err != nil {
@@ -52,4 +56,20 @@ func (c *Consumer) Start(ctx context.Context) error {
 	})
 
 	return nil
+}
+
+func (c *Consumer) setupCtx(ctx context.Context) context.Context {
+	key := CtxKey("stream-name")
+	ctx = context.WithValue(ctx, key, c.config.StreamName)
+
+	key = CtxKey("subject")
+	ctx = context.WithValue(ctx, key, c.config.Subject)
+
+	key = CtxKey("logger")
+	ctx = context.WithValue(ctx, key, c.logger)
+
+	key = CtxKey("connection-manager")
+	ctx = context.WithValue(ctx, key, c.cm)
+
+	return ctx
 }
