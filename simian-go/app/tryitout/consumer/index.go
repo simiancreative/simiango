@@ -85,7 +85,12 @@ func processor(
 		"messages": msgs,
 	})
 
-	litter.Dump(msgs[0].Data())
+	processed := map[jetstream.Msg]natsjscon.ProcessStatus{}
 
-	return map[jetstream.Msg]natsjscon.ProcessStatus{}
+	for _, msg := range msgs {
+		processed[msg] = natsjscon.Success
+		logger.Debugf("processing message: %s", litter.Sdump(msg))
+	}
+
+	return processed
 }

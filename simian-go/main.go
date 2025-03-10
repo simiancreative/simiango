@@ -14,6 +14,7 @@ import (
 	_ "github.com/simiancreative/simiango/simian-go/app/token/generate"
 	_ "github.com/simiancreative/simiango/simian-go/app/token/test"
 	_ "github.com/simiancreative/simiango/simian-go/app/tryitout/consumer"
+	_ "github.com/simiancreative/simiango/simian-go/app/tryitout/publisher"
 
 	"github.com/simiancreative/simiango/simian-go/app"
 )

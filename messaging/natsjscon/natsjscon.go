@@ -15,6 +15,7 @@ import (
 // Logger is the interface for logging
 type Logger interface {
 	Debug(args ...any)
+	Debugf(format string, args ...any)
 	Error(args ...any)
 }
 

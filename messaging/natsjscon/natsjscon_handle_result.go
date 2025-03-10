@@ -34,6 +34,8 @@ func (c *Consumer) handleResult(msg jetstream.Msg, status ProcessStatus) {
 }
 
 func handleSuccess(msg jetstream.Msg, c *Consumer) {
+	c.logger.Debugf("message processed successfully, acknowledging")
+
 	// Acknowledge successful processing
 	err := msg.Ack()
 
