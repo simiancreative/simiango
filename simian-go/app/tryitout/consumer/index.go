@@ -7,6 +7,7 @@ import (
 	"github.com/sanity-io/litter"
 	"github.com/spf13/cobra"
 
+	"github.com/simiancreative/simiango/circuitbreaker"
 	"github.com/simiancreative/simiango/errors"
 	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/messaging/natsjscm"
@@ -46,8 +47,14 @@ func run() error {
 		return errors.Wrap(err, "failed to create connection manager")
 	}
 
+	breaker, err := circuitbreaker.NewDefault()
+	if err != nil {
+		return errors.Wrap(err, "failed to create circuit breaker")
+	}
+
 	strategy, err := natsjsstrategypull.New(natsjsstrategypull.Config{
 		ConsumerName: "test-consumer",
+		Breaker:      breaker,
 	})
 	if err != nil {
 		return errors.Wrap(err, "failed to create pull strategy")

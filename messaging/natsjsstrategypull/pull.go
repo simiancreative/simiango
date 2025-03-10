@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go/jetstream"
+	"github.com/simiancreative/simiango/circuitbreaker"
 	"github.com/simiancreative/simiango/logger"
 	"github.com/simiancreative/simiango/messaging/natsjscm"
 	"github.com/simiancreative/simiango/messaging/natsjscon"
@@ -40,6 +41,9 @@ type Config struct {
 
 	// RetentionPolicy is the retention policy for the stream
 	RetentionPolicy jetstream.RetentionPolicy
+
+	// Breaker is the configuration for the circuit breaker
+	Breaker circuitbreaker.Breaker
 }
 
 // PullStrategy implements pull-based message consumption
@@ -167,17 +171,40 @@ func (p *PullStrategy) Consume(ctx context.Context, workerID int) ([]jetstream.M
 		return nil, errors.New("consumer not initialized")
 	}
 
+	if p.breaker() != nil && !p.breaker().Allow() {
+		p.logger.Debug("circuit breaker open", logger.Fields{
+			"worker_id": workerID,
+			"state":     p.breaker().GetState(),
+		})
+		return nil, errors.New("circuit breaker open")
+	}
+
 	p.logger.Debug("pulling messages", logger.Fields{
 		"worker_id":  workerID,
 		"batch_size": p.config.BatchSize,
 		"timeout":    p.config.PollTimeout,
 	})
 
+	// Record attempt start if circuit breaker is configured
+	var cbRecorded bool
+	if p.breaker() != nil {
+		cbRecorded = p.breaker().RecordStart()
+		if !cbRecorded {
+			return nil, fmt.Errorf("circuit breaker rejected request")
+		}
+	}
+
 	// Fetch messages from stream
 	jsMsgs, err := p.consumer.Fetch(
 		p.config.BatchSize,
 		jetstream.FetchMaxWait(p.config.PollTimeout),
 	)
+
+	// Record result in circuit breaker
+	if p.breaker() != nil && cbRecorded {
+		p.breaker().RecordResult(err == nil)
+	}
+
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
 			// This is normal for pull-based when no messages are available
@@ -193,4 +220,8 @@ func (p *PullStrategy) Consume(ctx context.Context, workerID int) ([]jetstream.M
 	}
 
 	return messages, nil
+}
+
+func (p *PullStrategy) breaker() circuitbreaker.Breaker {
+	return p.config.Breaker
 }
