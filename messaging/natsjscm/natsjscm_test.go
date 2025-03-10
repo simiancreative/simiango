@@ -14,30 +14,10 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/simiancreative/simiango/messaging/natsjscm"
+	"github.com/simiancreative/simiango/mocks/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-// Mock Logger for testing
-type mockLogger struct {
-	debugMessages []string
-	errorMessages []string
-}
-
-func newMockLogger() *mockLogger {
-	return &mockLogger{
-		debugMessages: []string{},
-		errorMessages: []string{},
-	}
-}
-
-func (m *mockLogger) Debugf(format string, args ...interface{}) {
-	m.debugMessages = append(m.debugMessages, fmt.Sprintf(format, args...))
-}
-
-func (m *mockLogger) Errorf(format string, args ...interface{}) {
-	m.errorMessages = append(m.errorMessages, fmt.Sprintf(format, args...))
-}
 
 func MockServer(args ...int) func() {
 	port := 0
@@ -105,7 +85,7 @@ func TestNewConnectionManager(t *testing.T) {
 			config: natsjscm.ConnectionConfig{
 				URL:           "nats://localhost:4222",
 				ReconnectWait: 5 * time.Second,
-				Logger:        newMockLogger(),
+				Logger:        &logger.MockLogger{},
 			},
 			expectError: false,
 		},
@@ -302,14 +282,10 @@ func TestEnsureStream(t *testing.T) {
 func TestConnectionEvents(t *testing.T) {
 	shutdown := MockServer()
 
-	// Create a mock logger to capture log messages
-	logger := newMockLogger()
-
 	// Create a connection manager with event handlers
 	cm, err := natsjscm.NewConnectionManager(natsjscm.ConnectionConfig{
 		URL:           os.Getenv("NATS_HOST"),
 		ReconnectWait: 100 * time.Millisecond,
-		Logger:        logger,
 	})
 	require.NoError(t, err)
 

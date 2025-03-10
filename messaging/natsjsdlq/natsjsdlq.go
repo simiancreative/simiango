@@ -15,6 +15,11 @@ type Msg interface {
 	Metadata() (*nats.MsgMetadata, error)
 }
 
+type Handler interface {
+	PublishMessage(msg *nats.Msg, reason string) error
+	ShouldDLQ(msg Msg) bool
+}
+
 // Config holds DLQ configuration
 type Config struct {
 	// StreamName for the DLQ
@@ -42,7 +47,7 @@ type Dependencies struct {
 }
 
 // Handler manages dead letter queue operations
-type Handler struct {
+type DefaultHandler struct {
 	config Config
 	cm     natsjscm.Connector
 	p      natsjspub.Publisher
@@ -50,12 +55,12 @@ type Handler struct {
 }
 
 // NewHandler creates a new DLQ handler
-func NewHandler(deps Dependencies, config Config) (*Handler, error) {
+func NewHandler(deps Dependencies, config Config) (Handler, error) {
 	if err := validateConfig(deps, config); err != nil {
 		return nil, fmt.Errorf("invalid DLQ configuration: %w", err)
 	}
 
-	handler := &Handler{
+	handler := &DefaultHandler{
 		config: config,
 		ctx:    config.Context,
 		cm:     deps.ConnectionManager,
@@ -102,7 +107,7 @@ func validateConfig(deps Dependencies, config Config) error {
 }
 
 // setup ensures the DLQ stream exists
-func (h *Handler) setup() error {
+func (h *DefaultHandler) setup() error {
 	streamConfig := jetstream.StreamConfig{
 		Name:      h.config.StreamName,
 		Subjects:  []string{h.config.Subject},
@@ -119,7 +124,7 @@ func (h *Handler) setup() error {
 }
 
 // PublishMessage sends a message to the DLQ
-func (h *Handler) PublishMessage(msg *nats.Msg, reason string) error {
+func (h *DefaultHandler) PublishMessage(msg *nats.Msg, reason string) error {
 	// Clone original message headers
 	headers := nats.Header{}
 	if msg.Header != nil {
@@ -150,7 +155,7 @@ func (h *Handler) PublishMessage(msg *nats.Msg, reason string) error {
 }
 
 // ShouldDLQ determines if a message should be sent to DLQ based on delivery count
-func (h *Handler) ShouldDLQ(msg Msg) bool {
+func (h *DefaultHandler) ShouldDLQ(msg Msg) bool {
 	metadata, err := msg.Metadata()
 	if err != nil {
 		if h.config.ErrorHandler != nil {
