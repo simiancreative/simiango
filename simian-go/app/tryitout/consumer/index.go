@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/nats-io/nats.go/jetstream"
-	"github.com/sanity-io/litter"
 	"github.com/spf13/cobra"
 
 	"github.com/simiancreative/simiango/circuitbreaker"
@@ -14,7 +13,9 @@ import (
 	"github.com/simiancreative/simiango/messaging/natsjscon"
 	"github.com/simiancreative/simiango/messaging/natsjsstrategypull"
 	"github.com/simiancreative/simiango/sig"
+
 	cli "github.com/simiancreative/simiango/simian-go/app/tryitout"
+	"github.com/simiancreative/simiango/simian-go/app/tryitout/connection"
 )
 
 var cmd = &cobra.Command{
@@ -32,71 +33,79 @@ func init() {
 func run() error {
 	logger := logger.New()
 
-	config := natsjscon.ConsumerConfig{
-		StreamName:   "test",
-		ConsumerName: "test",
-		Subject:      "test.something.>",
-	}
+	connector := connection.Shared
+	breaker := newBreaker()
+	strategy := newStrategy(breaker)
+	consumer := newConsumer(logger, connector, strategy)
 
-	connectionConfig := natsjscm.ConnectionConfig{
-		Logger: logger,
-		URL:    "nats://localhost:4222",
-	}
-	connector, err := natsjscm.NewConnectionManager(connectionConfig)
-	if err != nil {
-		return errors.Wrap(err, "failed to create connection manager")
-	}
+	done, exit := sig.New().Catch()
 
-	breaker, err := circuitbreaker.NewDefault()
-	if err != nil {
-		return errors.Wrap(err, "failed to create circuit breaker")
-	}
-
-	strategy, err := natsjsstrategypull.New(natsjsstrategypull.Config{
-		ConsumerName: "test-consumer",
-		Breaker:      breaker,
-	})
-	if err != nil {
-		return errors.Wrap(err, "failed to create pull strategy")
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	err = natsjscon.
-		NewConsumer(config).
-		SetLogger(logger).
-		SetConnector(connector).
-		SetStrategy(strategy).
-		SetProcessor(processor).
-		Start(ctx)
-
+	err := consumer.Start(done)
 	if err != nil {
 		return errors.Wrap(err, "failed to start consumer")
 	}
-
-	_, exit := sig.
-		New().
-		Catch()
 
 	<-exit.Done()
 
 	return nil
 }
 
+func newConsumer(
+	logger natsjscon.Logger,
+	connector natsjscm.Connector,
+	strategy natsjscon.ConsumptionStrategy,
+) natsjscon.Consumer {
+	return *natsjscon.NewConsumer(natsjscon.ConsumerConfig{
+		StreamName:   "test",
+		ConsumerName: "test",
+		Subject:      "test.something.>",
+	}).
+		SetLogger(logger).
+		SetConnector(connector).
+		SetStrategy(strategy).
+		SetProcessor(processor)
+}
+
+func newBreaker() circuitbreaker.Breaker {
+	breaker, err := circuitbreaker.NewDefault()
+	if err != nil {
+		logger.Errorf("failed to create circuit breaker: %v", err)
+		panic(err)
+	}
+
+	return breaker
+}
+
+func newStrategy(breaker circuitbreaker.Breaker) natsjscon.ConsumptionStrategy {
+	strategy, err := natsjsstrategypull.New(natsjsstrategypull.Config{
+		ConsumerName: "test-consumer",
+		Breaker:      breaker,
+	})
+
+	if err != nil {
+		logger.Errorf("failed to create pull strategy: %v", err)
+		panic(err)
+	}
+
+	return strategy
+}
+
 func processor(
 	ctx context.Context,
 	msgs []jetstream.Msg,
 ) map[jetstream.Msg]natsjscon.ProcessStatus {
-	logger.Debug("processing messages", logger.Fields{
-		"messages": msgs,
-	})
+	log := logger.New()
+
+	log.Infof("processing messages: %d", len(msgs))
 
 	processed := map[jetstream.Msg]natsjscon.ProcessStatus{}
 
 	for _, msg := range msgs {
 		processed[msg] = natsjscon.Success
-		logger.Debugf("processing message: %s", litter.Sdump(msg))
+		log.Info("processing message", logger.Fields{
+			"data": string(msg.Data()),
+			"hdr":  msg.Headers(),
+		})
 	}
 
 	return processed

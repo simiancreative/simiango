@@ -103,37 +103,7 @@ func (p *PullStrategy) Setup(ctx context.Context) error {
 		return fmt.Errorf("failed to ensure stream: %w", err)
 	}
 
-	js := p.cm.GetJetStream()
-	if js == nil {
-		return errors.New("JetStream connection not available")
-	}
-
-	// Get stream
-	stream, err := js.Stream(ctx, p.streamName)
-	if err != nil {
-		return fmt.Errorf("failed to get stream: %w", err)
-	}
-
-	// Configure durable pull consumer
-	consumerConfig := jetstream.ConsumerConfig{
-		Name:          p.config.ConsumerName,
-		Durable:       p.config.ConsumerName,
-		AckPolicy:     jetstream.AckExplicitPolicy,
-		AckWait:       p.config.AckWait,
-		MaxAckPending: p.config.MaxAckPending,
-		FilterSubject: p.subject,
-		DeliverPolicy: jetstream.DeliverAllPolicy,
-		MaxDeliver:    p.config.MaxRetries + 1, // Include first delivery
-	}
-
-	// Create or update the consumer
-	consumer, err := stream.CreateOrUpdateConsumer(ctx, consumerConfig)
-	if err != nil {
-		return fmt.Errorf("failed to create strategy consumer: %w", err)
-	}
-
-	p.consumer = consumer
-	return nil
+	return p.createConsumer(ctx)
 }
 
 // ensureStream makes sure the configured stream exists
@@ -236,12 +206,22 @@ func (p *PullStrategy) ensureConsumerActive(ctx context.Context) error {
 	}
 
 	p.logger.Debug("reconnecting consumer")
-	
+
 	// Ensure connection and stream
 	if err := p.ensureStream(ctx); err != nil {
 		return fmt.Errorf("failed to ensure stream: %w", err)
 	}
 
+	// Create consumer
+	if err := p.createConsumer(ctx); err != nil {
+		return fmt.Errorf("failed to create consumer: %w", err)
+	}
+
+	p.logger.Debug("consumer reconnected successfully")
+	return nil
+}
+
+func (p *PullStrategy) createConsumer(ctx context.Context) error {
 	// Get current JetStream instance
 	js := p.cm.GetJetStream()
 	if js == nil {
@@ -273,6 +253,6 @@ func (p *PullStrategy) ensureConsumerActive(ctx context.Context) error {
 	}
 
 	p.consumer = consumer
-	p.logger.Debug("consumer reconnected successfully")
+
 	return nil
 }
