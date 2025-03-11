@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nats-io/nats.go/jetstream"
 	"github.com/simiancreative/simiango/messaging/natsjscon"
 	"github.com/simiancreative/simiango/mocks/logger"
 	"github.com/simiancreative/simiango/mocks/messaging/natsjscm"
@@ -14,26 +15,41 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func newConsumer(t *testing.T) *natsjscon.Consumer {
-	logger := &logger.MockLogger{}
-	jetstream := &natsjscm.MockJetStream{}
-	connector := &natsjscm.MockConnectionManager{}
-	config := natsjscon.ConsumerConfig{}
-	dlqHandler := &natsjsdlq.MockDLQHandler{}
-	strategy := &conmock.MockStrategy{}
-	processor := &conmock.ProcessorMock{}
+type dependencies struct {
+	logger     *logger.MockLogger
+	jetstream  *natsjscm.MockJetStream
+	connector  *natsjscm.MockConnectionManager
+	dlqHandler *natsjsdlq.MockDLQHandler
+	strategy   *conmock.MockStrategy
+	processor  *conmock.ProcessorMock
+}
 
-	connector.SetJetStream(jetstream)
+func (d *dependencies) newConsumer(t *testing.T) *natsjscon.Consumer {
+	config := natsjscon.ConsumerConfig{
+		StreamName:   "test",
+		ConsumerName: "test-consumer",
+		Subject:      "test.subject.>",
+	}
 
-	logger.On("Debug", mock.Anything)
+	d.logger = &logger.MockLogger{}
+	d.jetstream = &natsjscm.MockJetStream{}
+	d.connector = &natsjscm.MockConnectionManager{}
+	d.dlqHandler = &natsjsdlq.MockDLQHandler{}
+	d.strategy = &conmock.MockStrategy{}
+	d.processor = &conmock.ProcessorMock{}
+
+	d.connector.SetJetStream(d.jetstream)
+
+	d.logger.On("Debug", mock.Anything)
+	d.connector.On("Connect", mock.Anything).Return(nil)
 
 	consumer := natsjscon.
 		NewConsumer(config).
-		SetLogger(logger).
-		SetConnector(connector).
-		SetDLQHandler(dlqHandler).
-		SetStrategy(strategy).
-		SetProcessor(processor.Process)
+		SetLogger(d.logger).
+		SetConnector(d.connector).
+		SetDLQHandler(d.dlqHandler).
+		SetStrategy(d.strategy).
+		SetProcessor(d.processor.Process)
 
 	assert.NotNil(t, consumer)
 
@@ -41,9 +57,16 @@ func newConsumer(t *testing.T) *natsjscon.Consumer {
 }
 
 func TestNewConsumer(t *testing.T) {
-	c := newConsumer(t)
+	d := new(dependencies)
+	c := d.newConsumer(t)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	d.strategy.On("Setup", mock.Anything).Return(nil)
+	d.strategy.
+		On("Consume", mock.Anything, mock.Anything).
+		Return([]jetstream.Msg{}, nil)
 
 	err := c.Start(ctx)
 	assert.NoError(t, err)
