@@ -14,25 +14,28 @@ import (
 )
 
 func NewDependencies() *Dependencies {
+	msg := &natsjscm.MockJetStreamMsg{}
+	msg.On("Metadata").Return(new(jetstream.MsgMetadata), nil)
+	msg.On("Ack").Return(nil)
+	msgs := []jetstream.Msg{msg, msg, msg, msg}
+
+	batch := natsjscm.NewMockMessageBatch(msgs, nil)
+
+	processed := make(map[jetstream.Msg]natsjscon.ProcessStatus)
+	for _, msg := range msgs {
+		processed[msg] = natsjscon.Success
+	}
+
 	d := &Dependencies{
 		Logger:     &logger.MockLogger{},
 		Jetstream:  &natsjscm.MockJetStream{},
 		Connector:  &natsjscm.MockConnectionManager{},
 		Stream:     &natsjscm.MockStream{},
 		Consumer:   &natsjscm.MockConsumer{},
+		Batch:      batch,
 		DLQHandler: &natsjsdlq.MockDLQHandler{},
 		Strategy:   &MockStrategy{},
 		Processor:  &ProcessorMock{},
-	}
-
-	msg := &natsjscm.MockJetStreamMsg{}
-	msg.On("Metadata").Return(new(jetstream.MsgMetadata), nil)
-	msg.On("Ack").Return(nil)
-	msgs := []jetstream.Msg{msg, msg, msg, msg}
-
-	processed := make(map[jetstream.Msg]natsjscon.ProcessStatus)
-	for _, msg := range msgs {
-		processed[msg] = natsjscon.Success
 	}
 
 	d.Logger.On("Debug", mock.Anything).Maybe()
@@ -50,6 +53,7 @@ func NewDependencies() *Dependencies {
 		Maybe()
 
 	d.Stream.On("CreateOrUpdateConsumer", mock.Anything, mock.Anything).Return(d.Consumer, nil)
+	d.Consumer.On("Fetch", mock.Anything, mock.Anything).Return(batch, nil)
 
 	d.Processor.On("Process", mock.Anything, mock.Anything).Return(processed).Maybe()
 
@@ -66,6 +70,7 @@ type Dependencies struct {
 	Connector  *natsjscm.MockConnectionManager
 	Stream     *natsjscm.MockStream
 	Consumer   *natsjscm.MockConsumer
+	Batch      *natsjscm.MockMessageBatch
 	DLQHandler *natsjsdlq.MockDLQHandler
 	Strategy   *MockStrategy
 	Processor  *ProcessorMock
