@@ -21,4 +21,9 @@ func TestNewConsumer(t *testing.T) {
 
 	// wait
 	time.Sleep(500 * time.Millisecond)
+
+	// does not panic
+	assert.NotPanics(t, func() {
+		c.Stop()
+	}, "Stop should not panic")
 }

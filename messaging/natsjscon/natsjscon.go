@@ -154,9 +154,6 @@ func (c *Consumer) SetProcessor(processor Processor) *Consumer {
 
 // Stop stops the consumer
 func (c *Consumer) Stop() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	if !c.running {
 		return
 	}
