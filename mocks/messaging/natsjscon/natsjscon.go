@@ -76,12 +76,19 @@ type Dependencies struct {
 	Processor  *ProcessorMock
 }
 
-func (d *Dependencies) NewConsumer(t *testing.T) *natsjscon.Consumer {
-	config := natsjscon.ConsumerConfig{
-		StreamName:   "test",
-		ConsumerName: "test-consumer",
-		Subject:      "test.subject.>",
+func (d *Dependencies) NewConsumer(
+	t *testing.T,
+	configs ...natsjscon.ConsumerConfig,
+) *natsjscon.Consumer {
+	if len(configs) == 0 {
+		configs = append(configs, natsjscon.ConsumerConfig{
+			StreamName:   "test",
+			ConsumerName: "test-consumer",
+			Subject:      "test.subject.>",
+		})
 	}
+
+	config := configs[0]
 
 	consumer := natsjscon.
 		NewConsumer(config).
