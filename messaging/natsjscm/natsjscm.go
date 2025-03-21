@@ -73,41 +73,13 @@ func NewConnectionManager(config ConnectionConfig) (Connector, error) {
 
 	// Add connection event handlers
 	options = append(options,
-		nats.ReconnectHandler(func(_ *nats.Conn) {
-			cm.handleReconnect()
+		nats.DisconnectHandler(func(_ *nats.Conn) {
+			cm.retryConnection()
 		}),
 	)
 
 	cm.config.Options = options
 	return cm, nil
-}
-
-func (cm *ConnectionManager) handleReconnect() {
-	cm.mu.Lock()
-	defer cm.mu.Unlock()
-
-	cm.log.Debugf("NATS connection reconnected")
-
-	// Recreate JetStream context after reconnect
-	if cm.nc == nil {
-		return
-	}
-
-	js, err := cm.createJetStreamContext(cm.nc)
-	if err != nil {
-		cm.log.Errorf("Failed to recreate JetStream context %s", err)
-		go cm.retryConnection()
-		return
-	}
-
-	cm.js = js
-	cm.log.Debugf("JetStream context recreated")
-}
-
-// createJetStreamContext creates a new JetStream context with the current configuration
-func (cm *ConnectionManager) createJetStreamContext(nc *nats.Conn) (jetstream.JetStream, error) {
-	// Create JetStream context
-	return jetstream.New(nc)
 }
 
 // retryConnection attempts to reconnect to NATS periodically
@@ -129,7 +101,7 @@ func (cm *ConnectionManager) retryConnection() {
 			continue
 		}
 
-		js, err := cm.createJetStreamContext(nc)
+		js, err := jetstream.New(nc)
 		if err != nil {
 			cm.log.Errorf("Failed to recreate JetStream context: %s", err)
 			nc.Close()
@@ -148,23 +120,28 @@ func (cm *ConnectionManager) retryConnection() {
 
 // Connect establishes a connection to NATS if not already connected
 func (cm *ConnectionManager) Connect() error {
+	cm.log.Debugf("Starting Connect")
+
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
+	cm.log.Debugf("Checking NATS connection")
 	// If already connected, increment reference count
 	if cm.nc != nil && cm.nc.IsConnected() {
 		cm.refs++
 		return nil
 	}
 
+	cm.log.Debugf("Connecting to NATS")
 	// Connect to NATS
 	nc, err := nats.Connect(cm.config.URL, cm.config.Options...)
 	if err != nil {
 		return fmt.Errorf("failed to connect to NATS: %w", err)
 	}
 
+	cm.log.Debugf("Getting JetStream context")
 	// Create JetStream context
-	js, err := cm.createJetStreamContext(nc)
+	js, err := jetstream.New(nc)
 	if err != nil {
 		nc.Close()
 		return fmt.Errorf("failed to create JetStream context: %w", err)
@@ -173,6 +150,8 @@ func (cm *ConnectionManager) Connect() error {
 	cm.nc = nc
 	cm.js = js
 	cm.refs = 1
+
+	cm.log.Debugf("Connected to NATS")
 
 	return nil
 }

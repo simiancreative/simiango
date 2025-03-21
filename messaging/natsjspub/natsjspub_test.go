@@ -8,12 +8,14 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/simiancreative/simiango/messaging/natsjspub"
+	"github.com/simiancreative/simiango/mocks/circuitbreaker"
+	"github.com/simiancreative/simiango/mocks/messaging/natsjscm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestNewPublisher(t *testing.T) {
-	mockCM := new(MockConnectionManager)
+	mockCM := new(natsjscm.MockConnectionManager)
 	config := natsjspub.Config{
 		StreamName: "test-stream",
 		Subject:    "test-subject",
@@ -23,7 +25,7 @@ func TestNewPublisher(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockCM.
 			On("EnsureStream", mock.Anything, mock.Anything).
-			Return(new(MockJetStream), nil)
+			Return(new(natsjscm.MockJetStream), nil)
 
 		mockCM.
 			On("IsConnected").
@@ -59,16 +61,16 @@ func TestNewPublisher(t *testing.T) {
 }
 
 type Mocks struct {
-	cm *MockConnectionManager
-	js *MockJetStream
-	cb *MockCircuitBreaker
+	cm *natsjscm.MockConnectionManager
+	js *natsjscm.MockJetStream
+	cb *circuitbreaker.MockCircuitBreaker
 }
 
 func createPublisher(t *testing.T) (natsjspub.PublishMulti, *Mocks) {
 	mocks := &Mocks{
-		cm: new(MockConnectionManager),
-		js: new(MockJetStream),
-		cb: new(MockCircuitBreaker),
+		cm: new(natsjscm.MockConnectionManager),
+		js: new(natsjscm.MockJetStream),
+		cb: new(circuitbreaker.MockCircuitBreaker),
 	}
 
 	mocks.cm.SetJetStream(mocks.js)

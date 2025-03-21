@@ -1,4 +1,4 @@
-package natsjspub_test
+package circuitbreaker
 
 import (
 	"github.com/sanity-io/litter"

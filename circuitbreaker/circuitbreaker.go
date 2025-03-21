@@ -100,8 +100,8 @@ func (cb *CircuitBreaker) Allow() bool {
 		allowed = true
 	}
 
-	logger.Debug("circuit breaker allow check", logger.Fields{
-		"state":     cb.state.String(),
+	cb.config.Logger.Debug("circuit breaker allow check", logger.Fields{
+		"state":     cb.state,
 		"allowed":   allowed,
 		"attempts":  cb.attempts,
 		"max_calls": cb.config.HalfOpenMaxCalls,
@@ -123,13 +123,13 @@ func (cb *CircuitBreaker) RecordStart() bool {
 
 	switch cb.state {
 	case StateOpen:
-		logger.Debug("attempt rejected - circuit open", logger.Fields{
+		cb.config.Logger.Debug("attempt rejected - circuit open", logger.Fields{
 			"state": cb.state.String(),
 		})
 		return false
 	case StateHalfOpen:
 		if cb.attempts >= cb.config.HalfOpenMaxCalls {
-			logger.Debug("attempt rejected - max half-open calls reached", logger.Fields{
+			cb.config.Logger.Debug("attempt rejected - max half-open calls reached", logger.Fields{
 				"attempts":  cb.attempts,
 				"max_calls": cb.config.HalfOpenMaxCalls,
 			})
