@@ -5,7 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nats-io/nats.go/jetstream"
 	"github.com/simiancreative/simiango/messaging/natsjscon"
+	"github.com/simiancreative/simiango/mocks/messaging/natsjscm"
 	conmock "github.com/simiancreative/simiango/mocks/messaging/natsjscon"
 	"github.com/stretchr/testify/assert"
 )
@@ -101,4 +103,25 @@ func TestNewConsumerWithInvalidConfig(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestHandleResult(t *testing.T) {
+	d := conmock.NewDependencies()
+	c := d.NewConsumer(t)
+
+	badAck := natsjscm.NewMockJetStreamMsg(jetstream.ErrMsgAlreadyAckd)
+
+	batch := natsjscm.NewMockMessageBatch(
+		[]jetstream.Msg{badAck},
+		nil,
+	)
+
+	d.Strategy.Reset(batch)
+
+	err := c.Start(context.Background())
+	assert.NoError(t, err)
+
+	assert.Eventually(t, func() bool {
+		return d.Processor.AssertExpectations(t) && badAck.AssertExpectations(t)
+	}, 500*time.Millisecond, 100*time.Millisecond)
 }

@@ -138,7 +138,7 @@ func (p *PullStrategy) ensureStream(ctx context.Context) error {
 }
 
 // Consume pulls a batch of messages and converts them to our Message type
-func (p *PullStrategy) Consume(ctx context.Context, workerID int) ([]jetstream.Msg, error) {
+func (p *PullStrategy) Consume(ctx context.Context, workerID int) (<-chan jetstream.Msg, error) {
 	// Check if we need to reconnect/reinitialize
 	if err := p.ensureConsumerActive(ctx); err != nil {
 		return nil, fmt.Errorf("failed to ensure consumer: %w", err)
@@ -181,18 +181,12 @@ func (p *PullStrategy) Consume(ctx context.Context, workerID int) ([]jetstream.M
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
 			// This is normal for pull-based when no messages are available
-			return []jetstream.Msg{}, nil
+			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to fetch messages: %w", err)
 	}
 
-	// Convert jetstream messages to our Message type
-	messages := []jetstream.Msg{}
-	for jsMsg := range jsMsgs.Messages() {
-		messages = append(messages, jsMsg)
-	}
-
-	return messages, nil
+	return jsMsgs.Messages(), nil
 }
 
 // ensureConsumerActive checks the connection status and reinitializes the consumer if needed

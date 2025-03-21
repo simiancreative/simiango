@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/simiancreative/simiango/messaging/natsjscon"
 	"github.com/simiancreative/simiango/mocks/logger"
@@ -15,6 +16,7 @@ import (
 
 func NewDependencies() *Dependencies {
 	msg := &natsjscm.MockJetStreamMsg{}
+	msg.On("Headers").Return(nats.Header{}, nil)
 	msg.On("Metadata").Return(new(jetstream.MsgMetadata), nil)
 	msg.On("Ack").Return(nil)
 	msgs := []jetstream.Msg{msg, msg, msg, msg}
@@ -53,13 +55,13 @@ func NewDependencies() *Dependencies {
 		Maybe()
 
 	d.Stream.On("CreateOrUpdateConsumer", mock.Anything, mock.Anything).Return(d.Consumer, nil)
-	d.Consumer.On("Fetch", mock.Anything, mock.Anything).Return(batch, nil)
+	d.Consumer.On("Fetch", mock.Anything, mock.Anything).Return(d.Batch, nil)
 
 	d.Processor.On("Process", mock.Anything, mock.Anything).Return(processed).Maybe()
 
 	// Setup default strategy mocks to avoid test failures
 	d.Strategy.On("Setup", mock.Anything).Return(nil).Maybe()
-	d.Strategy.On("Consume", mock.Anything, mock.Anything).Return(msgs, nil).Maybe()
+	d.Strategy.On("Consume", mock.Anything, mock.Anything).Return(d.Batch.Messages(), nil).Maybe()
 
 	return d
 }
@@ -112,9 +114,19 @@ func (m *MockStrategy) Setup(ctx context.Context) error {
 	return c.Error(0)
 }
 
-func (m *MockStrategy) Consume(ctx context.Context, workerID int) ([]jetstream.Msg, error) {
+func (m *MockStrategy) Consume(ctx context.Context, workerID int) (<-chan jetstream.Msg, error) {
+
 	c := m.Called(ctx, workerID)
-	return c.Get(0).([]jetstream.Msg), c.Error(1)
+	result, err := c.Get(0).(<-chan jetstream.Msg), c.Error(1)
+
+	return result, err
+}
+
+func (m *MockStrategy) Reset(batch *natsjscm.MockMessageBatch) {
+	m.ExpectedCalls = nil
+
+	m.On("Setup", mock.Anything).Return(nil).Maybe()
+	m.On("Consume", mock.Anything, mock.Anything).Return(batch.Messages(), nil).Maybe()
 }
 
 type ProcessorMock struct {
@@ -123,7 +135,7 @@ type ProcessorMock struct {
 
 func (p *ProcessorMock) Process(
 	ctx context.Context,
-	msgs []jetstream.Msg,
+	msgs <-chan jetstream.Msg,
 ) map[jetstream.Msg]natsjscon.ProcessStatus {
 	args := p.Called(ctx, msgs)
 	return args.Get(0).(map[jetstream.Msg]natsjscon.ProcessStatus)

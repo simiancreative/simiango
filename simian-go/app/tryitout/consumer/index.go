@@ -92,7 +92,7 @@ func newStrategy(breaker circuitbreaker.Breaker) natsjscon.ConsumptionStrategy {
 
 func processor(
 	ctx context.Context,
-	msgs []jetstream.Msg,
+	msgs <-chan jetstream.Msg,
 ) map[jetstream.Msg]natsjscon.ProcessStatus {
 	log := logger.New()
 
@@ -100,7 +100,7 @@ func processor(
 
 	processed := map[jetstream.Msg]natsjscon.ProcessStatus{}
 
-	for _, msg := range msgs {
+	for msg := range msgs {
 		processed[msg] = natsjscon.Success
 		log.Info("processing message", logger.Fields{
 			"data": string(msg.Data()),

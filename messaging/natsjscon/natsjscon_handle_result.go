@@ -30,6 +30,12 @@ func (c *Consumer) handleResult(msg jetstream.Msg, status ProcessStatus) {
 		return
 	case TerminalFailure:
 		handleTerminalError(msg, c)
+		return
+	default:
+		c.logger.Debug("unknown process status", logger.Fields{
+			"status": status,
+		})
+		handleFailure(msg, metadata, c)
 	}
 }
 

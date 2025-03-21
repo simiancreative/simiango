@@ -13,6 +13,14 @@ type MockJetStreamMsg struct {
 	mock.Mock
 }
 
+func NewMockJetStreamMsg(err error) *MockJetStreamMsg {
+	m := &MockJetStreamMsg{}
+	m.On("Metadata").Return(&jetstream.MsgMetadata{}, nil)
+	m.On("Ack").Return(err)
+
+	return m
+}
+
 // Metadata returns [MsgMetadata] for a JetStream message.
 func (m *MockJetStreamMsg) Metadata() (*jetstream.MsgMetadata, error) {
 	called := m.Called()

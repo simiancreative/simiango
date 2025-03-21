@@ -38,7 +38,7 @@ var ResultNames = map[ProcessStatus]string{
 }
 
 // Processor processes messages
-type Processor func(ctx context.Context, msgs []jetstream.Msg) map[jetstream.Msg]ProcessStatus
+type Processor func(ctx context.Context, msgs <-chan jetstream.Msg) map[jetstream.Msg]ProcessStatus
 
 // ConsumerConfig holds general configuration for a consumer
 type ConsumerConfig struct {
@@ -67,7 +67,7 @@ type ConsumptionStrategy interface {
 	Setup(ctx context.Context) error
 
 	// Consume retrieves messages for processing
-	Consume(ctx context.Context, workerID int) ([]jetstream.Msg, error)
+	Consume(ctx context.Context, workerID int) (<-chan jetstream.Msg, error)
 }
 
 // Consumer manages consuming and processing messages
